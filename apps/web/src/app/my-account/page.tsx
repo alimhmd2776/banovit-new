@@ -4,7 +4,8 @@ import { faDigits } from '@banovit/ui';
 import { IconBell, IconEditBox, IconCube, IconHeadset } from '@/features/account/icons';
 import { LogoutButton } from '@/features/account/LogoutButton';
 import { MenuList } from '@/features/account/MenuList';
-import { servicesNav, shoppingNav } from '@/features/account/nav';
+import { buildNav } from '@/features/account/nav';
+import { getAccountSettings } from '@/lib/api';
 import { phoneDisplay } from '@/features/account/format';
 import { accountGet } from '@/lib/account/api';
 import { requireCustomer } from '@/lib/auth/session';
@@ -14,7 +15,11 @@ export const metadata = { title: 'پروفایل', alternates: { canonical: '/my
 /** «پروفایل» dashboard (designs/account/01-dashboard-home). */
 export default async function AccountHome() {
   const customer = await requireCustomer('/my-account/');
-  const { data: s } = await accountGet<{ data: AccountSummary }>('/summary', '/my-account/');
+  const [{ data: s }, settings] = await Promise.all([
+    accountGet<{ data: AccountSummary }>('/summary', '/my-account/'),
+    getAccountSettings().catch(() => null),
+  ]);
+  const nav = buildNav(settings?.menu);
 
   const notes = {
     orders: s.orders.current > 0 ? <span className="text-xs font-bold text-primary">{s.orders.current === 1 ? 'یک سفارش جاری' : `${faDigits(s.orders.current)} سفارش جاری`}</span> : null,
@@ -53,8 +58,8 @@ export default async function AccountHome() {
         </Link>
       </div>
 
-      <MenuList title="خرید و سفارش" items={shoppingNav} notes={notes} />
-      <MenuList title="خدمات بانویت" items={servicesNav} />
+      <MenuList title="خرید و سفارش" items={nav.shopping} notes={notes} />
+      <MenuList title="خدمات بانویت" items={nav.services} />
       <div className="mt-4 border-t border-border pt-2 lg:hidden">
         <LogoutButton className="flex h-12 w-full items-center gap-3 text-sm font-bold text-danger" />
       </div>

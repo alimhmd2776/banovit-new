@@ -1,14 +1,10 @@
 /**
- * Map config. Tiles and geocoding are OpenStreetMap by default and can be
- * pointed at an Iranian provider (Neshan/Parsimap/self-hosted) with
- * NEXT_PUBLIC_MAP_TILE_URL and NEXT_PUBLIC_GEOCODER_URL (Nominatim API).
+ * Map helpers. Tile and geocoder (Nominatim API) addresses come from the CMS
+ * panel («تنظیمات حساب کاربری سایت» → نقشه), see useMapConfig().
  */
-export const TILE_URL = process.env.NEXT_PUBLIC_MAP_TILE_URL ?? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-export const GEOCODER_URL = (process.env.NEXT_PUBLIC_GEOCODER_URL ?? 'https://nominatim.openstreetmap.org').replace(/\/$/, '');
-export const TILE_ATTRIBUTION = '© OpenStreetMap';
 
 /** 3×3 slippy-map tiles around a point for static previews (no JS map). Offsets in px from the point. */
-export function tilesAround(lat: number, lng: number, zoom = 16): { url: string; dx: number; dy: number }[] {
+export function tilesAround(tileUrl: string, lat: number, lng: number, zoom = 16): { url: string; dx: number; dy: number }[] {
   const n = 2 ** zoom;
   const x = ((lng + 180) / 360) * n;
   const latRad = (lat * Math.PI) / 180;
@@ -19,7 +15,7 @@ export function tilesAround(lat: number, lng: number, zoom = 16): { url: string;
   for (let i = -1; i <= 1; i++) {
     for (let j = -1; j <= 1; j++) {
       out.push({
-        url: TILE_URL.replace('{z}', String(zoom)).replace('{x}', String(tx + i)).replace('{y}', String(ty + j)).replace('{s}', 'a'),
+        url: tileUrl.replace('{z}', String(zoom)).replace('{x}', String(tx + i)).replace('{y}', String(ty + j)).replace('{s}', 'a'),
         dx: Math.round((tx + i - x) * 256),
         dy: Math.round((ty + j - y) * 256),
       });
@@ -35,8 +31,9 @@ export interface GeoResult {
   subtitle: string;
 }
 
-export async function geocode(q: string, signal?: AbortSignal): Promise<GeoResult[]> {
-  const res = await fetch(`${GEOCODER_URL}/search?format=jsonv2&countrycodes=ir&accept-language=fa&limit=8&q=${encodeURIComponent(q)}`, { signal });
+export async function geocode(geocoderUrl: string | null, q: string, signal?: AbortSignal): Promise<GeoResult[]> {
+  if (!geocoderUrl) return [];
+  const res = await fetch(`${geocoderUrl.replace(/\/$/, '')}/search?format=jsonv2&countrycodes=ir&accept-language=fa&limit=8&q=${encodeURIComponent(q)}`, { signal });
   if (!res.ok) return [];
   const rows = (await res.json()) as { lat: string; lon: string; name?: string; display_name: string }[];
   return rows.map((r) => {
@@ -51,8 +48,9 @@ export interface ReverseResult {
   line?: string;
 }
 
-export async function reverseGeocode(lat: number, lng: number): Promise<ReverseResult> {
-  const res = await fetch(`${GEOCODER_URL}/reverse?format=jsonv2&accept-language=fa&zoom=18&lat=${lat}&lon=${lng}`).catch(() => null);
+export async function reverseGeocode(geocoderUrl: string | null, lat: number, lng: number): Promise<ReverseResult> {
+  if (!geocoderUrl) return {};
+  const res = await fetch(`${geocoderUrl.replace(/\/$/, '')}/reverse?format=jsonv2&accept-language=fa&zoom=18&lat=${lat}&lon=${lng}`).catch(() => null);
   if (!res?.ok) return {};
   const j = (await res.json()) as { address?: Record<string, string> };
   const a = j.address ?? {};

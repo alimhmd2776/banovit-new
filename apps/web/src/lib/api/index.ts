@@ -81,6 +81,11 @@ export const getContactSettings = cache(async () =>
   client.getContactSettings({ next: { tags: ['settings', 'settings:contact'], revalidate: 300 } }),
 );
 
+/** «تنظیمات حساب کاربری سایت» edited in the CMS panel (tag mirrors the Surrogate-Key `settings:account`). */
+export const getAccountSettings = cache(async () =>
+  client.getAccountSettings({ next: { tags: ['settings', 'settings:account'], revalidate: 300 } }),
+);
+
 export const getProduct = cache(async (slug: string) =>
   client.getProduct(slug, { next: { tags: ['products', `product-slug:${slug}`], revalidate: REVALIDATE } }),
 );

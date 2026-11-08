@@ -13,7 +13,7 @@ type List = { data: AccountOrder[] };
 
 /** «انتخاب سفارش» (design 31): recent orders from every tab, newest first. */
 export default async function SelectOrderPage({ searchParams }: { searchParams: Promise<{ topic?: string }> }) {
-  const topic = supportTopic((await searchParams).topic);
+  const topic = await supportTopic((await searchParams).topic);
   if (!topic) redirect('/my-account/support/');
   const self = `/my-account/support/select-order/?topic=${topic.key}`;
   await requireCustomer(self);

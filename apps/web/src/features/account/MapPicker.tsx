@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Map as LeafletMap } from 'leaflet';
 import { IconChevronLeft, IconChevronRight, IconClose, IconSearch } from '@banovit/ui';
-import { geocode, TILE_ATTRIBUTION, TILE_URL, type GeoResult } from './map';
+import { geocode, type GeoResult } from './map';
+import { useMapConfig } from './settings';
 import { Pin } from './MapPreview';
 import 'leaflet/dist/leaflet.css';
 
@@ -18,13 +19,14 @@ export function MapPicker({ initial, onConfirm, onClose }: { initial: { lat: num
   const [q, setQ] = useState('');
   const [results, setResults] = useState<GeoResult[] | null>(null);
   const [searching, setSearching] = useState(false);
+  const cfg = useMapConfig();
 
   useEffect(() => {
     let cancelled = false;
     void import('leaflet').then((L) => {
       if (cancelled || !el.current || map.current) return;
-      map.current = L.map(el.current, { zoomControl: false, attributionControl: true }).setView([initial.lat, initial.lng], 16);
-      L.tileLayer(TILE_URL, { maxZoom: 19, attribution: TILE_ATTRIBUTION }).addTo(map.current);
+      map.current = L.map(el.current, { zoomControl: false, attributionControl: true }).setView([initial.lat, initial.lng], cfg.default_zoom || 16);
+      L.tileLayer(cfg.tile_url, { maxZoom: 19, attribution: cfg.attribution ?? '' }).addTo(map.current);
       L.control.zoom({ position: 'topleft' }).addTo(map.current);
     });
     const prev = document.body.style.overflow;
@@ -35,7 +37,7 @@ export function MapPicker({ initial, onConfirm, onClose }: { initial: { lat: num
       map.current = null;
       document.body.style.overflow = prev;
     };
-  }, [initial.lat, initial.lng]);
+  }, [initial.lat, initial.lng, cfg.tile_url, cfg.attribution, cfg.default_zoom]);
 
   useEffect(() => {
     const t = q.trim();
@@ -47,7 +49,7 @@ export function MapPicker({ initial, onConfirm, onClose }: { initial: { lat: num
     const timer = setTimeout(async () => {
       setSearching(true);
       try {
-        setResults(await geocode(t, ctrl.signal));
+        setResults(await geocode(cfg.geocoder_url, t, ctrl.signal));
       } catch {
         /* aborted */
       } finally {
@@ -58,7 +60,7 @@ export function MapPicker({ initial, onConfirm, onClose }: { initial: { lat: num
       clearTimeout(timer);
       ctrl.abort();
     };
-  }, [q]);
+  }, [q, cfg.geocoder_url]);
 
   const pick = (r: GeoResult) => {
     map.current?.setView([r.lat, r.lng], 17);

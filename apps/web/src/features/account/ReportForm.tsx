@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { cx, faDigits, IconInfo } from '@banovit/ui';
-import { siteConfig } from '@/lib/site-config';
 import { AccountError, firstFieldError, me } from './client';
 import { EmptyState } from './EmptyState';
-import { AddImageButton, MAX_IMAGES, Thumbnails, useImageFiles } from './ImagePicker';
+import { AddImageButton, Thumbnails, useImageFiles } from './ImagePicker';
+import { useAccountSettings } from './settings';
 
 /** «ثبت گزارش» (designs 32–34): description + up to five photos, then the success state. */
 export function ReportForm({ topic, orderNumber, children }: { topic: string; orderNumber: string | null; children?: React.ReactNode }) {
@@ -15,14 +15,16 @@ export function ReportForm({ topic, orderNumber, children }: { topic: string; or
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
-  const { previews, add, remove } = useImageFiles(files, setFiles, setError);
+  const { previews, add, remove, max: MAX_IMAGES } = useImageFiles(files, setFiles, setError);
+  const support = useAccountSettings()?.support;
+  const hint = support?.form_hint || 'لطفا به صورت کامل مشکل خود را بیان فرمایید.';
 
   if (done) {
     return (
       <EmptyState
         art="success"
-        title="گزارش شما با موفقیت ثبت گردید"
-        text={`همکاران ما در کوتاه‌ترین زمان ممکن با شماره تلفن (${siteConfig.supportPhoneDisplay}) تماس می‌گیرند. پیشاپیش از صبر و شکیبایی شما سپاسگزاریم.`}
+        title={support?.success_title || 'گزارش شما با موفقیت ثبت گردید'}
+        text={support?.success_text ?? undefined}
         className="py-20"
       >
         <Link href="/my-account/support/?tab=in_review" className="mt-5 inline-flex h-10 items-center rounded-sm bg-surface-muted px-6 text-sm font-bold text-text hover:bg-border">
@@ -35,7 +37,7 @@ export function ReportForm({ topic, orderNumber, children }: { topic: string; or
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (body.trim().length < 5) {
-      setError('لطفا به صورت کامل مشکل خود را بیان فرمایید.');
+      setError(hint);
       return;
     }
     const fd = new FormData();
@@ -80,7 +82,7 @@ export function ReportForm({ topic, orderNumber, children }: { topic: string; or
         </p>
         <ul className="mt-2 flex flex-wrap gap-2">
           <Thumbnails previews={previews} onRemove={remove} />
-          {files.length < MAX_IMAGES ? (
+          {MAX_IMAGES > 0 && files.length < MAX_IMAGES ? (
             <li>
               <AddImageButton onPick={add} />
             </li>
@@ -89,7 +91,7 @@ export function ReportForm({ topic, orderNumber, children }: { topic: string; or
       </div>
       <p className={cx('mt-3 flex items-center gap-1.5 text-xs', error ? 'text-danger' : 'text-text-muted')} role={error ? 'alert' : undefined}>
         <IconInfo size={14} />
-        {error ?? 'لطفا به صورت کامل مشکل خود را بیان فرمایید.'}
+        {error ?? hint}
       </p>
       <div className="sticky bottom-[calc(var(--bottom-nav-height)+16px)] mt-auto bg-surface py-4 lg:static lg:mt-6 lg:bg-transparent">
         <button type="submit" disabled={busy} data-busy={busy || undefined} className="h-12 w-full rounded-md bg-primary text-base font-bold text-primary-on hover:bg-primary-hover disabled:opacity-60 lg:w-60">

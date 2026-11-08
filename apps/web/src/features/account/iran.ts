@@ -34,4 +34,3 @@ export const PROVINCES: { name: string; cities: string[] }[] = [
 ];
 
 /** Tehran, default map center. */
-export const DEFAULT_CENTER = { lat: 35.6997, lng: 51.338 };
