@@ -9,7 +9,9 @@ import { jsonLdScript, pageMetadata } from '@/lib/seo';
  * /contact-us/ — same URL as the WordPress page (docs/03-seo-parity.md).
  * Content, head tags and schema come from the CMS (admin: «صفحه تماس با ما»).
  */
-export const revalidate = 300;
+// Rendered on request (the CMS is not reachable at image build time); the CMS
+// data itself is cached 300s via fetch tags (lib/api) and the HTML by the CDN.
+export const dynamic = 'force-dynamic';
 
 /** Same logo Yoast publishes in the Organization node, until media moves to object storage. */
 const LOGO_URL = 'https://banovit.com/wp-content/uploads/2024/07/Logo-2.png';

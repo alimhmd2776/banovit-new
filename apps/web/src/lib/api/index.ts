@@ -1,6 +1,6 @@
 import 'server-only';
 import { cache } from 'react';
-import { createStorefrontClient, StorefrontApiError, type ListingParams } from '@banovit/api-client';
+import { createStorefrontClient, StorefrontApiError, type ListingParams, type Menu, type MenuKey } from '@banovit/api-client';
 import { env } from '@/lib/env';
 
 /**
@@ -36,6 +36,19 @@ export const listBrandProducts = cache(async (slug: string, params: ListingParam
 export const getContactSettings = cache(async () =>
   client.getContactSettings({ next: { tags: ['settings', 'settings:contact'], revalidate: 300 } }),
 );
+
+/**
+ * CMS-managed navigation (header, mega menu, mobile sheets). Never throws: a
+ * CMS outage renders the header without that menu instead of failing the page.
+ */
+export const getMenu = cache(async (key: MenuKey): Promise<Menu> => {
+  try {
+    return await client.getMenu(key, { next: { tags: ['menu', `menu:${key}`], revalidate: 600 } });
+  } catch (e) {
+    console.error(`menu ${key} unavailable`, e);
+    return { key, name: '', items: [] };
+  }
+});
 
 export function isNotFound(e: unknown): boolean {
   return e instanceof StorefrontApiError && e.status === 404;

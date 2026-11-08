@@ -22,6 +22,10 @@ export type SortKey = Schemas['SortKey'];
 export type ApiError = Schemas['Error'];
 export type ContactSettings = Schemas['ContactSettings'];
 export type CallbackRequest = Schemas['CallbackRequest'];
+export type Menu = Schemas['Menu'];
+export type MenuItem = Schemas['MenuItem'];
+export type MenuPromo = Schemas['MenuPromo'];
+export type MenuKey = operations['getMenu']['parameters']['path']['key'];
 
 export type ListingParams = NonNullable<operations['listCategoryProducts']['parameters']['query']>;
 
@@ -117,6 +121,7 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<ProductListing>(`/brands/${encodePath(slug)}/products${listingQueryString(params)}`, init),
     getContactSettings: (init?: RequestOptions) =>
       get<{ data: ContactSettings }>('/settings/contact', init).then((r) => r.data),
+    getMenu: (key: MenuKey, init?: RequestOptions) => get<{ data: Menu }>(`/menus/${key}`, init).then((r) => r.data),
   };
 }
 

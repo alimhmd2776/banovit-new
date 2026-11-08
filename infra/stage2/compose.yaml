@@ -1,22 +1,119 @@
 # banovit-new on stage2 (109.122.247.77). Separate compose project; only loopback ports.
-# Does not touch banovit-clones (stage2/test2), Plane, okr or ai.
+# Does not touch banovit-clones (stage2/test2), Plane, okr or ai: own network,
+# own MariaDB (new_cms) and Redis. Server dir: ~colleague/banovit-new.
+#
+#   web       new.banovit.com      Next.js standalone (apps/web), 127.0.0.1:8110
+#   cms-http  cms-new.banovit.com  nginx -> cms (php-fpm, banovit-cms), 127.0.0.1:8111
+#   supplier  supplier-new         placeholder, 127.0.0.1:8112
+#
+# Deploy: see docs/06-infra-stage2.md («استقرار PLP»).
 name: banovit-new
 
-x-static: &static
-  image: docker.arvancloud.ir/library/nginx:alpine
+# Live endpoints the stage CMS must never reach (same list as banovit-clones).
+x-blackhole: &blackhole
+  banovit.com: 0.0.0.0
+  www.banovit.com: 0.0.0.0
+  cms.banovit.com: 0.0.0.0
+  stage.banovit.com: 0.0.0.0
+  n8n.banovit.com: 0.0.0.0
+  matomo.banovit.com: 0.0.0.0
+  agent.banovit.com: 0.0.0.0
+  ai.banovit.com: 0.0.0.0
+  api.payamak-panel.com: 0.0.0.0
+  rest.payamak-panel.com: 0.0.0.0
+  console.melipayamak.com: 0.0.0.0
+  www.melipayamak.com: 0.0.0.0
+  api.kavenegar.com: 0.0.0.0
+  ippanel.com: 0.0.0.0
+  api2.ippanel.com: 0.0.0.0
+  edge.ippanel.com: 0.0.0.0
+  api.torob.com: 0.0.0.0
+  extractor.torob.com: 0.0.0.0
+  yooz516.limoodns.com: 0.0.0.0
+  tapi.bale.ai: 0.0.0.0
+
+x-cms: &cms
+  image: banovit-clones/cms:php8.3-fpm
   restart: unless-stopped
-  mem_limit: 64m
+  volumes:
+    - ./cms-src:/var/www/cms
+  working_dir: /var/www/cms
+  env_file: ./secrets/cms.env
+  extra_hosts:
+    <<: *blackhole
+    test2.banovit.com: host-gateway   # WC API of the WP clone (read-only key), via host nginx
+  networks: [new]
+
+networks:
+  new:
+    name: banovit_new
+
+volumes:
+  cms_db:
+    name: banovit_new_cms_db
 
 services:
-  web:            # new.banovit.com -> later: Next.js standalone (node:24-alpine)
-    <<: *static
-    ports: ["127.0.0.1:8110:80"]
-    volumes: ["./placeholder/web:/usr/share/nginx/html:ro", "./noindex.conf:/etc/nginx/conf.d/default.conf:ro"]
-  cms:            # cms-new.banovit.com -> later: banovit-cms (php-fpm/Octane) on DB new_cms
-    <<: *static
+  web:
+    image: docker.arvancloud.ir/library/node:24-alpine
+    restart: unless-stopped
+    working_dir: /app/apps/web
+    command: ["node", "server.js"]
+    volumes: ["./web-app:/app:ro"]
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      SITE_ENV: staging            # anything but "production" => noindex + robots Disallow
+      SITE_INDEXABLE: "false"
+      NEXT_PUBLIC_SITE_URL: https://new.banovit.com
+      STOREFRONT_API_URL: http://cms-http/api/storefront/v1
+    env_file: ./secrets/web.env    # STOREFRONT_INTERNAL_TOKEN, REVALIDATE_SECRET
+    ports: ["127.0.0.1:8110:3000"]
+    networks: [new]
+    depends_on: [cms-http]
+    mem_limit: 384m
+
+  cms:
+    <<: *cms
+    depends_on: [cms-db, cms-redis]
+    mem_limit: 384m
+
+  cms-http:
+    image: docker.arvancloud.ir/library/nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - ./cms-src/public:/var/www/cms/public:ro
+      - ./nginx-cms.conf:/etc/nginx/conf.d/default.conf:ro
     ports: ["127.0.0.1:8111:80"]
-    volumes: ["./placeholder/cms:/usr/share/nginx/html:ro", "./noindex.conf:/etc/nginx/conf.d/default.conf:ro"]
+    networks: [new]
+    depends_on: [cms]
+    mem_limit: 64m
+
+  cms-db:
+    image: docker.arvancloud.ir/library/mariadb:10.11
+    restart: unless-stopped
+    env_file: ./secrets/cms-db.env   # MARIADB_ROOT_PASSWORD, MARIADB_DATABASE=new_cms, MARIADB_USER, MARIADB_PASSWORD
+    command:
+      - --innodb-buffer-pool-size=128M
+      - --max-connections=40
+      - --performance-schema=OFF
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-name-resolve
+    volumes: [cms_db:/var/lib/mysql]
+    networks: [new]
+    mem_limit: 384m
+
+  cms-redis:
+    image: docker.arvancloud.ir/library/redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "48mb", "--maxmemory-policy", "allkeys-lru"]
+    networks: [new]
+    mem_limit: 64m
+
   supplier:       # supplier-new.banovit.com -> later: built supplier SPA
-    <<: *static
+    image: docker.arvancloud.ir/library/nginx:alpine
+    restart: unless-stopped
+    mem_limit: 64m
     ports: ["127.0.0.1:8112:80"]
     volumes: ["./placeholder/supplier:/usr/share/nginx/html:ro", "./noindex.conf:/etc/nginx/conf.d/default.conf:ro"]

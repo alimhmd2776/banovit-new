@@ -25,7 +25,9 @@ export function listingMetadata({
   lastPage: number;
   filtered: boolean;
 }): Metadata {
-  const cleanCanonical = seo.canonical || `${env.canonicalOrigin}${path}`;
+  // CMS canonicals are absolute banovit.com URLs; keep the path, take the origin from the deploy.
+  const canonicalPath = seo.canonical ? safePath(seo.canonical) ?? path : path;
+  const cleanCanonical = `${env.canonicalOrigin}${canonicalPath}`;
   const canonical = filtered || page <= 1 ? cleanCanonical : `${cleanCanonical.replace(/\/$/, '')}/page/${page}/`;
   const title = page > 1 ? `${seo.title} - صفحه ${page.toLocaleString('fa-IR')} از ${lastPage.toLocaleString('fa-IR')}` : seo.title;
 
@@ -71,6 +73,14 @@ export function pageMetadata({ seo, path, ogType = 'website' }: { seo: Seo; path
     },
     twitter: { card: 'summary_large_image' },
   };
+}
+
+function safePath(url: string): string | null {
+  try {
+    return new URL(url, env.canonicalOrigin).pathname;
+  } catch {
+    return null;
+  }
 }
 
 export type Crumb = { name: string; url: string };
