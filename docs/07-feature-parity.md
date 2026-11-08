@@ -26,6 +26,8 @@
 |---|---|---|
 | R1 | هر UI که فراتر از طرح‌های دریافتی است باید از سبک بصری همان طرح‌ها پیروی کند (شاخه `designs`، `designs/<section>/`) | Ali، ۲۰۲۶-۱۱-۰۸ |
 | R2 | **تصاویر، لوگو و همه رسانه‌ها از فایل‌های سرور وردپرس** استفاده شوند (`wp-content/uploads`، همان فایل‌ها، نه بازسازی یا جایگزین) | Ali، ۲۰۲۶-۱۱-۰۸ |
+| R2b | رسانه یک‌بار برای کل سایت: سایت جدید `/wp-content/uploads/` را با همان آدرس‌ها سرو می‌کند (stage2: آینه پشت nginx؛ production: فضای ابری Arvan پشت CDN). import رسانه per-feature نداریم؛ آپلودهای جدید زیر `/media/...`. جزئیات: `docs/04` روی develop | architecture، ۲۰۲۶-۱۱-۰۸ |
+| R5 | **هر قابلیت باید تا کوچک‌ترین جزئیات از پنل CMS قابل تنظیم باشد**؛ وردپرس لایو جمع می‌شود و هیچ چیز نباید فقط در کد/env بماند (به‌جز رمزها و زیرساخت) | Ali، ۲۰۲۶-۱۱-۰۸ |
 | R3 | **داده‌های سئو تغییر نکنند**: title، meta description، canonical، داده‌های Yoast، alt تصاویر، URLها، H1، اسکیما، ریدایرکت‌ها. منبع فقط لایو (test2 قدیمی است). جزئیات در `03-seo-parity.md` | Ali، ۲۰۲۶-۱۱-۰۸ |
 | R4 | تا cutover سایت جدید نباید ایندکس شود (۴ لایه: robots، X-Robots-Tag، basic auth، `SITE_INDEXABLE=false`) | `06-infra-stage2.md` |
 
@@ -322,18 +324,27 @@ product meta: _cwa_enable_addons = yes|no, _cwa_product_addon_groups = [group_id
 
 | # | قابلیت | داده/محل فعلی | وضعیت |
 |---|---|---|---|
-| G1 | تیکت‌های پشتیبانی مشتریان | API ادمین `support-tickets` هست، صفحه پنل نیست | در حال ساخت در thread داشبورد حساب مشتری |
-| G2 | نظرهای محصول (تأیید، رد، پاسخ) | جدول `product_reviews`، ثبت از `POST products/{slug}/reviews` و `me/reviews` | ⬜ صفحه پنل لازم |
-| G3 | کدهای تخفیف | جدول `storefront_coupons`، `cart/coupon` | ⬜ صفحه پنل لازم |
-| G4 | محتوای دسته‌ها: توضیح، FAQ، عنوان/توضیح سئو، آیکون/تصویر | `categories` (ستون‌های storefront)، `faqs`، `seo_meta`؛ صفحه `/catalog` این‌ها را ندارد | ⬜ |
-| G5 | محتوای برندها: لوگو، سئو، FAQ، معرفی | `seo_meta`، `faqs`؛ فرم برند فقط اطلاعات تأمین را دارد | ⬜ |
-| G6 | فیلترهای هر دسته/برند | `storefront_facets`، `storefront_facet_rules` (فقط از import) | ⬜ |
-| G7 | فرم قیمت روشویی عمومی: نرخ متری صفحه و کلاف | `config/storefront.php` + env (`STOREFRONT_VANITY_*`) | ⬜ به «تنظیمات فروشگاه» |
-| G8 | قیمت هر کاسه روی محصول روشویی عمومی | `product_contents.calculator` (فقط import)؛ در ویرایشگر محصول نیست | ⬜ فیلد در ویرایشگر محصول |
-| G9 | برچسب‌های کارت محصول: «تخفیف شگفت‌انگیز»، «منتخب»، «امکان نصب» | env `STOREFRONT_AMAZING_TAGS`، `STOREFRONT_FEATURED_TAGS`، `STOREFRONT_INSTALL_TAGS` | ⬜ |
-| G10 | الگوهای پیش‌فرض عنوان و توضیح سئو (محصول، دسته، برند، برگه، فروشنده) | `config/storefront.php` `seo` | ⬜ |
-| G11 | متن‌های ثابت صفحه محصول: شماره مشاوره، گارانتی پیش‌فرض، باکس «روش ارسال و پرداخت»، نام و لوگوی فروشگاه بانویت | `config/storefront.php` `pdp`، `house_seller` | ⬜ |
-| G12 | اعلان‌های حساب مشتری (دیدن یا فرستادن پیام به مشتری) | جدول `customer_notifications` (خودکار با تغییر وضعیت سفارش) | ⬜ |
-| G13 | ریدایرکت‌ها (آدرس قدیمی به جدید، ۱۸۱ ریدایرکت Yoast + slugهای قدیمی) | فقط خودکار هنگام تغییر slug محصول | ⬜ |
-| G14 | تنظیمات فهرست محصولات: مرتب‌سازی پیش‌فرض، تعداد در صفحه، ناموجودها آخر | `config/storefront.php` `listing` | ⬜ (اولویت کم) |
-| G15 | محدودیت‌های ورود با کد (اعتبار کد، تعداد تلاش) و گزارش کدهای ارسالی | `config/storefront.php` `auth.otp`، جدول `customer_otps` | ⬜ (اولویت کم) |
+| G1 | تیکت‌های پشتیبانی مشتریان | API ادمین `support-tickets` هست، صفحه پنل نیست | ✅ thread داشبورد حساب مشتری |
+| G2 | نظرهای محصول (تأیید، رد، پاسخ) | جدول `product_reviews`، ثبت از `POST products/{slug}/reviews` و `me/reviews` | ✅ گروه الف (panel-moderation) |
+| G3 | کدهای تخفیف | جدول `storefront_coupons`، `cart/coupon` | ✅ گروه الف (panel-moderation) |
+| G4 | محتوای دسته‌ها: توضیح، FAQ، عنوان/توضیح سئو، آیکون/تصویر | `categories` (ستون‌های storefront)، `faqs`، `seo_meta`؛ صفحه `/catalog` این‌ها را ندارد | ✅ گروه ب (catalog-content) |
+| G5 | محتوای برندها: لوگو، سئو، FAQ، معرفی | `seo_meta`، `faqs`؛ فرم برند فقط اطلاعات تأمین را دارد | ✅ گروه ب (catalog-content) |
+| G6 | فیلترهای هر دسته/برند | `storefront_facets`، `storefront_facet_rules` (فقط از import) | ✅ گروه ب (catalog-content) |
+| G7 | فرم قیمت روشویی عمومی: نرخ متری صفحه و کلاف | `config/storefront.php` + env (`STOREFRONT_VANITY_*`) | ✅ thread PDP، بخش «برگه محصول» در تنظیمات فروشگاه |
+| G8 | قیمت هر کاسه روی محصول روشویی عمومی | `product_contents.calculator` (فقط import)؛ در ویرایشگر محصول نیست | ✅ ویرایشگر محصول (فیلد قیمت هر کاسه) |
+| G9 | برچسب‌های کارت محصول: «تخفیف شگفت‌انگیز»، «منتخب»، «امکان نصب» | env `STOREFRONT_AMAZING_TAGS`، `STOREFRONT_FEATURED_TAGS`، `STOREFRONT_INSTALL_TAGS` | ✅ تنظیمات فروشگاه › برچسب‌های محصول (این thread، 8e20d9a) |
+| G10 | الگوهای پیش‌فرض عنوان و توضیح سئو (محصول، دسته، برند، برگه، فروشنده) | `config/storefront.php` `seo` | ✅ تنظیمات فروشگاه › عنوان پیش‌فرض گوگل (دسته/برند/برگه/فروشنده + نام سایت)؛ محصول: «برگه محصول» |
+| G11 | متن‌های ثابت صفحه محصول: شماره مشاوره، گارانتی پیش‌فرض، باکس «روش ارسال و پرداخت»، نام و لوگوی فروشگاه بانویت | `config/storefront.php` `pdp`، `house_seller` | ✅ thread PDP، بخش «برگه محصول» |
+| G12 | اعلان‌های حساب مشتری (دیدن یا فرستادن پیام به مشتری) | جدول `customer_notifications` (خودکار با تغییر وضعیت سفارش) | ✅ گروه الف (panel-moderation) |
+| G13 | ریدایرکت‌ها (آدرس قدیمی به جدید، ۱۸۱ ریدایرکت Yoast + slugهای قدیمی) | فقط خودکار هنگام تغییر slug محصول | ✅ گروه ب (catalog-content) |
+| G14 | تنظیمات فهرست محصولات: مرتب‌سازی پیش‌فرض، تعداد در صفحه، ناموجودها آخر | `config/storefront.php` `listing` | ✅ تنظیمات فروشگاه › فهرست محصولات (+ رنگ و سایز کارت محصول) |
+| G15 | محدودیت‌های ورود با کد (اعتبار کد، تعداد تلاش) و گزارش کدهای ارسالی | `config/storefront.php` `auth.otp`، جدول `customer_otps` | ✅ تنظیمات فروشگاه › ورود با کد (+ مدت ماندن در حساب)؛ پیامک و متن ورود: /panel/settings/storefront-auth |
+
+
+### ۱۷.۱ بررسی دوباره (قاعده R5، ۲۰۲۶-۱۱-۰۹)
+
+همه `config('storefront.*')`، `config('checkout.*')` و `config('blog.*')` که کد CMS می‌خواند با کلیدهایی که بخش‌های پنل روی آن‌ها می‌نویسند مقایسه شد (`integration/storefront` 8e20d9a). علاوه بر G1–G15 این‌ها هم به پنل رفتند: نام سایت (`storefront.site_name`)، مدت ماندن در حساب (`auth.token_ttl_days`)، ویژگی‌های رنگ/سایز کارت محصول و سقف‌هایشان (`storefront.card.*`)، سقف گزینه‌های فیلتر (`listing.max_filter_values`).
+
+می‌مانند (عمداً، زیرساخت یا رمز): `site_url`، `preview_url`، `internal_token`، `media_host`، `source_price_multiplier`، `search.*`، `revalidate.*`، `http_cache.*`، `pdp.cache_ttl`، `listing.max_page`، `auth.otp.driver/sms_*`، `checkout.payment.callback_url`، `blog.media_disk`، `blog.max_revisions`.
+
+هنوز بررسی/تصمیم: `checkout.order.initial_status/offline_status/paid_status` (منطق گردش سفارش، پیشنهاد: در کد بماند)، `storefront.account.notify_order_status` (پیام خودکار؛ گروه الف در AccountSettings)، `blog.per_page` (thread وبلاگ)، `storefront.color_names` (thread PLP، رنگ‌ها).
