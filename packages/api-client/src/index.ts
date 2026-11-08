@@ -20,6 +20,9 @@ export type Seo = Schemas['Seo'];
 export type Faq = Schemas['Faq'];
 export type SortKey = Schemas['SortKey'];
 export type ApiError = Schemas['Error'];
+export type Customer = Schemas['Customer'];
+export type CustomerSession = Schemas['CustomerSession'];
+export type OtpChallenge = Schemas['OtpChallenge'];
 
 export type ListingParams = NonNullable<operations['listCategoryProducts']['parameters']['query']>;
 

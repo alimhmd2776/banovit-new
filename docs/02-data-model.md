@@ -33,6 +33,8 @@
 
 ### Customer / Checkout / Orders
 - `customers` موجود + `customer_addresses`، `customer_otps`
+  - `customer_otps` (ساخته‌شده، feature/storefront-auth): `phone`، `code_hash` (HMAC، هرگز خود کد)، `attempts`، `expires_at`، `consumed_at`، `invalidated_at`، `ip`، `user_agent`. ایندکس `(phone, created_at)` و `expires_at`. prune بعد از ۷ روز.
+  - ستون‌های جدید `customers` (expand-only): `public_id` (ULID، یکتا)، `first_name`، `last_name`، `phone_verified_at`، `last_login_at`. جزئیات در [api/auth.md](api/auth.md).
 - `carts` و `cart_items` (سمت سرور، جای سبد WC و جای «سبد لید»)
 - سفارش: `sales_invoices` موجود هسته سفارش است؛ ستون‌های لازم برای سفارش بومی (بدون WC) با migration افزایشی اضافه می‌شود: `source` (`wc`|`storefront`|`admin`)، `public_id`
 - `payments` و `gateway_transactions` موجود، `coupons` و `discount_rules` (جای festival-discount)، `shipping_methods`، `delivery_slots` (جای delivery-installation)
