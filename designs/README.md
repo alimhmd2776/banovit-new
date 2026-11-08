@@ -63,3 +63,18 @@ From the project chat uploads (2026-11-08).
 | 02-pdp-mobile-alt.jpg | Earlier variant of the same page: no «معرفی محصول», specs as stacked rows instead of a table | PDP.jpg |
 
 `pdp/slices/` holds the same two exports cut into 900px-tall overlapping parts (`01-partNN` = New.jpg, `02-partNN` = PDP.jpg) so they are readable at full resolution. From "Banovit interface 2.zip" (2026-11-08). No desktop frame was provided.
+
+## auth/ — ورود / ثبت‌نام با موبایل و کد پیامکی (mobile, 393px)
+
+| File | Screen | Original export |
+|---|---|---|
+| 01-splash-mobile.jpg | Splash — آبی، لوگو «بانُ»، «طراوتی نو در خانه نو» | Design-1.jpg |
+| 02-phone-empty-mobile.jpg | «ورود یا ثبت نام در بانویت» — فیلد شماره موبایل خالی، شرایط/حریم خصوصی، دکمه غیرفعال «دریافت کد پیامکی» | Design.jpg |
+| 03-phone-filled-mobile.jpg | same, number entered — field focused, button active | Design-2.jpg |
+| 04-sending-otp-mobile.jpg | «درحال ارسال کد پیامکی ...» loading state | Design-3.jpg |
+| 05-otp-empty-mobile.jpg | «کد پیامکی برای شما ارسال شد» — OTP boxes empty, disabled «ورود به بانویت», countdown «۰:۵۰ تا دریافت مجدد» | Design-6.jpg |
+| 06-otp-filled-mobile.jpg | same, code entered — active button, «دریافت مجدد کد پیامکی» link | Design-7.jpg |
+| 07-signup-name-empty-mobile.jpg | «به خانواده بانُویت خوش‌آمدید!» — new customer: نام کوچک* / نام خانوادگی* (empty) | Design-4.jpg |
+| 08-signup-name-filled-mobile.jpg | same, filled (floating labels) | Design-5.jpg |
+
+From "Banovit interface 3.zip" (2026-11-08). The OTP frames show 6 boxes, but per Ali the code is **4 digits** (same as the live site), so the UI renders 4. No desktop frame was provided — desktop is a centered card with the same content.
