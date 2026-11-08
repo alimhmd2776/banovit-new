@@ -126,7 +126,7 @@ export function AddressForm({ address, defaults, onSaved, submitLabel }: { addre
       {errors._ ? <p role="alert" className="text-sm text-danger">{errors._}</p> : null}
 
       <div className="fixed inset-x-0 bottom-[calc(var(--bottom-nav-height)+20px)] z-sticky px-4 lg:static lg:px-0">
-        <button type="submit" disabled={busy} className="h-14 w-full rounded-md bg-primary text-base font-bold text-primary-on shadow-md hover:bg-primary-hover disabled:opacity-60 lg:h-12 lg:max-w-xs lg:shadow-none">
+        <button type="submit" disabled={busy} data-busy={busy || undefined} className="h-14 w-full rounded-md bg-primary text-base font-bold text-primary-on shadow-md hover:bg-primary-hover disabled:opacity-60 lg:h-12 lg:max-w-xs lg:shadow-none">
           {busy ? 'در حال ذخیره…' : submitLabel ?? (address ? 'ذخیره ویرایش' : 'ثبت آدرس')}
         </button>
       </div>

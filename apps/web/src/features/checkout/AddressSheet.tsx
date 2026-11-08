@@ -57,6 +57,7 @@ export function AddressSheet({
           type="submit"
           form="address-form"
           disabled={saving}
+          data-busy={saving || undefined}
           className="h-12 w-full rounded-full bg-primary text-sm font-bold text-primary-on hover:bg-primary-hover disabled:opacity-60"
         >
           {saving ? 'در حال ذخیره…' : 'ثبت آدرس'}

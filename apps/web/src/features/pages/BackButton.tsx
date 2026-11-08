@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useNavRouter as useRouter } from '@/lib/use-nav-router';
 import { IconChevronRight } from '@banovit/ui';
 
 /** App-bar back: previous page when we came from this site, otherwise `fallback`. */

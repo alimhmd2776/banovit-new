@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useNavRouter as useRouter } from '@/lib/use-nav-router';
 import { useState } from 'react';
 import { IconClose, IconSearch } from '@banovit/ui';
 import { appBarButton } from './AppBar';

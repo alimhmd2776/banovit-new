@@ -76,6 +76,7 @@ export function SupportCallout({ phone, phoneDisplay, pageTitle }: { phone: stri
             <button
               type="submit"
               disabled={status.kind === 'sending'}
+              data-busy={status.kind === 'sending' || undefined}
               className="h-14 w-full rounded-[14px] bg-primary px-5 text-sm font-bold text-primary-on hover:bg-primary-hover disabled:opacity-60"
             >
               {status.kind === 'sending' ? 'در حال ثبت…' : 'ارسال درخواست'}

@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 import type { Cart } from '@banovit/api-client';
+import { withProgress } from '@/lib/nav-progress';
 import { CartError } from './client';
 
 /**
@@ -20,7 +21,7 @@ export function useCart(initial: Cart) {
       setBusy(key);
       setError(null);
       try {
-        const c = await op();
+        const c = await withProgress(op);
         setCart(c);
         return c;
       } catch (e) {

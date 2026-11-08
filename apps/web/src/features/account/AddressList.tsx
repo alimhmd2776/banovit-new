@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useNavRouter as useRouter } from '@/lib/use-nav-router';
 import { useState } from 'react';
 import type { CustomerAddress } from '@banovit/api-client';
 import { cx, faDigits } from '@banovit/ui';

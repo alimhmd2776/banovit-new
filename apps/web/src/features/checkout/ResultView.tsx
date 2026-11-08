@@ -82,6 +82,7 @@ export function ResultView({ kind, number, order, refId }: { kind: ResultKind; n
                   type="button"
                   onClick={retry}
                   disabled={retrying}
+                  data-busy={retrying || undefined}
                   className="inline-flex h-11 items-center rounded-sm bg-surface-muted px-5 text-sm font-bold text-text hover:bg-border disabled:opacity-60"
                 >
                   {retrying ? 'در حال اتصال…' : 'تلاش مجدد'}

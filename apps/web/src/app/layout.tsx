@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import { BottomNav } from '@/components/layout/BottomNav';
+import { NavigationProgress } from '@/components/loading/NavigationProgress';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { env } from '@/lib/env';
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fa" dir="rtl" className={vazirmatn.variable}>
       <body className="min-h-dvh">
+        <NavigationProgress />
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top-2 focus:z-modal focus:rounded-sm focus:bg-surface focus:p-2">
           رفتن به محتوای اصلی
         </a>
