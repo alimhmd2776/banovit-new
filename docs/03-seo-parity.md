@@ -17,7 +17,7 @@
 | `/blog/` | | `app/blog/page.tsx` | |
 | `/blog/{slug}/` | `/blog/golsar-vs-morvarid-toilet/` | `app/blog/[slug]/page.tsx` | |
 | `/blog/category/{slug}/`، `/blog/tag/{slug}/` | | | |
-| `/author/{slug}/` | | `app/author/[slug]/page.tsx` | ۳ نویسنده در نقشه |
+| `/blog/author/{nicename}/` | `/blog/author/aliyemohammad/` | `app/blog/author/[slug]/page.tsx` | ۳ نویسنده در نقشه؛ مسیر زیر `/blog/` است |
 | `/{page}/` | `/about-us/`، `/contact-us/` | `app/[page]/page.tsx` (catch-all آخر) | |
 | `/landing/{slug}/` | `/landing/b2b/` | `app/landing/[slug]/page.tsx` | |
 | `.../page/{n}/` | | پارامتر صفحه در همان route | canonical خودارجاع |
