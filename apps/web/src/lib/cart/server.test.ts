@@ -13,6 +13,12 @@ describe('cart cookies stay httpOnly', () => {
     expect(res.headers.get('x-middleware-set-cookie')).toBeNull();
   });
 
+  it('never puts the cart token in the JSON body', async () => {
+    const res = cartResponse({ token: 'cart-secret-token', item_count: 1 } as never);
+    expect(JSON.stringify(await res.json())).not.toContain('cart-secret-token');
+    expect(res.headers.get('set-cookie')).toContain('cart-secret-token');
+  });
+
   it('clearing the cart leaves no copy either', () => {
     const res = NextResponse.json({});
     clearCartCookies(res);
