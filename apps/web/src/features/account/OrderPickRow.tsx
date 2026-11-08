@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { AccountOrder } from '@banovit/api-client';
 import { faDigits, formatToman, IconBag, IconChevronLeft } from '@banovit/ui';
-import { jalaliLong } from './format';
+import { amountLabel, jalaliLong } from './format';
 import { Thumbs } from './OrderCard';
 
 /** Compact order row for the support flow (designs 31, 33). With `href` it is a link (select-order list). */
@@ -25,7 +25,7 @@ export function OrderPickRow({ order, href, showTotal = true }: { order: Account
       {showTotal ? (
         <span className="mt-3 flex items-end justify-between gap-3">
           <span>
-            <span className="block text-[11px] text-text-muted">مبلغ پرداخت شده</span>
+            <span className="block text-[11px] text-text-muted">{amountLabel(order)}</span>
             <span className="mt-0.5 block font-extrabold text-text">
               {formatToman(order.total.amount)} <span className="text-sm">تومان</span>
             </span>
@@ -43,3 +43,4 @@ export function OrderPickRow({ order, href, showTotal = true }: { order: Account
     <div className="py-4">{body}</div>
   );
 }
+

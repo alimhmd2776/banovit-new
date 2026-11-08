@@ -51,6 +51,8 @@ networks:
 volumes:
   cms_db:
     name: banovit_new_cms_db
+  web_next_cache:
+    name: banovit_new_web_next_cache
 
 services:
   web:
@@ -58,7 +60,7 @@ services:
     restart: unless-stopped
     working_dir: /app/apps/web
     command: ["node", "server.js"]
-    volumes: ["./web-app:/app:ro"]
+    volumes: ["./web-app:/app"]
     environment:
       NODE_ENV: production
       PORT: "3000"

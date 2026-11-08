@@ -1077,6 +1077,42 @@ paths:
                 properties:
                   data: { type: array, items: { $ref: '#/components/schemas/SitemapRow' } }
   # --- /blog ---
+  # --- pages ---
+  /pages:
+    get:
+      operationId: listPages
+      summary: Published CMS content pages (routing, page-sitemap.xml)
+      responses:
+        '200':
+          description: Pages
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/PageListItem' } }
+  /pages/{path}:
+    get:
+      operationId: getPage
+      summary: One content page (/{path}/), e.g. about-us, shipping-methods, terms, landing/b2b
+      parameters:
+        - name: path
+          in: path
+          required: true
+          description: URL path without the outer slashes, percent-encoded or not (slashes allowed)
+          schema: { type: string }
+      responses:
+        '200':
+          description: Page
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ContentPage' }
+        '404': { $ref: '#/components/responses/NotFound' }
 components:
   securitySchemes:
     customerToken: { type: http, scheme: bearer, description: Sanctum token from /auth/otp/verify (server-side only) }
@@ -1824,6 +1860,51 @@ components:
         badge: { type: string }
         button_text: { type: string }
         url: { type: string }
+    # --- pages ---
+    PageListItem:
+      type: object
+      required: [id, path, url, title, indexable, updated_at]
+      properties:
+        id: { type: integer }
+        path: { type: string }
+        url: { type: string }
+        title: { type: string }
+        indexable: { type: boolean }
+        updated_at: { type: [string, 'null'], format: date-time }
+    PageCrumb:
+      type: object
+      required: [name, url]
+      properties:
+        name: { type: string }
+        url: { type: string }
+    ContentBlock:
+      type: object
+      description: 'Typed block {id, type, v, props}. Types and props: banovit-cms App\Domain\Content\Blocks\BlockRegistry; TS union in apps/web/src/features/pages/types.ts.'
+      required: [id, type, v, props]
+      properties:
+        id: { type: string }
+        type: { type: string }
+        v: { type: integer }
+        props: { type: object, additionalProperties: true }
+    ContentPage:
+      type: object
+      required: [id, title, slug, path, url, template, blocks, breadcrumb, seo, faqs]
+      properties:
+        id: { type: integer }
+        title: { type: string, description: H1 }
+        slug: { type: string }
+        path: { type: string }
+        url: { type: string, description: 'Site-relative, trailing slash, percent-encoded' }
+        template: { type: string, enum: [default, document, feature] }
+        excerpt: { type: [string, 'null'] }
+        hero_image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+        blocks: { type: array, items: { $ref: '#/components/schemas/ContentBlock' } }
+        body_html: { type: [string, 'null'], description: 'Sanitized HTML; rendered when blocks is empty' }
+        published_at: { type: [string, 'null'], format: date-time }
+        updated_at: { type: [string, 'null'], format: date-time }
+        breadcrumb: { type: array, items: { $ref: '#/components/schemas/PageCrumb' } }
+        seo: { $ref: '#/components/schemas/Seo' }
+        faqs: { type: array, items: { $ref: '#/components/schemas/Faq' } }
     Error:
       type: object
       required: [error]

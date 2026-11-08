@@ -35,6 +35,14 @@ echo wp_json_encode([
         get_posts(['post_type' => 'product', 'post_status' => 'publish', 'fields' => 'ids', 'posts_per_page' => -1]),
         fn ($id) => BDI_Cost_Rules::product_can_have_installation($id)
     )) : null,
+    // Live default order («جدیدترین» = post_date DESC, ID DESC): {ID: [post_date_gmt, menu_order]}
+    'product_dates' => (function () use ($wpdb) {
+        $out = [];
+        foreach ($wpdb->get_results("SELECT ID, post_date_gmt, menu_order FROM {$wpdb->posts} WHERE post_type = 'product' AND post_status = 'publish'") as $r) {
+            $out[$r->ID] = [$r->post_date_gmt, (int) $r->menu_order];
+        }
+        return $out;
+    })(),
     'meta_keys_product_cat' => $wpdb->get_col("SELECT DISTINCT tm.meta_key FROM {$wpdb->termmeta} tm JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = tm.term_id AND tt.taxonomy = 'product_cat'"),
     'wpseo_titles' => array_intersect_key(get_option('wpseo_titles') ?: [], array_flip(['separator', 'title-tax-product_cat', 'metadesc-tax-product_cat', 'title-tax-pa_brand', 'metadesc-tax-pa_brand', 'title-archive-product'])),
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

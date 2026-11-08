@@ -52,3 +52,8 @@ export function attachmentUrl(cmsUrl: string): string {
   const i = cmsUrl.indexOf('/me/tickets/');
   return i >= 0 ? `/api${cmsUrl.slice(i)}/` : cmsUrl;
 }
+
+/** «مبلغ پرداخت شده» only once the order is paid; unpaid (e.g. card-to-card awaiting review) shows «مبلغ سفارش». */
+export function amountLabel(order: { steps: { key: string; state: string }[] }): string {
+  return order.steps.some((s) => s.key === 'paid' && s.state !== 'done') ? 'مبلغ سفارش' : 'مبلغ پرداخت شده';
+}

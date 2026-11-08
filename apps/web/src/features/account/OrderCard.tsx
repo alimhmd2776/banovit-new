@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { AccountOrder } from '@banovit/api-client';
 import { cx, faDigits, formatToman, IconBag, IconChevronLeft } from '@banovit/ui';
-import { jalaliLong } from './format';
+import { amountLabel, jalaliLong } from './format';
 import { IconCube, IconPin } from './icons';
 import { OrderSteps } from './OrderSteps';
 
@@ -50,7 +50,7 @@ export function OrderCard({ order }: { order: AccountOrder }) {
 
         <div className="mt-3 flex items-end justify-between gap-3">
           <div>
-            <p className="text-[11px] text-text-muted">مبلغ پرداخت شده</p>
+            <p className="text-[11px] text-text-muted">{amountLabel(order)}</p>
             <p className="mt-0.5 text-base font-extrabold text-text">
               {formatToman(order.total.amount)} <span className="text-sm">تومان</span>
             </p>
@@ -74,3 +74,4 @@ export function Thumbs({ images }: { images: AccountOrder['item_images'] }) {
     </ul>
   );
 }
+

@@ -27,7 +27,11 @@ $terms = function ($pid, $tax) {
     if (!taxonomy_exists($tax)) { return []; }
     $out = [];
     foreach ((array) wp_get_post_terms($pid, $tax) as $t) {
-        if ($t && !is_wp_error($t)) { $out[] = ['id' => $t->term_id, 'slug' => urldecode($t->slug), 'name' => $t->name]; }
+        if ($t && !is_wp_error($t)) {
+            $row = ['id' => $t->term_id, 'slug' => urldecode($t->slug), 'name' => $t->name];
+            if (is_taxonomy_hierarchical($tax)) { $row['ancestors'] = array_map('intval', get_ancestors($t->term_id, $tax, 'taxonomy')); }
+            $out[] = $row;
+        }
     }
     return $out;
 };
