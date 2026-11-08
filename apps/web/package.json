@@ -13,14 +13,15 @@
   "dependencies": {
     "@banovit/api-client": "workspace:*",
     "@banovit/ui": "workspace:*",
+    "leaflet": "1.9.4",
     "next": "15.1.6",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "server-only": "0.0.1",
-    "vazirmatn": "33.0.3"
+    "server-only": "0.0.1"
   },
   "devDependencies": {
     "@banovit/config": "workspace:*",
+    "@types/leaflet": "1.9.14",
     "@types/node": "22.10.2",
     "@types/react": "19.0.2",
     "@types/react-dom": "19.0.2",

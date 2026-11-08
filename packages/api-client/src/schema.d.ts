@@ -89,6 +89,843 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/products/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Product page data (/shop/{slug}/) */
+        get: operations["getProduct"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/products/{slug}/live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Fresh price and stock (Cache-Control 5 s), refreshed by the browser after the cached page loads */
+        get: operations["getProductLive"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/products/{slug}/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Approved reviews, newest first */
+        get: operations["listProductReviews"];
+        put?: never;
+        /** Submit a review (held for moderation). Per-IP write limit. */
+        post: operations["createProductReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The visitor's cart (empty cart with token null when none) */
+        get: operations["getCart"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Checkout options (address, delivery day, packaging, payment method, note, attribution) */
+        patch: operations["updateCart"];
+        trace?: never;
+    };
+    "/cart/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a product (creates the cart when there is no token; response carries data.token) */
+        post: operations["addCartItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cart/items/{item}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["removeCartItem"];
+        options?: never;
+        head?: never;
+        patch: operations["updateCartItem"];
+        trace?: never;
+    };
+    "/cart/coupon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["applyCoupon"];
+        delete: operations["removeCoupon"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cart/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** After login (Bearer customer token), fold the guest cart into the customer's */
+        post: operations["mergeCart"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Place the cart as an order (sales_invoices, source=storefront) and start payment */
+        post: operations["placeOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orders/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getOrder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orders/{number}/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retry payment of a pending order */
+        post: operations["payOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payments/zarinpal/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["verifyZarinpal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/menus/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Navigation menu managed in the CMS («منوهای فروشگاه»)
+         * @description categories = desktop mega menu + mobile category sheet (level 1 category, level 2 group, level 3 items);
+         *     header_nav = desktop nav row; header_top = desktop top bar; mobile_quick = mobile drawer «دسترسی سریع».
+         *     Inactive items and categories/tags without products are already removed.
+         *
+         */
+        get: operations["getMenu"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/otp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send a 4-digit login code by SMS (same answer for known and unknown numbers) */
+        post: operations["requestOtp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/otp/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check the code; returns a customer token (kept by the BFF in an httpOnly cookie) */
+        post: operations["verifyOtp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke the current customer token */
+        post: operations["logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMe"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Signup «نام و نام خانوادگی» step */
+        patch: operations["updateMe"];
+        trace?: never;
+    };
+    "/sellers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Public sellers (house seller first) */
+        get: operations["listSellers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sellers/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Seller profile page data (/seller/{slug}/) */
+        get: operations["getSeller"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sellers/{slug}/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Products this seller sells (seller facet is fixed) */
+        get: operations["listSellerProducts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sellers/{slug}/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Buyer reviews of a seller (empty until the reviews module ships) */
+        get: operations["listSellerReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/settings/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** «تماس با ما» page content (/contact-us/), editable in the CMS admin app */
+        get: operations["getContactSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/callback-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Visitor asks to be called back (listing callout, contact form) → CMS sales lead signal
+         * @description Called only by the Next.js BFF (/api/callback-requests/) with X-Storefront-Token and X-Client-IP. Rate limited per visitor IP.
+         */
+        post: operations["createCallbackRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** «پروفایل» dashboard counters */
+        get: operations["getAccountSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** «اطلاعات کاربری» email, national code (checksum), birth date (Jalali 1388/01/30 or ISO) */
+        patch: operations["updateProfile"];
+        trace?: never;
+    };
+    "/me/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** «سفارش ها» (WooCommerce orders, imported WP history and storefront orders) */
+        get: operations["listMyOrders"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/orders/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** «جزئیات سفارش» */
+        get: operations["getMyOrder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/addresses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listAddresses"];
+        put?: never;
+        post: operations["createAddress"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/addresses/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["deleteAddress"];
+        options?: never;
+        head?: never;
+        patch: operations["updateAddress"];
+        trace?: never;
+    };
+    "/me/wishlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listWishlist"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/wishlist/slugs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Heart state for PLP/PDP */
+        get: operations["listWishlistSlugs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/wishlist/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** «اطلاع رسانی ها» (stock / discount alerts for wishlist items) */
+        patch: operations["updateWishlistSettings"];
+        trace?: never;
+    };
+    "/me/wishlist/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["addToWishlist"];
+        post?: never;
+        delete: operations["removeFromWishlist"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/recently-viewed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listRecentlyViewed"];
+        put?: never;
+        /** Called by the PDP (through the BFF /api/me/recently-viewed/) for signed-in customers */
+        post: operations["recordProductView"];
+        delete: operations["clearRecentlyViewed"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** «دیدگاه های من» (product_reviews, owned by the PDP module) */
+        get: operations["listMyReviews"];
+        put?: never;
+        /** Star rating from a delivered order; goes to moderation (status pending) */
+        post: operations["rateProduct"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** «اعلانات من» */
+        get: operations["listNotifications"];
+        put?: never;
+        post?: never;
+        delete: operations["clearNotifications"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/notifications/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["markNotificationsRead"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/tickets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** «پشتیبانی بانویت» tickets */
+        get: operations["listTickets"];
+        put?: never;
+        /** «ثبت گزارش» (multipart, up to 5 images of 5 MB) */
+        post: operations["createTicket"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/tickets/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getTicket"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/tickets/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["replyTicket"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/home": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Everything the /blog/ landing renders */
+        get: operations["getBlogHome"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Visible posts, newest first (category includes child categories, like WordPress) */
+        get: operations["listBlogPosts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/posts/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Single post (/blog/{slug}/). A renamed post answers 404 with error.code=moved and error.location. */
+        get: operations["getBlogPost"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/posts/{slug}/views": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** View counter (one per IP and post per 30 minutes) */
+        post: operations["countBlogPostView"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** All blog categories with visible post counts */
+        get: operations["listBlogCategories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/categories/{path}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Category archive data (/blog/category/{path}/) */
+        get: operations["getBlogCategory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/tags/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBlogTag"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/authors/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBlogAuthor"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/sitemap/{type}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Rows for post-sitemap.xml, category-sitemap.xml, post_tag-sitemap.xml, author-sitemap.xml (noindex rows excluded) */
+        get: operations["getBlogSitemap"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/pages": {
         parameters: {
             query?: never;
@@ -127,8 +964,89 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ContactSettings: {
+            path: string;
+            heading: string;
+            intro?: string | null;
+            hours_title?: string | null;
+            hours_note?: string | null;
+            opening_hours: {
+                days: ("Saturday" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday")[];
+                opens: string;
+                closes: string;
+            }[];
+            phones: {
+                label: string;
+                /** @description Latin digits */
+                number: string;
+                /** @description E.164 for tel: links, e.g. +982191014093 */
+                tel: string;
+            }[];
+            email?: string | null;
+            locations: {
+                label: string;
+                street_address: string;
+                locality: string;
+                region?: string | null;
+                postal_code?: string | null;
+                /** @enum {string} */
+                icon: "office" | "warehouse" | "store";
+                /** @description The LocalBusiness address in JSON-LD */
+                is_primary: boolean;
+                display: string;
+            }[];
+            map: {
+                lat?: number | null;
+                lng?: number | null;
+                zoom: number;
+                pin_label?: string | null;
+                image?: components["schemas"]["Image"] | null;
+                neshan_url?: string | null;
+                directions_url: string;
+            };
+            form: {
+                title: string;
+                message_placeholder?: string | null;
+                submit_label: string;
+                success_message: string;
+            };
+            socials: {
+                /** @enum {string} */
+                network: "whatsapp" | "telegram" | "instagram" | "bale" | "rubika" | "eitaa" | "aparat" | "linkedin";
+                url: string;
+                /** @description Original file from live wp-content/uploads; null = no file on live */
+                icon?: components["schemas"]["Image"] | null;
+            }[];
+            /** @description Brand mark (live upload) for the intro and map pin */
+            logo?: components["schemas"]["Image"] | null;
+            seo: components["schemas"]["Seo"] & {
+                /** @enum {string} */
+                og_type?: "article" | "website";
+                /** @description Live page has none */
+                h1?: string | null;
+                /** @description JSON-LD blocks rendered verbatim (live parity); null = generated */
+                json_ld?: {
+                    [key: string]: unknown;
+                }[] | null;
+            };
+        };
+        CallbackRequest: {
+            /** @description Iranian mobile */
+            phone: string;
+            name?: string | null;
+            message?: string | null;
+            /**
+             * @default callout
+             * @enum {string}
+             */
+            form: "callout" | "contact";
+            page_url?: string | null;
+            page_title?: string | null;
+            /** @description Honeypot; must be empty */
+            website?: string | null;
+        };
         /** @enum {string} */
-        SortKey: "newest" | "popular" | "rating" | "price_asc" | "price_desc";
+        SortKey: "relevant" | "newest" | "popular" | "price_asc" | "price_desc" | "featured" | "rating";
         Money: {
             /** @description Integer rial */
             amount: number;
@@ -194,6 +1112,92 @@ export interface components {
             seo: components["schemas"]["Seo"];
             faqs: components["schemas"]["Faq"][];
         };
+        SellerStats: {
+            rating: {
+                average: number;
+                count: number;
+            } | null;
+            sales_count: number;
+            product_count: number;
+            /** Format: date */
+            joined_at: string | null;
+            years_on_banovit: number | null;
+        };
+        SellerCard: {
+            id: number;
+            slug: string;
+            name: string;
+            /** @description /seller/{slug}/ */
+            url: string;
+            tagline: string | null;
+            logo: components["schemas"]["Image"] | null;
+            /** @description Banovit itself */
+            is_house: boolean;
+            stats: components["schemas"]["SellerStats"];
+        };
+        OpeningRange: {
+            /** @description HH:MM, Asia/Tehran */
+            open: string;
+            close: string;
+        };
+        OpeningDay: {
+            /** @enum {string} */
+            day: "sat" | "sun" | "mon" | "tue" | "wed" | "thu" | "fri";
+            label: string;
+            /** @description Empty = closed that day */
+            ranges: components["schemas"]["OpeningRange"][];
+        };
+        Seller: components["schemas"]["SellerCard"] & {
+            about_html: string | null;
+            location: {
+                address: string | null;
+                lat: number | null;
+                lng: number | null;
+            } | null;
+            opening_hours: {
+                /** @constant */
+                timezone: "Asia/Tehran";
+                days: components["schemas"]["OpeningDay"][];
+            } | null;
+            breadcrumb: components["schemas"]["BreadcrumbItem"][];
+            seo: components["schemas"]["Seo"];
+        };
+        SellerReview: {
+            id: number;
+            author: {
+                name: string;
+                avatar: components["schemas"]["Image"] | null;
+                /** @description «خریدار» badge */
+                is_buyer: boolean;
+                /** @description «خریدار فعال و باتجربه بانویت» */
+                is_experienced_buyer: boolean;
+            };
+            rating: number;
+            body: string;
+            /** Format: date-time */
+            created_at: string;
+            product: {
+                name: string;
+                path: string;
+                image: components["schemas"]["Image"] | null;
+                /** @description e.g. «رنگ طوسی • سایز ۷۵x۹۸» */
+                variant_label: string | null;
+            } | null;
+        };
+        SellerReviewList: {
+            data: components["schemas"]["SellerReview"][];
+            meta: {
+                page: number;
+                per_page: number;
+                total: number;
+                last_page: number;
+                rating: components["schemas"]["SellerStats"]["rating"];
+            };
+            links: {
+                prev_page?: number | null;
+                next_page?: number | null;
+            };
+        };
         ProductCard: {
             id: number;
             slug: string;
@@ -238,6 +1242,8 @@ export interface components {
             count: number;
             selected: boolean;
             hex?: string | null;
+            /** @description Brand logo (brand facet only) */
+            image?: components["schemas"]["Image"];
         };
         Facet: {
             /** @description brand or a pa_* attribute slug */
@@ -293,6 +1299,250 @@ export interface components {
                 next_page: number | null;
             };
         };
+        ProductOptionValue: {
+            /** @description Term slug (same as WordPress ?attribute_pa_x=) or the label for custom attributes */
+            value: string;
+            label: string;
+            hex: string | null;
+        };
+        ProductOption: {
+            /** @description pa_* facet key, or attr_N for custom attributes */
+            key: string;
+            label: string;
+            /** @enum {string} */
+            type: "swatch" | "button";
+            values: components["schemas"]["ProductOptionValue"][];
+        };
+        ProductVariant: {
+            /** @description variation_id for the cart */
+            id: number;
+            sku: string | null;
+            /** @description option key -> value; null means any value */
+            attributes: {
+                [key: string]: string | null;
+            };
+            price: components["schemas"]["Money"] | null;
+            regular_price: components["schemas"]["Money"] | null;
+            discount_percent: number;
+            in_stock: boolean;
+            image: components["schemas"]["Image"] | null;
+        };
+        ProductAddonOption: {
+            /** @description Sent to the cart in addon_ids */
+            id: number;
+            label: string;
+            description: string | null;
+            price: components["schemas"]["Money"];
+            /**
+             * @description fixed = per unit; percentage = percent of the unit price, per unit; flat_rate = once per cart line
+             * @enum {string}
+             */
+            price_type: "fixed" | "percentage" | "flat_rate";
+            /** @description percentage options only */
+            percent: number | null;
+            /** @description Swatch for display=color (#rrggbb) */
+            color: string | null;
+            /** @description installation | other */
+            kind: string;
+            default: boolean;
+        };
+        ProductAddon: {
+            id: number;
+            title: string;
+            description: string | null;
+            /** @enum {string} */
+            type: "checkbox" | "radio";
+            /**
+             * @description Rico-wc-addons control type
+             * @enum {string}
+             */
+            display: "select" | "multiselect" | "button" | "color";
+            required: boolean;
+            options: components["schemas"]["ProductAddonOption"][];
+        };
+        ProductRating: {
+            average: number;
+            count: number;
+            /** @description "5".."1" -> count */
+            distribution: {
+                [key: string]: number;
+            };
+        };
+        Review: {
+            id: number;
+            author_name: string;
+            is_verified_buyer: boolean;
+            rating: number | null;
+            body: string;
+            variant_label: string | null;
+            likes: number;
+            dislikes: number;
+            /** Format: date-time */
+            published_at: string | null;
+        };
+        ReviewListing: {
+            data: components["schemas"]["Review"][];
+            meta: {
+                page: number;
+                per_page: number;
+                total: number;
+                last_page: number;
+                rating: components["schemas"]["ProductRating"] | null;
+            };
+            links: {
+                prev_page: number | null;
+                next_page: number | null;
+            };
+        };
+        ShippingLine: {
+            icon: string;
+            label: string;
+            text: string;
+        };
+        ProductLive: {
+            id: number;
+            price: components["schemas"]["Money"] | null;
+            price_max: components["schemas"]["Money"] | null;
+            regular_price: components["schemas"]["Money"] | null;
+            discount_percent: number;
+            in_stock: boolean;
+            availability: components["schemas"]["Availability"];
+            variants: {
+                id: number;
+                price: components["schemas"]["Money"] | null;
+                regular_price: components["schemas"]["Money"] | null;
+                discount_percent: number;
+                in_stock: boolean;
+            }[];
+        };
+        /** @enum {string} */
+        Availability: "in_stock" | "out_of_stock" | "backorder" | "no_price";
+        /** @description Public-vanity price form: price = length_cm × (slab_price_per_cm [+ frame_price_per_cm]) + bowls × bowl_price */
+        VanityCalculator: {
+            /** @constant */
+            kind: "vanity";
+            min_length_cm: number;
+            max_length_cm: number;
+            width_cm: number;
+            min_bowls: number;
+            max_bowls: number;
+            slab_price_per_cm: components["schemas"]["Money"];
+            frame_price_per_cm: components["schemas"]["Money"];
+            bowl_price: components["schemas"]["Money"];
+        };
+        ProductDetail: {
+            /** @description e.g. «سفارشی» */
+            label: string | null;
+            /** @description Production time / stock text */
+            availability_note: string | null;
+            /** @description No online purchase: show the «سفارشی تولید می‌شود + مشاوره رایگان» box */
+            made_to_order: boolean;
+            consult_phone: string;
+            calculator: components["schemas"]["VanityCalculator"] | null;
+            id: number;
+            slug: string;
+            name: string;
+            /** @description /shop/{slug}/ lowercase percent-encoded, like WordPress */
+            path: string;
+            /** @enum {string} */
+            type: "simple" | "variable";
+            sku: string | null;
+            brand: {
+                slug: string;
+                name: string;
+                url: string;
+            } | null;
+            primary_category: {
+                id: number;
+                name: string;
+                url: string;
+            } | null;
+            /** @description Category chain, root first (the product is appended by the page) */
+            breadcrumb: components["schemas"]["BreadcrumbItem"][];
+            images: components["schemas"]["Image"][];
+            short_description_html: string | null;
+            description_html: string | null;
+            key_features: string[];
+            specs: {
+                label: string;
+                value: string;
+            }[];
+            price: components["schemas"]["Money"] | null;
+            price_max: components["schemas"]["Money"] | null;
+            regular_price: components["schemas"]["Money"] | null;
+            discount_percent: number;
+            in_stock: boolean;
+            availability: components["schemas"]["Availability"];
+            /** Format: date */
+            price_valid_until: string | null;
+            options: components["schemas"]["ProductOption"][];
+            variants: components["schemas"]["ProductVariant"][];
+            addons: components["schemas"]["ProductAddon"][];
+            badges: {
+                install_service: boolean;
+            };
+            /** @description Null unless there are approved rated reviews (no AggregateRating then) */
+            rating: components["schemas"]["ProductRating"] | null;
+            reviews: {
+                total: number;
+                items: components["schemas"]["Review"][];
+            };
+            seller: {
+                name: string;
+                badge: string | null;
+                logo: string | null;
+                warranty: string;
+                shipping: {
+                    title: string;
+                    lines: components["schemas"]["ShippingLine"][];
+                    url: string;
+                };
+            };
+            faqs: components["schemas"]["Faq"][];
+            related: components["schemas"]["ProductCard"][];
+            related_posts: {
+                title: string;
+                url: string;
+                image?: components["schemas"]["Image"] | null;
+                category?: string | null;
+                published_at?: string | null;
+            }[];
+            seo: components["schemas"]["Seo"];
+            /** Format: date-time */
+            updated_at: string | null;
+        };
+        Menu: {
+            key: string;
+            name: string;
+            items: components["schemas"]["MenuItem"][];
+        };
+        MenuItem: {
+            id: number;
+            title: string;
+            /** @description Site-relative path (/shop/category/x/) or absolute external URL */
+            url: string;
+            image: components["schemas"]["MenuImage"] | null;
+            /** @description Icon image URL, or a built-in icon name (discount, bestseller, newest, track, phone, article, user) */
+            icon: string | null;
+            /** @description Published products of the linked category/tag; null for plain links or when hidden */
+            product_count: number | null;
+            highlight: boolean;
+            promo: components["schemas"]["MenuPromo"] | null;
+            children: components["schemas"]["MenuItem"][];
+        };
+        MenuImage: {
+            url: string;
+            alt?: string | null;
+            width?: number | null;
+            height?: number | null;
+        };
+        MenuPromo: {
+            image_url?: string;
+            title?: string;
+            badge?: string;
+            button_text?: string;
+            url?: string;
+        };
         PageListItem: {
             id: number;
             path: string;
@@ -342,13 +1592,620 @@ export interface components {
             error: {
                 code: string;
                 message: string;
+                /** @description Only with code=moved: the current URL (answer with a 301) */
+                location?: string;
                 fields?: {
                     [key: string]: string[];
                 };
+                /** @description Seconds until the request may be retried (429) */
+                retry_after?: number;
+                /** @description Wrong OTP tries left for the current code (otp_invalid) */
+                attempts_left?: number;
             };
+        };
+        Address: {
+            title?: string;
+            recipient_name?: string;
+            recipient_phone?: string;
+            province?: string;
+            city?: string;
+            address_line?: string;
+            plaque?: string;
+            unit?: string;
+            postal_code?: string;
+            lat?: number;
+            lng?: number;
+        };
+        CartItemCreate: {
+            product_id: number;
+            variation_id?: number | null;
+            /** @description Alias of variation_id */
+            variant_id?: number | null;
+            /** @default 1 */
+            quantity: number;
+            installation?: boolean;
+            /** @description PDP add-on option ids (installation service) */
+            addon_ids?: number[];
+        };
+        CartUpdate: {
+            packaging?: boolean;
+            /** Format: date */
+            delivery_date?: string | null;
+            address?: components["schemas"]["Address"] | null;
+            /** @description Saved customer address (signed-in) */
+            address_id?: string | null;
+            payment_method?: string | null;
+            customer_note?: string | null;
+            attribution?: {
+                [key: string]: string;
+            };
+        };
+        CartLine: {
+            id: number;
+            product: {
+                id: number;
+                name: string;
+                slug: string;
+                path: string;
+                image: components["schemas"]["Image"] | null;
+                brand: {
+                    slug: string;
+                    name: string;
+                } | null;
+            };
+            variation: {
+                id: number;
+                attributes: {
+                    name: string;
+                    value: string;
+                }[];
+            } | null;
+            quantity: number;
+            max_quantity: number;
+            unit_price: components["schemas"]["Money"];
+            unit_regular_price: components["schemas"]["Money"];
+            discount_percent: number;
+            line_total: components["schemas"]["Money"];
+            line_regular_total: components["schemas"]["Money"];
+            /** @description Selected non-installation add-ons (anti-fog, light colour …), already included in line_total */
+            addons?: {
+                id: number;
+                label: string;
+                total: components["schemas"]["Money"];
+            }[];
+            purchasable: boolean;
+            issue: {
+                code: string;
+                message: string;
+            } | null;
+            installation: {
+                available: boolean;
+                available_in_zone: boolean;
+                selected: boolean;
+                addon_ids: number[];
+                unit_fee: components["schemas"]["Money"];
+                total: components["schemas"]["Money"];
+            };
+        };
+        DeliverySlot: {
+            /** Format: date */
+            date: string;
+            weekday: string;
+            /** @description Jalali */
+            day_label: string;
+            fee: components["schemas"]["Money"];
+        };
+        PaymentMethod: {
+            /** @enum {string} */
+            key: "zarinpal" | "card_to_card" | "installments";
+            label: string;
+            available: boolean;
+            description: string | null;
+        };
+        CartTotals: {
+            items_regular: components["schemas"]["Money"];
+            items: components["schemas"]["Money"];
+            product_discount: components["schemas"]["Money"];
+            installation: components["schemas"]["Money"];
+            packaging: components["schemas"]["Money"];
+            shipping: components["schemas"]["Money"];
+            service_fee: components["schemas"]["Money"];
+            coupon_discount: components["schemas"]["Money"];
+            payable: components["schemas"]["Money"];
+            savings: components["schemas"]["Money"];
+        };
+        Cart: {
+            token: string | null;
+            item_count: number;
+            items: components["schemas"]["CartLine"][];
+            options: {
+                packaging: boolean;
+                /** Format: date */
+                delivery_date: string | null;
+                address: components["schemas"]["Address"] | null;
+                payment_method: string | null;
+                customer_note: string | null;
+            };
+            coupon: {
+                code: string;
+                label: string;
+                discount: components["schemas"]["Money"];
+            } | null;
+            delivery: {
+                zone: {
+                    key: string;
+                    label: string;
+                };
+                fee: components["schemas"]["Money"];
+                fee_label: string | null;
+                window_label: string;
+                requires_slot: boolean;
+                slots: components["schemas"]["DeliverySlot"][];
+            };
+            addons: {
+                packaging: {
+                    label: string;
+                    description: string;
+                    fee: components["schemas"]["Money"];
+                } | null;
+                installation: {
+                    label: string;
+                    item_label: string;
+                    description: string;
+                    available_in_zone: boolean;
+                    available_items: number;
+                    selected_items: number;
+                };
+            };
+            payment_methods: components["schemas"]["PaymentMethod"][];
+            totals: components["schemas"]["CartTotals"];
+            issues: {
+                code: string;
+                message: string;
+                item_id: number | null;
+            }[];
+            ready_for_checkout: boolean;
+        };
+        OrderSummary: {
+            number: string;
+            status: string;
+            status_label: string;
+            is_paid: boolean;
+            payment_method: string | null;
+            payment_method_label: string | null;
+            total: components["schemas"]["Money"];
+            item_count: number;
+            /** Format: date-time */
+            placed_at: string | null;
+        };
+        PaymentStart: {
+            method: string;
+            /** @enum {string} */
+            status: "redirect" | "offline";
+            redirect_url: string | null;
+            message: string | null;
+        };
+        PlacedOrder: {
+            order: components["schemas"]["OrderSummary"];
+            /** @description Send as X-Order-Token to read/pay this order; null on replay */
+            access_token: string | null;
+            payment: components["schemas"]["PaymentStart"] | null;
+        };
+        OtpChallenge: {
+            /** @description Normalized 09XXXXXXXXX */
+            phone: string;
+            /** @constant */
+            code_length: 4;
+            /** @description Seconds */
+            expires_in: number;
+            /** @description Seconds until a new code may be requested */
+            resend_in: number;
+        };
+        Customer: {
+            /** @description ULID (public id) */
+            id: string;
+            first_name: string | null;
+            last_name: string | null;
+            /** @description Full name; null until the profile is completed */
+            name: string | null;
+            phone: string;
+            /**
+             * @description partner = B2B (WordPress role shop)
+             * @enum {string}
+             */
+            type: "consumer" | "partner";
+            /** @description true → ask first/last name before continuing */
+            needs_profile: boolean;
+        };
+        CustomerSession: {
+            token: string;
+            /** @constant */
+            token_type: "Bearer";
+            /** Format: date-time */
+            expires_at: string;
+            is_new: boolean;
+            customer: components["schemas"]["Customer"];
+        };
+        AccountSummary: {
+            name: string;
+            phone: string | null;
+            orders: components["schemas"]["OrderTabCounts"];
+            unread_notifications: number;
+            open_tickets: number;
+            identity_complete: boolean;
+        };
+        Profile: {
+            name: string;
+            phone: string | null;
+            email?: string | null;
+            national_code?: string | null;
+            /** Format: date */
+            birth_date?: string | null;
+            /** @enum {string} */
+            type?: "consumer" | "partner";
+            identity_complete: boolean;
+            identity_verified: boolean;
+        };
+        OrderTabCounts: {
+            current: number;
+            delivered: number;
+            cancelled: number;
+        };
+        OrderStep: {
+            /** @description paid | preparing | shipped | delivered, or review | refund for a cancelled order */
+            key: string;
+            label: string;
+            /** @enum {string} */
+            state: "done" | "current" | "upcoming";
+        };
+        AccountOrder: {
+            number: string;
+            /** @enum {string} */
+            tab: "current" | "delivered" | "cancelled";
+            /** @description Raw sales_invoices.status */
+            status: string;
+            /** @description Customer wording («درحال بسته‌بندی کالا»، «لغو شده - واریزی عودت شد») */
+            status_label: string;
+            /** Format: date-time */
+            ordered_at?: string | null;
+            /** Format: date */
+            delivery_date?: string | null;
+            total: components["schemas"]["Money"];
+            items_count: number;
+            item_images: components["schemas"]["Image"][];
+            steps: components["schemas"]["OrderStep"][];
+            address_line?: string | null;
+            /** @description Came from WooCommerce */
+            is_legacy: boolean;
+        };
+        OrderItem: {
+            id: number;
+            name: string;
+            sku?: string | null;
+            quantity: number;
+            cancelled_quantity?: number;
+            unit_price: components["schemas"]["Money"];
+            total: components["schemas"]["Money"];
+            attributes: {
+                name: string;
+                value: string;
+            }[];
+            product?: {
+                slug?: string;
+                path?: string | null;
+                image?: components["schemas"]["Image"] | null;
+            } | null;
+        };
+        AccountOrderDetail: components["schemas"]["AccountOrder"] & {
+            recipient: {
+                name?: string | null;
+                phone?: string | null;
+                address?: string | null;
+                postal_code?: string | null;
+            };
+            items: components["schemas"]["OrderItem"][];
+            totals: {
+                subtotal: components["schemas"]["Money"];
+                discount: components["schemas"]["Money"];
+                shipping: components["schemas"]["Money"];
+                tax: components["schemas"]["Money"];
+                total: components["schemas"]["Money"];
+                paid: components["schemas"]["Money"];
+                balance_due: components["schemas"]["Money"];
+            };
+            payment_method?: string | null;
+            customer_note?: string | null;
+            shipments: {
+                method?: string;
+                method_label?: string;
+                status?: string;
+                tracking_number?: string | null;
+                carrier_name?: string | null;
+                carrier_phone?: string | null;
+                /** Format: date-time */
+                shipped_at?: string | null;
+            }[];
+            refund?: {
+                /** @enum {string} */
+                status: "pending" | "approved" | "rejected";
+                amount: components["schemas"]["Money"];
+                /** Format: date-time */
+                created_at?: string | null;
+            } | null;
+            can_rate: boolean;
+        };
+        CustomerAddressInput: {
+            title?: string | null;
+            recipient_name?: string | null;
+            recipient_phone?: string | null;
+            province?: string;
+            city?: string;
+            address_line?: string;
+            plaque?: string | null;
+            unit?: string | null;
+            postal_code?: string | null;
+            lat?: number | null;
+            lng?: number | null;
+            is_default?: boolean;
+        };
+        CustomerAddress: components["schemas"]["CustomerAddressInput"] & {
+            /** @description ULID; checkout accepts it as address_id */
+            id: string;
+            full_line: string;
+        };
+        MyReview: {
+            id: number;
+            author_name?: string | null;
+            rating?: number | null;
+            body: string;
+            /** @enum {string} */
+            status: "pending" | "approved";
+            is_verified_buyer: boolean;
+            /** Format: date-time */
+            created_at?: string | null;
+            product?: {
+                slug: string;
+                name: string;
+                path: string;
+                image?: components["schemas"]["Image"] | null;
+                colors?: Record<string, never>[];
+                sizes?: Record<string, never> | null;
+            } | null;
+        };
+        Notification: {
+            id: string;
+            /** @enum {string} */
+            category: "orders" | "products" | "support";
+            type: string;
+            title: string;
+            body?: string | null;
+            url?: string | null;
+            image_url?: string | null;
+            data?: Record<string, never>;
+            is_read: boolean;
+            /** Format: date-time */
+            created_at?: string | null;
+        };
+        /** @enum {string} */
+        TicketTopic: "orders" | "payment" | "shipping" | "returns" | "buying" | "specs" | "other";
+        TicketSummary: {
+            id: string;
+            /** @example SU-21281 */
+            number: string;
+            subject: string;
+            topic: components["schemas"]["TicketTopic"];
+            topic_label?: string;
+            /** @enum {string} */
+            status: "in_review" | "awaiting_customer" | "closed";
+            status_label: string;
+            order_number?: string | null;
+            /** Format: date-time */
+            last_message_at?: string | null;
+            /** Format: date-time */
+            created_at?: string | null;
+        };
+        TicketMessage: {
+            id: number;
+            /** @enum {string} */
+            author: "customer" | "staff";
+            body?: string | null;
+            attachments: {
+                name?: string | null;
+                mime?: string | null;
+                size?: number | null;
+                url?: string;
+            }[];
+            is_read: boolean;
+            /** Format: date-time */
+            created_at?: string | null;
+        };
+        TicketDetail: components["schemas"]["TicketSummary"] & {
+            messages: components["schemas"]["TicketMessage"][];
+            can_reply: boolean;
+        };
+        Crumb: {
+            name: string;
+            url: string;
+        };
+        BlogCategoryRef: {
+            id: number;
+            name: string;
+            slug: string;
+            path: string;
+            url: string;
+        };
+        BlogCategoryTab: components["schemas"]["BlogCategoryRef"] & {
+            parent_id: number | null;
+            post_count: number;
+        };
+        BlogAuthorRef: {
+            name: string;
+            slug: string;
+            url: string;
+            avatar?: components["schemas"]["Image"] | null;
+        };
+        BlogPostCard: {
+            id: number;
+            slug: string;
+            url: string;
+            title: string;
+            excerpt: string;
+            cover: components["schemas"]["Image"] | null;
+            category: components["schemas"]["BlogCategoryRef"] | null;
+            author: components["schemas"]["BlogAuthorRef"] | null;
+            /** Format: date-time */
+            published_at: string | null;
+            /** Format: date-time */
+            updated_at: string | null;
+            reading_minutes: number;
+            views: number;
+        };
+        BlogAuthor: {
+            name: string;
+            slug: string;
+            url: string;
+            job_title: string | null;
+            bio: string | null;
+            avatar: components["schemas"]["Image"] | null;
+            social: {
+                [key: string]: string;
+            };
+        };
+        BlogAuthorPage: components["schemas"]["BlogAuthor"] & {
+            breadcrumb: components["schemas"]["Crumb"][];
+            seo: components["schemas"]["Seo"];
+        };
+        BlogHtmlBlock: {
+            /** @constant */
+            type: "html";
+            /** @description Sanitized HTML; h2/h3 carry the ids used by toc */
+            html: string;
+        };
+        BlogProductsBlock: {
+            /** @constant */
+            type: "products";
+            props: {
+                /** @enum {string} */
+                layout: "card" | "carousel";
+                title?: string | null;
+                subtitle?: string | null;
+                products: components["schemas"]["ProductCard"][];
+            };
+        };
+        BlogNoteBlock: {
+            /** @constant */
+            type: "note";
+            props: {
+                title?: string;
+                variant?: string;
+                html?: string;
+            };
+        };
+        BlogBlock: components["schemas"]["BlogHtmlBlock"] | components["schemas"]["BlogProductsBlock"] | components["schemas"]["BlogNoteBlock"];
+        TocItem: {
+            id: string;
+            text: string;
+            /** @enum {integer} */
+            level: 2 | 3;
+        };
+        BlogFaq: {
+            question: string;
+            answer_html: string;
+        };
+        BlogBanner: {
+            image: components["schemas"]["Image"];
+            url?: string | null;
+        };
+        BlogPost: components["schemas"]["BlogPostCard"] & {
+            summary_html: string | null;
+            blocks: components["schemas"]["BlogBlock"][];
+            toc: components["schemas"]["TocItem"][];
+            categories: components["schemas"]["BlogCategoryRef"][];
+            tags: {
+                name: string;
+                slug: string;
+                url: string;
+            }[];
+            author_profile: components["schemas"]["BlogAuthor"] | null;
+            faqs: components["schemas"]["BlogFaq"][];
+            related_products: components["schemas"]["ProductCard"][];
+            related_posts: components["schemas"]["BlogPostCard"][];
+            breadcrumb: components["schemas"]["Crumb"][];
+            banner: components["schemas"]["BlogBanner"] | null;
+            /** @enum {string} */
+            schema_type: "BlogPosting" | "Article" | "NewsArticle";
+            word_count: number;
+            seo: components["schemas"]["Seo"];
+        };
+        BlogCategory: components["schemas"]["BlogCategoryRef"] & {
+            description_html: string | null;
+            image: components["schemas"]["Image"] | null;
+            children: components["schemas"]["BlogCategoryRef"][];
+            breadcrumb: components["schemas"]["Crumb"][];
+            seo: components["schemas"]["Seo"];
+        };
+        BlogTerm: {
+            name: string;
+            slug: string;
+            url: string;
+            description_html: string | null;
+            breadcrumb: components["schemas"]["Crumb"][];
+            seo: components["schemas"]["Seo"];
+        };
+        BlogPostListing: {
+            data: components["schemas"]["BlogPostCard"][];
+            meta: {
+                page: number;
+                per_page: number;
+                total: number;
+                last_page: number;
+            };
+            links: {
+                next?: number | null;
+                prev?: number | null;
+            };
+        };
+        BlogSection: {
+            key?: string;
+            title: string;
+            subtitle?: string | null;
+            category?: components["schemas"]["BlogCategoryRef"];
+            posts: components["schemas"]["BlogPostCard"][];
+        };
+        BlogHome: {
+            hero: components["schemas"]["BlogPostCard"][];
+            categories: components["schemas"]["BlogCategoryTab"][];
+            popular: components["schemas"]["BlogSection"];
+            latest: components["schemas"]["BlogSection"];
+            sections: components["schemas"]["BlogSection"][];
+            promo: null | {
+                title: string;
+                text?: string | null;
+                cta?: string | null;
+                url: string;
+            };
+            all: components["schemas"]["BlogSection"] & {
+                total: number;
+            };
+            seo: components["schemas"]["Seo"];
+        };
+        SitemapRow: {
+            url: string;
+            /** Format: date-time */
+            lastmod: string | null;
+            images: string[];
         };
     };
     responses: {
+        /** @description Limit hit: otp_cooldown, too_many_requests or phone_locked (Retry-After header + error.retry_after) */
+        TooManyRequests: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
         /** @description Not found */
         NotFound: {
             headers: {
@@ -356,6 +2213,26 @@ export interface components {
             };
             content: {
                 "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Stock/price/state conflict (out_of_stock, cart_changed, ...) */
+        Conflict: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Full cart */
+        CartResponse: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    data: components["schemas"]["Cart"];
+                };
             };
         };
         /** @description Invalid query */
@@ -369,8 +2246,12 @@ export interface components {
         };
     };
     parameters: {
+        /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+        cartToken: string;
         /** @description Slug path after /shop/category/, e.g. vanity/cabinet-vanity (slashes allowed) */
         categoryPath: string;
+        /** @description Product slug after /shop/ (decoded or percent-encoded) */
+        productSlug: string;
         page: number;
         per_page: 12 | 24 | 36 | 48;
         sort: components["schemas"]["SortKey"];
@@ -551,6 +2432,1697 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+        };
+    };
+    getProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Product slug after /shop/ (decoded or percent-encoded) */
+                slug: components["parameters"]["productSlug"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Product */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ProductDetail"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getProductLive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Product slug after /shop/ (decoded or percent-encoded) */
+                slug: components["parameters"]["productSlug"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Live price/stock */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ProductLive"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listProductReviews: {
+        parameters: {
+            query?: {
+                page?: components["parameters"]["page"];
+            };
+            header?: never;
+            path: {
+                /** @description Product slug after /shop/ (decoded or percent-encoded) */
+                slug: components["parameters"]["productSlug"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reviews */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewListing"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createProductReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Product slug after /shop/ (decoded or percent-encoded) */
+                slug: components["parameters"]["productSlug"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    author_name: string;
+                    /** @description Optional mobile 09xxxxxxxxx (Persian digits accepted) */
+                    phone?: string;
+                    rating: number;
+                    body: string;
+                    variation_id?: number | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Received */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: number;
+                            /** @constant */
+                            status: "pending";
+                        };
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    getCart: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["CartResponse"];
+        };
+    };
+    updateCart: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CartUpdate"];
+            };
+        };
+        responses: {
+            200: components["responses"]["CartResponse"];
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    addCartItem: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CartItemCreate"];
+            };
+        };
+        responses: {
+            201: components["responses"]["CartResponse"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    removeCartItem: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path: {
+                item: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["CartResponse"];
+        };
+    };
+    updateCartItem: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path: {
+                item: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description 0 removes the line */
+                    quantity?: number;
+                    installation?: boolean;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["CartResponse"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    applyCoupon: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    code: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["CartResponse"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    removeCoupon: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["CartResponse"];
+        };
+    };
+    mergeCart: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    guest_token: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["CartResponse"];
+            401: components["responses"]["NotFound"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    placeOrder: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Replay of the same Idempotency-Key (payment is null) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PlacedOrder"];
+                    };
+                };
+            };
+            /** @description Order placed */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PlacedOrder"];
+                    };
+                };
+            };
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    getOrder: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Order-Token"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Order summary */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["OrderSummary"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    payOrder: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Order-Token"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    payment_method?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Payment started */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            order: components["schemas"]["OrderSummary"];
+                            payment: components["schemas"]["PaymentStart"];
+                        };
+                    };
+                };
+            };
+            409: components["responses"]["Conflict"];
+        };
+    };
+    verifyZarinpal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    authority: string;
+                    status: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Verification result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            paid: boolean;
+                            ref_id: string | null;
+                            order: components["schemas"]["OrderSummary"];
+                        };
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getMenu: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: "categories" | "header_nav" | "header_top" | "mobile_quick";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Menu */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Menu"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    requestOtp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Iranian mobile in any spelling (09…, +98…, Persian digits) */
+                    phone: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Code issued (delivery happens after the response) */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["OtpChallenge"];
+                    };
+                };
+            };
+            422: components["responses"]["ValidationError"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    verifyOtp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    phone: string;
+                    code: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Signed in */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CustomerSession"];
+                    };
+                };
+            };
+            422: components["responses"]["ValidationError"];
+            429: components["responses"]["TooManyRequests"];
+        };
+    };
+    logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Signed out */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getMe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current customer */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Customer"];
+                    };
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateMe: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    first_name: string;
+                    last_name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Customer"];
+                    };
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    listSellers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Sellers */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SellerCard"][];
+                    };
+                };
+            };
+        };
+    };
+    getSeller: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Seller */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Seller"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listSellerProducts: {
+        parameters: {
+            query?: {
+                page?: components["parameters"]["page"];
+                per_page?: components["parameters"]["per_page"];
+                sort?: components["parameters"]["sort"];
+                /** @description Comma-separated brand slugs (OR) */
+                brand?: components["parameters"]["brand"];
+                /** @description filter[pa_color]=white,black — values OR-ed inside a facet, facets AND-ed. Unknown facets are ignored. */
+                filter?: components["parameters"]["filter"];
+                /** @description Rial */
+                min_price?: components["parameters"]["min_price"];
+                /** @description Rial */
+                max_price?: components["parameters"]["max_price"];
+                in_stock?: components["parameters"]["in_stock"];
+                on_sale?: components["parameters"]["on_sale"];
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Listing */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductListing"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    listSellerReviews: {
+        parameters: {
+            query?: {
+                page?: components["parameters"]["page"];
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reviews */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SellerReviewList"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getContactSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Contact page settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ContactSettings"];
+                    };
+                };
+            };
+        };
+    };
+    createCallbackRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CallbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Received */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            /** @enum {string} */
+                            status: "received";
+                        };
+                    };
+                };
+            };
+            422: components["responses"]["ValidationError"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getAccountSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Summary */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountSummary"];
+                    };
+                };
+            };
+            /** @description Not signed in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Profile */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Profile"];
+                    };
+                };
+            };
+        };
+    };
+    updateProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    /** Format: email */
+                    email?: string | null;
+                    national_code?: string | null;
+                    birth_date?: string | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Profile"];
+                    };
+                };
+            };
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    listMyOrders: {
+        parameters: {
+            query?: {
+                tab?: "current" | "delivered" | "cancelled";
+                /** @description Order number or product name; searches all tabs */
+                q?: string;
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Orders */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountOrder"][];
+                        meta: {
+                            page: number;
+                            per_page: number;
+                            total: number;
+                            tab?: string | null;
+                            counts: components["schemas"]["OrderTabCounts"];
+                        };
+                    };
+                };
+            };
+        };
+    };
+    getMyOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Order */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountOrderDetail"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listAddresses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Addresses */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CustomerAddress"][];
+                    };
+                };
+            };
+        };
+    };
+    createAddress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerAddressInput"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CustomerAddress"];
+                    };
+                };
+            };
+            /** @description Address limit (20) reached */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    deleteAddress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted (the newest remaining address becomes default) */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateAddress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerAddressInput"];
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CustomerAddress"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    listWishlist: {
+        parameters: {
+            query?: {
+                sort?: "newest" | "price_asc" | "price_desc" | "discount";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Product cards */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ProductCard"][];
+                        meta: {
+                            total: number;
+                            sort?: string;
+                            notify: boolean;
+                        };
+                    };
+                };
+            };
+        };
+    };
+    listWishlistSlugs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Slugs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: string[];
+                    };
+                };
+            };
+        };
+    };
+    updateWishlistSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    notify: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Saved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    addToWishlist: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Added (idempotent) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    removeFromWishlist: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Removed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listRecentlyViewed: {
+        parameters: {
+            query?: {
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Newest first (max 50) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ProductCard"][];
+                    };
+                };
+            };
+        };
+    };
+    recordProductView: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    product_slug: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Recorded */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    clearRecentlyViewed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cleared */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listMyReviews: {
+        parameters: {
+            query?: {
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reviews */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["MyReview"][];
+                    };
+                };
+            };
+        };
+    };
+    rateProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    product_slug: string;
+                    rating: number;
+                    body?: string | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description product_reviews table not deployed yet */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listNotifications: {
+        parameters: {
+            query?: {
+                category?: "orders" | "products" | "support";
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Notifications */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Notification"][];
+                        meta: {
+                            page?: number;
+                            per_page?: number;
+                            total?: number;
+                            unread?: {
+                                [key: string]: number;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+    clearNotifications: {
+        parameters: {
+            query?: {
+                category?: "orders" | "products" | "support";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    markNotificationsRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    ids?: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description Number marked read */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listTickets: {
+        parameters: {
+            query?: {
+                tab?: "in_review" | "reviewed";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tickets */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TicketSummary"][];
+                        meta: {
+                            tab?: string;
+                            counts?: {
+                                in_review?: number;
+                                reviewed?: number;
+                            };
+                            topics?: {
+                                [key: string]: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+    createTicket: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    topic: components["schemas"]["TicketTopic"];
+                    subject?: string;
+                    order_number?: string;
+                    body: string;
+                    "images[]"?: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TicketSummary"];
+                    };
+                };
+            };
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    getTicket: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Conversation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TicketDetail"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    replyTicket: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    body?: string;
+                    "images[]"?: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description Sent */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TicketMessage"];
+                    };
+                };
+            };
+            /** @description Ticket closed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    getBlogHome: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Blog landing */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogHome"];
+                    };
+                };
+            };
+        };
+    };
+    listBlogPosts: {
+        parameters: {
+            query?: {
+                page?: number;
+                per_page?: number;
+                /** @description Category path, e.g. toilet/wallhang */
+                category?: string;
+                tag?: string;
+                author?: string;
+                /** @description Search in title/excerpt */
+                q?: string;
+                sort?: "latest" | "popular";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Posts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlogPostListing"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getBlogPost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Post */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogPost"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    countBlogPostView: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Counted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+            /** @description Already counted */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listBlogCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Categories */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogCategoryTab"][];
+                    };
+                };
+            };
+        };
+    };
+    getBlogCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                path: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Category */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogCategory"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getBlogTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tag */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogTerm"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getBlogAuthor: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Author */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogAuthorPage"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getBlogSitemap: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                type: "posts" | "categories" | "tags" | "authors";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Rows */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SitemapRow"][];
+                    };
+                };
+            };
         };
     };
     listPages: {

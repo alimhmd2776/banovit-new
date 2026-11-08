@@ -1,6 +1,6 @@
 import 'server-only';
 import { cache } from 'react';
-import { createStorefrontClient, StorefrontApiError, type ListingParams } from '@banovit/api-client';
+import { createStorefrontClient, StorefrontApiError, type BlogListParams, type BlogSitemapType, type ListingParams, type Menu, type MenuKey } from '@banovit/api-client';
 import { env } from '@/lib/env';
 
 /**
@@ -38,7 +38,77 @@ export const getPage = cache(async (path: string) =>
 );
 
 export const listPages = cache(async () => client.listPages({ next: { tags: ['pages'], revalidate: REVALIDATE } }));
+/* ---------------- blog (tags mirror the CMS Surrogate-Key: blog, blog-post:{slug}, ...) ---------------- */
+
+export const getBlogHome = cache(async () => client.getBlogHome({ next: { tags: ['blog'], revalidate: REVALIDATE } }));
+
+export const listBlogPosts = cache(async (params: BlogListParams) =>
+  client.listBlogPosts(params, { next: { tags: ['blog'], revalidate: REVALIDATE } }),
+);
+
+export const getBlogPost = cache(async (slug: string) =>
+  client.getBlogPost(slug, { next: { tags: ['blog', `blog-post:${slug}`], revalidate: REVALIDATE } }),
+);
+
+export const listBlogCategories = cache(async () => client.listBlogCategories({ next: { tags: ['blog'], revalidate: REVALIDATE } }));
+
+export const getBlogCategory = cache(async (path: string) =>
+  client.getBlogCategory(path, { next: { tags: ['blog', `blog-category:${path}`], revalidate: REVALIDATE } }),
+);
+
+export const getBlogTag = cache(async (slug: string) =>
+  client.getBlogTag(slug, { next: { tags: ['blog', `blog-tag:${slug}`], revalidate: REVALIDATE } }),
+);
+
+export const getBlogAuthor = cache(async (slug: string) =>
+  client.getBlogAuthor(slug, { next: { tags: ['blog', `blog-author:${slug}`], revalidate: REVALIDATE } }),
+);
+
+export const getBlogSitemap = cache(async (type: BlogSitemapType) =>
+  client.getBlogSitemap(type, { next: { tags: ['blog'], revalidate: REVALIDATE } }),
+);
+
+/** Renamed entity: the CMS answers 404 {code: moved, location}. */
+export function movedLocation(e: unknown): string | null {
+  return e instanceof StorefrontApiError && e.code === 'moved' && e.location ? e.location : null;
+}
+
+/** «تماس با ما» content edited in the CMS (tag mirrors the API Surrogate-Key `settings:contact`). */
+export const getContactSettings = cache(async () =>
+  client.getContactSettings({ next: { tags: ['settings', 'settings:contact'], revalidate: 300 } }),
+);
+
+export const getProduct = cache(async (slug: string) =>
+  client.getProduct(slug, { next: { tags: ['products', `product-slug:${slug}`], revalidate: REVALIDATE } }),
+);
+
+/** Uncached: used by the BFF route the browser polls after the (CDN-cached) page loads. */
+export const storefront = client;
+/**
+ * CMS-managed navigation (header, mega menu, mobile sheets). Never throws: a
+ * CMS outage renders the header without that menu instead of failing the page.
+ */
+export const getMenu = cache(async (key: MenuKey): Promise<Menu> => {
+  try {
+    return await client.getMenu(key, { next: { tags: ['menu', `menu:${key}`], revalidate: 600 } });
+  } catch (e) {
+    console.error(`menu ${key} unavailable`, e);
+    return { key, name: '', items: [] };
+  }
+});
 
 export function isNotFound(e: unknown): boolean {
   return e instanceof StorefrontApiError && e.status === 404;
 }
+
+export const getSeller = cache(async (slug: string) =>
+  client.getSeller(slug, { next: { tags: ['sellers', `seller:${slug}`], revalidate: REVALIDATE } }),
+);
+
+export const listSellerProducts = cache(async (slug: string, params: ListingParams) =>
+  client.listSellerProducts(slug, params, { next: { tags: ['products', `seller:${slug}`], revalidate: 300 } }),
+);
+
+export const listSellerReviews = cache(async (slug: string, page = 1) =>
+  client.listSellerReviews(slug, page, { next: { tags: ['reviews', `seller:${slug}`], revalidate: REVALIDATE } }),
+);

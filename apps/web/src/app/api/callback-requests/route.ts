@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '@/lib/env';
 
 /**
- * BFF for the support callback form: forwards to the CMS with the internal
+ * BFF for the support callback form and the /contact-us/ form: forwards to the CMS with the internal
  * token and the visitor IP (the CMS rate-limits per visitor, not per server).
  */
 export async function POST(req: NextRequest) {
@@ -24,6 +24,10 @@ export async function POST(req: NextRequest) {
     },
     body: JSON.stringify({
       phone: String(body.phone ?? ''),
+      name: typeof body.name === 'string' ? body.name.slice(0, 100) : undefined,
+      message: typeof body.message === 'string' ? body.message.slice(0, 1000) : undefined,
+      form: body.form === 'contact' || body.form === 'product_quote' ? body.form : 'callout',
+      website: typeof body.website === 'string' ? body.website.slice(0, 200) : undefined,
       page_url: String(body.page_url ?? '').slice(0, 500),
       page_title: String(body.page_title ?? '').slice(0, 200),
     }),

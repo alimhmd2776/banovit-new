@@ -6,16 +6,17 @@
  */
 :root {
   /* primitives */
-  --brand-50: #eef6fc;
-  --brand-100: #d6e9f7;
-  --brand-200: #aed3ef;
-  --brand-300: #7db7e3;
-  --brand-400: #4a97d2;
-  --brand-500: #2580c4;
-  --brand-600: #1f6fad;
-  --brand-700: #1a5a8e;
-  --brand-800: #174a73;
-  --brand-900: #143d5e;
+  /* brand ramp around the design's primary #1F78B4 */
+  --brand-50: #eaf4fb;
+  --brand-100: #d3e8f6;
+  --brand-200: #a9d0ec;
+  --brand-300: #74b2de;
+  --brand-400: #4594cd;
+  --brand-500: #2a86c2;
+  --brand-600: #1f78b4;
+  --brand-700: #18639a;
+  --brand-800: #134f7c;
+  --brand-900: #0f3f63;
 
   --neutral-0: #ffffff;
   --neutral-50: #f7f8fa;
@@ -30,7 +31,7 @@
   --neutral-900: #1b2028;
 
   /* semantic */
-  --color-bg: var(--neutral-50);
+  --color-bg: var(--neutral-0);
   --color-surface: var(--neutral-0);
   --color-surface-muted: var(--neutral-100);
   --color-border: var(--neutral-200);
@@ -53,11 +54,13 @@
   --color-danger: #c8292f;
   --color-danger-subtle: #fdeceb;
   --color-on-danger-subtle: #a8232a;
-  --color-rating: #f2a20c;
+  --color-rating: #f59e0b;
   --color-overlay: rgb(18 22 28 / 0.48);
   /* «تخفیف شگفت‌انگیز» label */
-  --color-deal: #d6264f;
+  --color-deal: var(--brand-600);
   --color-on-deal: #ffffff;
+  /* swatch for color terms without a known hex */
+  --swatch-unknown: conic-gradient(#e8e8e8 0 25%, #c9a227 0 50%, #1b1b1b 0 75%, #b8bcc0 0);
 
   /* type */
   --font-sans: var(--font-vazirmatn, 'Vazirmatn'), Tahoma, system-ui, sans-serif;

@@ -51,7 +51,7 @@ describe('ProductCard', () => {
     expect(screen.getByText('۸۰۰٬۰۰۰')).toBeInTheDocument();
     expect(screen.getByText('۲۰٪')).toBeInTheDocument();
     expect(screen.getByText('تخفیف شگفت‌انگیز')).toBeInTheDocument();
-    expect(screen.getByText('خدمات نصب')).toBeInTheDocument();
+    expect(screen.getByText('امکان افزودن خدمات نصب')).toBeInTheDocument();
     expect(screen.getByRole('list', { name: 'سایز' })).toHaveTextContent('۶۰۸۰+۱');
     expect(screen.getByAltText('روشویی A')).toBeInTheDocument();
   });
@@ -88,5 +88,22 @@ describe('Accordion', () => {
   it('keeps answers in the markup', () => {
     render(<Accordion items={[{ id: 1, title: 'گارانتی؟', html: '<p>بله</p>' }]} />);
     expect(screen.getByText('بله')).toBeInTheDocument();
+  });
+});
+
+describe('QuantityStepper', () => {
+  it('turns minus into delete at quantity 1 and reports changes', async () => {
+    const { QuantityStepper } = await import('./QuantityStepper');
+    const onChange = vi.fn();
+    const onRemove = vi.fn();
+    const { rerender } = render(<QuantityStepper value={1} onChange={onChange} onRemove={onRemove} label="روشویی" />);
+    screen.getByRole('button', { name: 'حذف روشویی از سبد' }).click();
+    expect(onRemove).toHaveBeenCalled();
+    screen.getByRole('button', { name: 'افزایش تعداد روشویی' }).click();
+    expect(onChange).toHaveBeenCalledWith(2);
+    rerender(<QuantityStepper value={2} onChange={onChange} onRemove={onRemove} label="روشویی" />);
+    screen.getByRole('button', { name: 'کاهش تعداد روشویی' }).click();
+    expect(onChange).toHaveBeenCalledWith(1);
+    expect(screen.getByText('۲')).toBeInTheDocument();
   });
 });

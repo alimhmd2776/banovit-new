@@ -21,12 +21,15 @@
 - `product_variants`: SKU (الان یکتا نیست؛ ستون `sku` غیر یکتا + `code` داخلی یکتا)، ابعاد، وزن
 - `attributes` (۷۹ مورد، با `is_filterable`، `is_visible`، `has_archive`)، `attribute_values`، `product_attribute_values` و `variant_attribute_values`
 - `product_category` (چند به چند)، `product_media` (ترتیب، alt)، `product_addons` (جای Rico addons)، `product_relations` (مرتبط/مکمل)
-- **قیمت و موجودی جدا از محصول**: `offers` (variant_id، supplier_id nullable برای بانویت، price، sale_price، stock، lead_time، is_active). این همان مدل افزونه marketplace روی test2 است و چندفروشندگی را پشتیبانی می‌کند. `price_lists` برای قیمت همکار (B2B).
+- **قیمت و موجودی فروشندگان**: جدول `supplier_product_offers` (تصمیم ۲۰۲۶-۱۱-۰۸، از کار stage2 بازنویسی می‌شود روی شاخه `feature/supplier-offers`): supplier_id، product_id، product_variation_id، `unit_key` (`p:<id>`/`v:<id>`، یکتا per supplier)، price ریال، stock، approved_at. هر تغییر فروشنده (فرم یا اکسل) اول در `supplier_offer_submissions` و `..._items` ثبت و با تأیید ادمین روی offers اعمال می‌شود. قیمت/موجودی خود بانویت روی `products`/`product_variations` می‌ماند؛ PDP و facet این دو را ادغام می‌کنند. `price_lists` برای قیمت همکار (B2B).
+- **پروفایل عمومی فروشنده**: `storefront_sellers` (۱:۱ با suppliers از طریق supplier_id یکتا و nullable؛ NULL = خود بانویت)، با slug برای `/seller/{slug}/`.
+- **برگه محصول (پیاده‌شده، `2026_11_08_200001`)**: `product_contents` (۱:۱، توضیح بلند، ویژگی‌های کلیدی، دسته اصلی، پایان حراج، `legacy_wp_id` یکتا)، `product_media` (ایندکس `product_id, position`)، `product_addons` و `product_addon_options` (قیمت ریالی، `kind=installation`)، `product_relations` (یکتا روی product/related/type)، `product_reviews` (ایندکس `product_id, status, published_at`، `legacy_wp_id` یکتا). جزئیات: [api/pdp.md](api/pdp.md).
 
 ### Content
 - `posts` (بلاگ)، `pages`، `landing_pages`: بدنه به‌صورت `blocks` (آرایه JSON با schema نسخه‌دار، مثل `{type:"faq", v:1, props:{...}}`)، به‌اضافه `body_html` برای مقاله‌های منتقل‌شده از Elementor تا وقتی بازنویسی شوند
 - `post_categories`، `tags`، `menus` و `menu_items`، `faqs`، `media` (فایل در object storage)
 - **ساخته‌شده (۲۰۲۶-۱۱-۰۸، برگه‌ها):** `content_pages` (legacy_wp_id یکتا، parent_id، slug، path یکتا و decode‌شده، title، template، status draft/published/private، blocks JSON، body_html، published_at، revision_count، soft delete؛ ایندکس `status, published_at`) و `content_page_revisions` (snapshot کامل هر ذخیره، یکتا `content_page_id, number`). ستون `logo` (JSON) روی `product_attribute_terms` برای لوگوی برندها. قرارداد: [docs/api/pages.md](api/pages.md)
+- **پیاده‌سازی وبلاگ** (banovit-cms، `2026_11_08_200001_create_blog_tables`): `blog_posts` (slug یکتا، `body_html` + `toc`، `status` draft/scheduled/published، `published_at`، `content_updated_at`، `views_count`، `reading_minutes`، `related_product_ids`، softDeletes)، `blog_categories` (درختی با `path`)، `blog_tags`، `blog_authors`، pivotهای `blog_category_post` و `blog_post_tag`، `blog_post_revisions` (snapshot JSON)، `blog_comments`، `blog_settings` (key/value)، `media` (`legacy_wp_id` برای ورود). سئو و FAQ از `seo_meta` و `faqs` مشترک (morph: `blog_post`، `blog_category`، `blog_tag`، `blog_author`). جزئیات: [api/blog.md](api/blog.md)
 
 ### Seo
 - `seo_meta` (polymorphic: title، description، canonical، robots، og_*، focus_keywords، schema_overrides JSON)
@@ -34,6 +37,14 @@
 
 ### Customer / Checkout / Orders
 - `customers` موجود + `customer_addresses`، `customer_otps`
+  - `customer_otps` (ساخته‌شده، feature/storefront-auth): `phone`، `code_hash` (HMAC، هرگز خود کد)، `attempts`، `expires_at`، `consumed_at`، `invalidated_at`، `ip`، `user_agent`. ایندکس `(phone, created_at)` و `expires_at`. prune بعد از ۷ روز.
+  - ستون‌های جدید `customers` (expand-only): `public_id` (ULID، یکتا)، `first_name`، `last_name`، `phone_verified_at`، `last_login_at`. جزئیات در [api/auth.md](api/auth.md).
+  - حساب کاربری (ساخته‌شده، feature/storefront-account، جزئیات در [api/account.md](api/account.md)):
+    - ستون‌های جدید `customers`: `national_code` (۱۰)، `birth_date`، `identity_verified_at`.
+    - `customer_addresses`: `public_id`، `title`، `recipient_name`، `recipient_phone`، `province`، `city`، `address_line`، `plaque`، `unit`، `postal_code`، `lat`/`lng`، `is_default`، `legacy_wp_user_id`. سفارش snapshot آدرس را در `raw_payload.shipping_address` نگه می‌دارد.
+    - `customer_wishlist_items` (یکتا روی customer+product، `price_at_add`، `was_in_stock`، `alerted_at`) و `customer_product_views` (۵۰ بازدید آخر).
+    - `customer_notifications`: `category` orders|products|support، `title`، `body`، `url`، `image_url`، `read_at`.
+    - `support_tickets` (شماره `SU-xxxxx`، `topic`، `status` in_review|awaiting_customer|closed، `sales_invoice_id`) و `support_ticket_messages` (`author_type` customer|staff، `attachments` json روی دیسک local). جدا از `tickets` داخلی، چون آن‌جا `created_by` کاربر پنل است.
 - `carts` و `cart_items` (سمت سرور، جای سبد WC و جای «سبد لید»)
 - سفارش: `sales_invoices` موجود هسته سفارش است؛ ستون‌های لازم برای سفارش بومی (بدون WC) با migration افزایشی اضافه می‌شود: `source` (`wc`|`storefront`|`admin`)، `public_id`
 - `payments` و `gateway_transactions` موجود، `coupons` و `discount_rules` (جای festival-discount)، `shipping_methods`، `delivery_slots` (جای delivery-installation)
