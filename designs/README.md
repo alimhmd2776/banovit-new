@@ -26,3 +26,31 @@ The uploaded zip ("Banovit interface.zip", 2026-11-08) contained only these 9 ca
 | 02-contact-mobile.png | same, mobile: app bar «تماس با ما», form first, info cards, map, hours, footer, bottom nav | Contact us - Mobile.png |
 
 From "Banovit interface 1.zip" (2026-11-08).
+
+## plp/ — برگه فروشگاه / دسته‌بندی محصولات (PLP, mobile 393px)
+
+| File | Screen | Original export |
+|---|---|---|
+| 01-plp-full-mobile.jpg | کابینت روشویی — full page: banner, breadcrumb, sub-category chips, sort/filter/brand/price chips, active filter tags, product cards (rating, discount, price, color dots), bottom nav | Product Details.jpg |
+| 02-plp-on-scroll-mobile.jpg | same, scrolled — sticky title + filter chip bar | Product Details _ON Scroll.jpg |
+| 03-plp-no-results-mobile.jpg | no results with active filters — «محصولی با این مشخصات پیدا نکردیم» + «تغییر فیلتر» | Product Details _ON Scroll 1.jpg |
+| 04-sort-sheet-mobile.png | مرتب‌سازی bottom sheet | Sortby Sheet.png |
+| 05-filter-sheet-mobile.png | فیلتر bottom sheet (filter list) | Filter Sheet.png |
+| 06-filter-brand-mobile.png | فیلتر → برند | Product Brand.png |
+| 07-filter-color-mobile.png | فیلتر → رنگ | Product Color.png |
+| 08-filter-price-range-mobile.png | فیلتر → بازه قیمت | Product Price Range.png |
+
+## menu/ — هدر، مگامنو و دسته‌بندی‌ها
+
+Must be implemented against the final version of the menu/category plugin installed on WordPress stage2.
+
+| File | Screen | Original export |
+|---|---|---|
+| 01-header-mega-menu-desktop.jpg | Desktop header + open mega menu | Desktop.jpg |
+| 02-category-sheet-root-mobile.png | دسته‌بندی محصولات sheet — search + top-level categories with counts | Mega Category.png |
+| 03-category-sheet-subcategories-mobile.png | level 2 (e.g. شیرآلات) — sub-categories + «مشاهده همه» + promo banner | Mega Category 1.png |
+| 04-category-sheet-subcategory-groups-mobile.png | level 2 with grouped sub-categories (several «عنوان دسته» groups) | Mega Category 2.png |
+| 05-category-search-results-mobile.png | category search results («نتیجه جستجو "روشویی"») | Mega Category 3.png |
+| 06-category-search-empty-mobile.png | category search, no result | Mega Category 4.png |
+
+From the project chat uploads (2026-11-08).
