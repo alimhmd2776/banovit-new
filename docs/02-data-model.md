@@ -26,6 +26,7 @@
 ### Content
 - `posts` (بلاگ)، `pages`، `landing_pages`: بدنه به‌صورت `blocks` (آرایه JSON با schema نسخه‌دار، مثل `{type:"faq", v:1, props:{...}}`)، به‌اضافه `body_html` برای مقاله‌های منتقل‌شده از Elementor تا وقتی بازنویسی شوند
 - `post_categories`، `tags`، `menus` و `menu_items`، `faqs`، `media` (فایل در object storage)
+- **پیاده‌سازی وبلاگ** (banovit-cms، `2026_11_08_200001_create_blog_tables`): `blog_posts` (slug یکتا، `body_html` + `toc`، `status` draft/scheduled/published، `published_at`، `content_updated_at`، `views_count`، `reading_minutes`، `related_product_ids`، softDeletes)، `blog_categories` (درختی با `path`)، `blog_tags`، `blog_authors`، pivotهای `blog_category_post` و `blog_post_tag`، `blog_post_revisions` (snapshot JSON)، `blog_comments`، `blog_settings` (key/value)، `media` (`legacy_wp_id` برای ورود). سئو و FAQ از `seo_meta` و `faqs` مشترک (morph: `blog_post`، `blog_category`، `blog_tag`، `blog_author`). جزئیات: [api/blog.md](api/blog.md)
 
 ### Seo
 - `seo_meta` (polymorphic: title، description، canonical، robots، og_*، focus_keywords، schema_overrides JSON)

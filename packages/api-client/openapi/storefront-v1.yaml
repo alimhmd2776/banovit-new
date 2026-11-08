@@ -5,7 +5,7 @@ info:
   description: |
     Public, read-only catalog API served by banovit-cms under /api/storefront/v1.
     Conventions: docs/05-conventions.md (snake_case, money as integer rial, {data,meta,links}, {error}).
-    Implemented in banovit-cms branch feature/storefront-plp (routes/storefront.php).
+    Implemented in banovit-cms branches feature/storefront-plp and feature/storefront-blog (routes/storefront.php).
 servers:
   - url: https://cms-new.banovit.com/api/storefront/v1
   - url: http://127.0.0.1:8000/api/storefront/v1
@@ -109,6 +109,145 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/ProductListing' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /blog/home:
+    get:
+      operationId: getBlogHome
+      summary: Everything the /blog/ landing renders
+      responses:
+        '200':
+          description: Blog landing
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/BlogHome' }
+  /blog/posts:
+    get:
+      operationId: listBlogPosts
+      summary: Visible posts, newest first (category includes child categories, like WordPress)
+      parameters:
+        - { name: page, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 1 } }
+        - { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 48, default: 12 } }
+        - { name: category, in: query, description: 'Category path, e.g. toilet/wallhang', schema: { type: string } }
+        - { name: tag, in: query, schema: { type: string } }
+        - { name: author, in: query, schema: { type: string } }
+        - { name: q, in: query, description: Search in title/excerpt, schema: { type: string, maxLength: 100 } }
+        - { name: sort, in: query, schema: { type: string, enum: [latest, popular], default: latest } }
+      responses:
+        '200':
+          description: Posts
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BlogPostListing' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /blog/posts/{slug}:
+    get:
+      operationId: getBlogPost
+      summary: Single post (/blog/{slug}/). A renamed post answers 404 with error.code=moved and error.location.
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Post
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/BlogPost' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /blog/posts/{slug}/views:
+    post:
+      operationId: countBlogPostView
+      summary: View counter (one per IP and post per 30 minutes)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '202': { description: Counted }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { description: Already counted }
+  /blog/categories:
+    get:
+      operationId: listBlogCategories
+      summary: All blog categories with visible post counts
+      responses:
+        '200':
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/BlogCategoryTab' } }
+  /blog/categories/{path}:
+    get:
+      operationId: getBlogCategory
+      summary: Category archive data (/blog/category/{path}/)
+      parameters:
+        - { name: path, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Category
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/BlogCategory' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /blog/tags/{slug}:
+    get:
+      operationId: getBlogTag
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Tag
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/BlogTerm' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /blog/authors/{slug}:
+    get:
+      operationId: getBlogAuthor
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Author
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/BlogAuthorPage' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /blog/sitemap/{type}:
+    get:
+      operationId: getBlogSitemap
+      summary: Rows for post-sitemap.xml, category-sitemap.xml, post_tag-sitemap.xml, author-sitemap.xml (noindex rows excluded)
+      parameters:
+        - { name: type, in: path, required: true, schema: { type: string, enum: [posts, categories, tags, authors] } }
+      responses:
+        '200':
+          description: Rows
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/SitemapRow' } }
 components:
   parameters:
     categoryPath:
@@ -364,4 +503,227 @@ components:
           properties:
             code: { type: string }
             message: { type: string }
+            location: { type: string, description: 'Only with code=moved: the current URL (answer with a 301)' }
             fields: { type: object, additionalProperties: { type: array, items: { type: string } } }
+    Crumb:
+      type: object
+      required: [name, url]
+      properties:
+        name: { type: string }
+        url: { type: string }
+    BlogCategoryRef:
+      type: object
+      required: [id, name, slug, path, url]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        path: { type: string }
+        url: { type: string }
+    BlogCategoryTab:
+      allOf:
+        - $ref: '#/components/schemas/BlogCategoryRef'
+        - type: object
+          required: [parent_id, post_count]
+          properties:
+            parent_id: { type: [integer, 'null'] }
+            post_count: { type: integer }
+    BlogAuthorRef:
+      type: object
+      required: [name, slug, url]
+      properties:
+        name: { type: string }
+        slug: { type: string }
+        url: { type: string }
+        avatar: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+    BlogPostCard:
+      type: object
+      required: [id, slug, url, title, excerpt, cover, category, author, published_at, updated_at, reading_minutes, views]
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        url: { type: string }
+        title: { type: string }
+        excerpt: { type: string }
+        cover: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+        category: { oneOf: [{ $ref: '#/components/schemas/BlogCategoryRef' }, { type: 'null' }] }
+        author: { oneOf: [{ $ref: '#/components/schemas/BlogAuthorRef' }, { type: 'null' }] }
+        published_at: { type: [string, 'null'], format: date-time }
+        updated_at: { type: [string, 'null'], format: date-time }
+        reading_minutes: { type: integer }
+        views: { type: integer }
+    BlogAuthor:
+      type: object
+      required: [name, slug, url, job_title, bio, avatar, social]
+      properties:
+        name: { type: string }
+        slug: { type: string }
+        url: { type: string }
+        job_title: { type: [string, 'null'] }
+        bio: { type: [string, 'null'] }
+        avatar: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+        social: { type: object, additionalProperties: { type: string } }
+    BlogAuthorPage:
+      allOf:
+        - $ref: '#/components/schemas/BlogAuthor'
+        - type: object
+          required: [breadcrumb, seo]
+          properties:
+            breadcrumb: { type: array, items: { $ref: '#/components/schemas/Crumb' } }
+            seo: { $ref: '#/components/schemas/Seo' }
+    BlogHtmlBlock:
+      type: object
+      required: [type, html]
+      properties:
+        type: { type: string, const: html }
+        html: { type: string, description: Sanitized HTML; h2/h3 carry the ids used by toc }
+    BlogProductsBlock:
+      type: object
+      required: [type, props]
+      properties:
+        type: { type: string, const: products }
+        props:
+          type: object
+          required: [layout, products]
+          properties:
+            layout: { type: string, enum: [card, carousel] }
+            title: { type: [string, 'null'] }
+            subtitle: { type: [string, 'null'] }
+            products: { type: array, items: { $ref: '#/components/schemas/ProductCard' } }
+    BlogNoteBlock:
+      type: object
+      required: [type, props]
+      properties:
+        type: { type: string, const: note }
+        props:
+          type: object
+          properties:
+            title: { type: string }
+            variant: { type: string }
+            html: { type: string }
+    BlogBlock:
+      oneOf:
+        - $ref: '#/components/schemas/BlogHtmlBlock'
+        - $ref: '#/components/schemas/BlogProductsBlock'
+        - $ref: '#/components/schemas/BlogNoteBlock'
+    TocItem:
+      type: object
+      required: [id, text, level]
+      properties:
+        id: { type: string }
+        text: { type: string }
+        level: { type: integer, enum: [2, 3] }
+    BlogFaq:
+      type: object
+      required: [question, answer_html]
+      properties:
+        question: { type: string }
+        answer_html: { type: string }
+    BlogBanner:
+      type: object
+      required: [image]
+      properties:
+        image: { $ref: '#/components/schemas/Image' }
+        url: { type: [string, 'null'] }
+    BlogPost:
+      allOf:
+        - $ref: '#/components/schemas/BlogPostCard'
+        - type: object
+          required: [summary_html, blocks, toc, categories, tags, author_profile, faqs, related_products, related_posts, breadcrumb, banner, schema_type, word_count, seo]
+          properties:
+            summary_html: { type: [string, 'null'] }
+            blocks: { type: array, items: { $ref: '#/components/schemas/BlogBlock' } }
+            toc: { type: array, items: { $ref: '#/components/schemas/TocItem' } }
+            categories: { type: array, items: { $ref: '#/components/schemas/BlogCategoryRef' } }
+            tags: { type: array, items: { type: object, required: [name, slug, url], properties: { name: { type: string }, slug: { type: string }, url: { type: string } } } }
+            author_profile: { oneOf: [{ $ref: '#/components/schemas/BlogAuthor' }, { type: 'null' }] }
+            faqs: { type: array, items: { $ref: '#/components/schemas/BlogFaq' } }
+            related_products: { type: array, items: { $ref: '#/components/schemas/ProductCard' } }
+            related_posts: { type: array, items: { $ref: '#/components/schemas/BlogPostCard' } }
+            breadcrumb: { type: array, items: { $ref: '#/components/schemas/Crumb' } }
+            banner: { oneOf: [{ $ref: '#/components/schemas/BlogBanner' }, { type: 'null' }] }
+            schema_type: { type: string, enum: [BlogPosting, Article, NewsArticle] }
+            word_count: { type: integer }
+            seo: { $ref: '#/components/schemas/Seo' }
+    BlogCategory:
+      allOf:
+        - $ref: '#/components/schemas/BlogCategoryRef'
+        - type: object
+          required: [description_html, image, children, breadcrumb, seo]
+          properties:
+            description_html: { type: [string, 'null'] }
+            image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+            children: { type: array, items: { $ref: '#/components/schemas/BlogCategoryRef' } }
+            breadcrumb: { type: array, items: { $ref: '#/components/schemas/Crumb' } }
+            seo: { $ref: '#/components/schemas/Seo' }
+    BlogTerm:
+      type: object
+      required: [name, slug, url, description_html, breadcrumb, seo]
+      properties:
+        name: { type: string }
+        slug: { type: string }
+        url: { type: string }
+        description_html: { type: [string, 'null'] }
+        breadcrumb: { type: array, items: { $ref: '#/components/schemas/Crumb' } }
+        seo: { $ref: '#/components/schemas/Seo' }
+    BlogPostListing:
+      type: object
+      required: [data, meta, links]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/BlogPostCard' } }
+        meta:
+          type: object
+          required: [page, per_page, total, last_page]
+          properties:
+            page: { type: integer }
+            per_page: { type: integer }
+            total: { type: integer }
+            last_page: { type: integer }
+        links:
+          type: object
+          properties:
+            next: { type: [integer, 'null'] }
+            prev: { type: [integer, 'null'] }
+    BlogSection:
+      type: object
+      required: [title, posts]
+      properties:
+        key: { type: string }
+        title: { type: string }
+        subtitle: { type: [string, 'null'] }
+        category: { $ref: '#/components/schemas/BlogCategoryRef' }
+        posts: { type: array, items: { $ref: '#/components/schemas/BlogPostCard' } }
+    BlogHome:
+      type: object
+      required: [hero, categories, popular, latest, sections, promo, all, seo]
+      properties:
+        hero: { type: array, items: { $ref: '#/components/schemas/BlogPostCard' } }
+        categories: { type: array, items: { $ref: '#/components/schemas/BlogCategoryTab' } }
+        popular: { $ref: '#/components/schemas/BlogSection' }
+        latest: { $ref: '#/components/schemas/BlogSection' }
+        sections: { type: array, items: { $ref: '#/components/schemas/BlogSection' } }
+        promo:
+          oneOf:
+            - type: 'null'
+            - type: object
+              required: [title, url]
+              properties:
+                title: { type: string }
+                text: { type: [string, 'null'] }
+                cta: { type: [string, 'null'] }
+                url: { type: string }
+        all:
+          allOf:
+            - $ref: '#/components/schemas/BlogSection'
+            - type: object
+              required: [total]
+              properties:
+                total: { type: integer }
+        seo: { $ref: '#/components/schemas/Seo' }
+    SitemapRow:
+      type: object
+      required: [url, lastmod, images]
+      properties:
+        url: { type: string }
+        lastmod: { type: [string, 'null'], format: date-time }
+        images: { type: array, items: { type: string } }
