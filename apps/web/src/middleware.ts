@@ -114,7 +114,7 @@ export async function middleware(request: NextRequest) {
   let location = rule.to;
   if (search && !location.includes('?')) location += search;
   // Internal targets stay relative: behind the proxy nextUrl.origin is the container address.
-  if (/^https?:\/\//i.test(location) === false && normalize(location.split('?')[0]) === normalize(pathname)) {
+  if (/^https?:\/\//i.test(location) === false && normalize(location.split('?')[0] ?? '') === normalize(pathname)) {
     return NextResponse.next();
   }
 
