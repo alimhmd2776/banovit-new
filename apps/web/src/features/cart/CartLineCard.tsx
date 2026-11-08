@@ -12,8 +12,15 @@ export function sellerName(line: CartLine): string {
   return line.seller?.name ?? HOUSE_SELLER_NAME;
 }
 
+/** «رنگ سفید»; just the value when it already repeats the attribute word («درجه کیفیت» + «درجه دو» → «درجه دو»). */
+export function attributeLabel(name: string, value: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (!words.length || words.some((w) => value.includes(w))) return value;
+  return `${name} ${value}`;
+}
+
 export function lineDetails(line: CartLine): string[] {
-  const out = line.variation?.attributes.map((a) => `${a.name} ${a.value}`) ?? [];
+  const out = line.variation?.attributes.map((a) => attributeLabel(a.name, a.value)) ?? [];
   for (const a of line.addons ?? []) out.push(a.label);
   if (line.installation.selected && line.installation.available) out.push('با خدمات نصب');
   return out;
