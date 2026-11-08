@@ -325,8 +325,8 @@ product meta: _cwa_enable_addons = yes|no, _cwa_product_addon_groups = [group_id
 | # | قابلیت | داده/محل فعلی | وضعیت |
 |---|---|---|---|
 | G1 | تیکت‌های پشتیبانی مشتریان | API ادمین `support-tickets` هست، صفحه پنل نیست | ✅ thread داشبورد حساب مشتری |
-| G2 | نظرهای محصول (تأیید، رد، پاسخ) | جدول `product_reviews`، ثبت از `POST products/{slug}/reviews` و `me/reviews` | ✅ گروه الف (panel-moderation) |
-| G3 | کدهای تخفیف | جدول `storefront_coupons`، `cart/coupon` | ✅ گروه الف (panel-moderation) |
+| G2 | نظرهای محصول (تأیید، رد، پاسخ) | جدول `product_reviews`، ثبت از `POST products/{slug}/reviews` و `me/reviews` | ✅ گروه الف (panel-moderation، LIVE stage2 در 8e20d9a) — `/panel/storefront/reviews`، قواعد در `storefront_settings` `moderation.reviews` |
+| G3 | کدهای تخفیف | جدول `storefront_coupons`، `cart/coupon` | ✅ گروه الف (panel-moderation، LIVE stage2 در 8e20d9a) — `/panel/storefront/coupons` |
 | G4 | محتوای دسته‌ها: توضیح، FAQ، عنوان/توضیح سئو، آیکون/تصویر | `categories` (ستون‌های storefront)، `faqs`، `seo_meta`؛ صفحه `/catalog` این‌ها را ندارد | ✅ گروه ب (catalog-content) |
 | G5 | محتوای برندها: لوگو، سئو، FAQ، معرفی | `seo_meta`، `faqs`؛ فرم برند فقط اطلاعات تأمین را دارد | ✅ گروه ب (catalog-content) |
 | G6 | فیلترهای هر دسته/برند | `storefront_facets`، `storefront_facet_rules` (فقط از import) | ✅ گروه ب (catalog-content) |
@@ -335,7 +335,7 @@ product meta: _cwa_enable_addons = yes|no, _cwa_product_addon_groups = [group_id
 | G9 | برچسب‌های کارت محصول: «تخفیف شگفت‌انگیز»، «منتخب»، «امکان نصب» | env `STOREFRONT_AMAZING_TAGS`، `STOREFRONT_FEATURED_TAGS`، `STOREFRONT_INSTALL_TAGS` | ✅ تنظیمات فروشگاه › برچسب‌های محصول (این thread، 8e20d9a) |
 | G10 | الگوهای پیش‌فرض عنوان و توضیح سئو (محصول، دسته، برند، برگه، فروشنده) | `config/storefront.php` `seo` | ✅ تنظیمات فروشگاه › عنوان پیش‌فرض گوگل (دسته/برند/برگه/فروشنده + نام سایت)؛ محصول: «برگه محصول» |
 | G11 | متن‌های ثابت صفحه محصول: شماره مشاوره، گارانتی پیش‌فرض، باکس «روش ارسال و پرداخت»، نام و لوگوی فروشگاه بانویت | `config/storefront.php` `pdp`، `house_seller` | ✅ thread PDP، بخش «برگه محصول» |
-| G12 | اعلان‌های حساب مشتری (دیدن یا فرستادن پیام به مشتری) | جدول `customer_notifications` (خودکار با تغییر وضعیت سفارش) | ✅ گروه الف (panel-moderation) |
+| G12 | اعلان‌های حساب مشتری (دیدن یا فرستادن پیام به مشتری) | جدول `customer_notifications` (خودکار با تغییر وضعیت سفارش) | ✅ گروه الف (panel-moderation، LIVE stage2 در 8e20d9a) — `/panel/storefront/messages`، قالب پیام‌ها در AccountSettings |
 | G13 | ریدایرکت‌ها (آدرس قدیمی به جدید، ۱۸۱ ریدایرکت Yoast + slugهای قدیمی) | فقط خودکار هنگام تغییر slug محصول | ✅ گروه ب (catalog-content) |
 | G14 | تنظیمات فهرست محصولات: مرتب‌سازی پیش‌فرض، تعداد در صفحه، ناموجودها آخر | `config/storefront.php` `listing` | ✅ تنظیمات فروشگاه › فهرست محصولات (+ رنگ و سایز کارت محصول) |
 | G15 | محدودیت‌های ورود با کد (اعتبار کد، تعداد تلاش) و گزارش کدهای ارسالی | `config/storefront.php` `auth.otp`، جدول `customer_otps` | ✅ تنظیمات فروشگاه › ورود با کد (+ مدت ماندن در حساب)؛ پیامک و متن ورود: /panel/settings/storefront-auth |
@@ -347,4 +347,4 @@ product meta: _cwa_enable_addons = yes|no, _cwa_product_addon_groups = [group_id
 
 می‌مانند (عمداً، زیرساخت یا رمز): `site_url`، `preview_url`، `internal_token`، `media_host`، `source_price_multiplier`، `search.*`، `revalidate.*`، `http_cache.*`، `pdp.cache_ttl`، `listing.max_page`، `auth.otp.driver/sms_*`، `checkout.payment.callback_url`، `blog.media_disk`، `blog.max_revisions`.
 
-هنوز بررسی/تصمیم: `checkout.order.initial_status/offline_status/paid_status` (منطق گردش سفارش، پیشنهاد: در کد بماند)، `storefront.account.notify_order_status` (پیام خودکار؛ گروه الف در AccountSettings)، `blog.per_page` (thread وبلاگ)، `storefront.color_names` (thread PLP، رنگ‌ها).
+هنوز بررسی/تصمیم: `checkout.order.initial_status/offline_status/paid_status` (منطق گردش سفارش، پیشنهاد: در کد بماند)، `storefront.account.notify_order_status` (پیام خودکار؛ گروه الف در AccountSettings)، ~~`blog.per_page`~~ حل شد (354b073، هنوز deploy نشده)، ~~`storefront.color_names`~~ حل شد (1287f35، deploy شده).
