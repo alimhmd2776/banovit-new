@@ -1,7 +1,7 @@
 'use client';
 
+import { IconTrash } from '@banovit/ui';
 import { appBarButton } from './AppBar';
-import { IconTrash } from './icons';
 
 /** App-bar trash button; triggers the list's hidden clear action (keeps one source of truth for state). */
 export function ClearNotificationsButton({ disabled }: { disabled: boolean }) {

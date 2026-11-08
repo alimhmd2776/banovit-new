@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import type { OrderDetail } from '@banovit/api-client';
+import type { AccountOrderDetail } from '@banovit/api-client';
 import { AppBar } from '@/features/account/AppBar';
 import { OrderPickRow } from '@/features/account/OrderPickRow';
 import { ReportForm } from '@/features/account/ReportForm';
@@ -17,7 +17,7 @@ export default async function NewTicketPage({ searchParams }: { searchParams: Pr
   const orderNumber = sp.order?.trim() || null;
   const self = `/my-account/support/new/${qs({ topic: topic.key, order: orderNumber ?? undefined })}`;
   await requireCustomer(self);
-  const order = orderNumber ? (await accountGet<{ data: OrderDetail }>(`/orders/${encodeURIComponent(orderNumber)}`, self)).data : null;
+  const order = orderNumber ? (await accountGet<{ data: AccountOrderDetail }>(`/orders/${encodeURIComponent(orderNumber)}`, self)).data : null;
   const back = topic.needsOrder ? `/my-account/support/select-order/?topic=${topic.key}` : `/my-account/support/topics/${topic.key}/`;
   return (
     <>

@@ -1,13 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import type { OrderSummary } from '@banovit/api-client';
-import { cx, faDigits, formatToman, IconChevronLeft } from '@banovit/ui';
+import type { AccountOrder } from '@banovit/api-client';
+import { cx, faDigits, formatToman, IconBag, IconChevronLeft } from '@banovit/ui';
 import { jalaliLong } from './format';
-import { IconBag, IconCube, IconPin } from './icons';
+import { IconCube, IconPin } from './icons';
 import { OrderSteps } from './OrderSteps';
 
 /** Order card (designs 04–07). Orders still in progress get the blue status strip. */
-export function OrderCard({ order }: { order: OrderSummary }) {
+export function OrderCard({ order }: { order: AccountOrder }) {
   const active = order.tab === 'current';
   const pending = order.tab === 'cancelled' && order.steps.some((s) => s.state === 'current');
   const highlight = active || pending;
@@ -62,7 +62,7 @@ export function OrderCard({ order }: { order: OrderSummary }) {
   );
 }
 
-export function Thumbs({ images }: { images: OrderSummary['item_images'] }) {
+export function Thumbs({ images }: { images: AccountOrder['item_images'] }) {
   if (!images.length) return null;
   return (
     <ul className="flex gap-1.5" aria-label="کالاهای سفارش">

@@ -1,6 +1,5 @@
 import type { OrderStep } from '@banovit/api-client';
-import { cx } from '@banovit/ui';
-import { IconCheckCircle, IconClock } from './icons';
+import { cx, IconCheckCircle, IconClock } from '@banovit/ui';
 
 /** Four-step progress («پرداخت شده → درحال آماده‌سازی → ارسال مرسوله → تحویل کالا»). */
 export function OrderSteps({ steps, size = 'sm' }: { steps: OrderStep[]; size?: 'sm' | 'md' }) {

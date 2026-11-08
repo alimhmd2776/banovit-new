@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { CustomerNotification } from '@banovit/api-client';
-import { cx } from '@banovit/ui';
+import { cx, IconBag } from '@banovit/ui';
 import { me } from './client';
 import { EmptyState } from './EmptyState';
 import { relative } from './format';
-import { IconBag, IconBell, IconHeadset } from './icons';
+import { IconBell, IconHeadset } from './icons';
 
 const HEADINGS = { orders: 'سفارشات', products: 'محصولات', support: 'پشتیبانی' } as const;
 

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { OrderSummary, OrderTabCounts } from '@banovit/api-client';
+import type { AccountOrder, OrderTabCounts } from '@banovit/api-client';
 import { faDigits, IconSearch } from '@banovit/ui';
 import { AppBar, appBarButton } from '@/features/account/AppBar';
 import { EmptyState } from '@/features/account/EmptyState';
@@ -30,7 +30,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Sp })
   const self = `/my-account/orders/${qs({ tab: tab === 'current' ? undefined : tab, q })}`;
   await requireCustomer(self);
 
-  const res = await accountGet<{ data: OrderSummary[]; meta: { total: number; per_page: number; counts: OrderTabCounts } }>(
+  const res = await accountGet<{ data: AccountOrder[]; meta: { total: number; per_page: number; counts: OrderTabCounts } }>(
     `/orders${qs({ tab, q, page, per_page: 10 })}`,
     self,
   );

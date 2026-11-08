@@ -3,10 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { ProductCard as Card } from '@banovit/api-client';
-import { cx, faDigits, IconSort, Switch } from '@banovit/ui';
+import { cx, faDigits, IconHeart, IconSort, Switch } from '@banovit/ui';
 import { me } from './client';
 import { EmptyState } from './EmptyState';
-import { IconHeart } from './icons';
 
 const SORTS = [
   { key: 'newest', label: 'جدیدترین' },

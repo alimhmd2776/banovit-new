@@ -89,6 +89,231 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/products/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Product page data (/shop/{slug}/) */
+        get: operations["getProduct"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/products/{slug}/live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Fresh price and stock (Cache-Control 5 s), refreshed by the browser after the cached page loads */
+        get: operations["getProductLive"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/products/{slug}/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Approved reviews, newest first */
+        get: operations["listProductReviews"];
+        put?: never;
+        /** Submit a review (held for moderation). Per-IP write limit. */
+        post: operations["createProductReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The visitor's cart (empty cart with token null when none) */
+        get: operations["getCart"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Checkout options (address, delivery day, packaging, payment method, note, attribution) */
+        patch: operations["updateCart"];
+        trace?: never;
+    };
+    "/cart/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a product (creates the cart when there is no token; response carries data.token) */
+        post: operations["addCartItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cart/items/{item}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["removeCartItem"];
+        options?: never;
+        head?: never;
+        patch: operations["updateCartItem"];
+        trace?: never;
+    };
+    "/cart/coupon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["applyCoupon"];
+        delete: operations["removeCoupon"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cart/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** After login (Bearer customer token), fold the guest cart into the customer's */
+        post: operations["mergeCart"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Place the cart as an order (sales_invoices, source=storefront) and start payment */
+        post: operations["placeOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orders/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getOrder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orders/{number}/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retry payment of a pending order */
+        post: operations["payOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payments/zarinpal/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["verifyZarinpal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/menus/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Navigation menu managed in the CMS («منوهای فروشگاه»)
+         * @description categories = desktop mega menu + mobile category sheet (level 1 category, level 2 group, level 3 items);
+         *     header_nav = desktop nav row; header_top = desktop top bar; mobile_quick = mobile drawer «دسترسی سریع».
+         *     Inactive items and categories/tags without products are already removed.
+         *
+         */
+        get: operations["getMenu"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/otp": {
         parameters: {
             query?: never;
@@ -155,6 +380,111 @@ export interface paths {
         head?: never;
         /** Signup «نام و نام خانوادگی» step */
         patch: operations["updateMe"];
+        trace?: never;
+    };
+    "/sellers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Public sellers (house seller first) */
+        get: operations["listSellers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sellers/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Seller profile page data (/seller/{slug}/) */
+        get: operations["getSeller"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sellers/{slug}/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Products this seller sells (seller facet is fixed) */
+        get: operations["listSellerProducts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sellers/{slug}/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Buyer reviews of a seller (empty until the reviews module ships) */
+        get: operations["listSellerReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/settings/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** «تماس با ما» page content (/contact-us/), editable in the CMS admin app */
+        get: operations["getContactSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/callback-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Visitor asks to be called back (listing callout, contact form) → CMS sales lead signal
+         * @description Called only by the Next.js BFF (/api/callback-requests/) with X-Storefront-Token and X-Client-IP. Rate limited per visitor IP.
+         */
+        post: operations["createCallbackRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/me/summary": {
@@ -449,6 +779,74 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ContactSettings: {
+            path: string;
+            heading: string;
+            intro?: string | null;
+            hours_title?: string | null;
+            hours_note?: string | null;
+            opening_hours: {
+                days: ("Saturday" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday")[];
+                opens: string;
+                closes: string;
+            }[];
+            phones: {
+                label: string;
+                /** @description Latin digits */
+                number: string;
+                /** @description E.164 for tel: links, e.g. +982191014093 */
+                tel: string;
+            }[];
+            email?: string | null;
+            locations: {
+                label: string;
+                street_address: string;
+                locality: string;
+                region?: string | null;
+                postal_code?: string | null;
+                /** @enum {string} */
+                icon: "office" | "warehouse" | "store";
+                /** @description The LocalBusiness address in JSON-LD */
+                is_primary: boolean;
+                display: string;
+            }[];
+            map: {
+                lat?: number | null;
+                lng?: number | null;
+                zoom: number;
+                pin_label?: string | null;
+                image?: components["schemas"]["Image"] | null;
+                neshan_url?: string | null;
+                directions_url: string;
+            };
+            form: {
+                title: string;
+                message_placeholder?: string | null;
+                submit_label: string;
+                success_message: string;
+            };
+            socials: {
+                /** @enum {string} */
+                network: "whatsapp" | "telegram" | "instagram" | "bale" | "rubika" | "eitaa" | "aparat" | "linkedin";
+                url: string;
+            }[];
+            seo: components["schemas"]["Seo"];
+        };
+        CallbackRequest: {
+            /** @description Iranian mobile */
+            phone: string;
+            name?: string | null;
+            message?: string | null;
+            /**
+             * @default callout
+             * @enum {string}
+             */
+            form: "callout" | "contact";
+            page_url?: string | null;
+            page_title?: string | null;
+            /** @description Honeypot; must be empty */
+            website?: string | null;
+        };
         /** @enum {string} */
         SortKey: "relevant" | "newest" | "popular" | "price_asc" | "price_desc" | "featured" | "rating";
         Money: {
@@ -515,6 +913,92 @@ export interface components {
             breadcrumb: components["schemas"]["BreadcrumbItem"][];
             seo: components["schemas"]["Seo"];
             faqs: components["schemas"]["Faq"][];
+        };
+        SellerStats: {
+            rating: {
+                average: number;
+                count: number;
+            } | null;
+            sales_count: number;
+            product_count: number;
+            /** Format: date */
+            joined_at: string | null;
+            years_on_banovit: number | null;
+        };
+        SellerCard: {
+            id: number;
+            slug: string;
+            name: string;
+            /** @description /seller/{slug}/ */
+            url: string;
+            tagline: string | null;
+            logo: components["schemas"]["Image"] | null;
+            /** @description Banovit itself */
+            is_house: boolean;
+            stats: components["schemas"]["SellerStats"];
+        };
+        OpeningRange: {
+            /** @description HH:MM, Asia/Tehran */
+            open: string;
+            close: string;
+        };
+        OpeningDay: {
+            /** @enum {string} */
+            day: "sat" | "sun" | "mon" | "tue" | "wed" | "thu" | "fri";
+            label: string;
+            /** @description Empty = closed that day */
+            ranges: components["schemas"]["OpeningRange"][];
+        };
+        Seller: components["schemas"]["SellerCard"] & {
+            about_html: string | null;
+            location: {
+                address: string | null;
+                lat: number | null;
+                lng: number | null;
+            } | null;
+            opening_hours: {
+                /** @constant */
+                timezone: "Asia/Tehran";
+                days: components["schemas"]["OpeningDay"][];
+            } | null;
+            breadcrumb: components["schemas"]["BreadcrumbItem"][];
+            seo: components["schemas"]["Seo"];
+        };
+        SellerReview: {
+            id: number;
+            author: {
+                name: string;
+                avatar: components["schemas"]["Image"] | null;
+                /** @description «خریدار» badge */
+                is_buyer: boolean;
+                /** @description «خریدار فعال و باتجربه بانویت» */
+                is_experienced_buyer: boolean;
+            };
+            rating: number;
+            body: string;
+            /** Format: date-time */
+            created_at: string;
+            product: {
+                name: string;
+                path: string;
+                image: components["schemas"]["Image"] | null;
+                /** @description e.g. «رنگ طوسی • سایز ۷۵x۹۸» */
+                variant_label: string | null;
+            } | null;
+        };
+        SellerReviewList: {
+            data: components["schemas"]["SellerReview"][];
+            meta: {
+                page: number;
+                per_page: number;
+                total: number;
+                last_page: number;
+                rating: components["schemas"]["SellerStats"]["rating"];
+            };
+            links: {
+                prev_page?: number | null;
+                next_page?: number | null;
+            };
         };
         ProductCard: {
             id: number;
@@ -615,6 +1099,215 @@ export interface components {
                 next_page: number | null;
             };
         };
+        ProductOptionValue: {
+            /** @description Term slug (same as WordPress ?attribute_pa_x=) or the label for custom attributes */
+            value: string;
+            label: string;
+            hex: string | null;
+        };
+        ProductOption: {
+            /** @description pa_* facet key, or attr_N for custom attributes */
+            key: string;
+            label: string;
+            /** @enum {string} */
+            type: "swatch" | "button";
+            values: components["schemas"]["ProductOptionValue"][];
+        };
+        ProductVariant: {
+            /** @description variation_id for the cart */
+            id: number;
+            sku: string | null;
+            /** @description option key -> value; null means any value */
+            attributes: {
+                [key: string]: string | null;
+            };
+            price: components["schemas"]["Money"] | null;
+            regular_price: components["schemas"]["Money"] | null;
+            discount_percent: number;
+            in_stock: boolean;
+            image: components["schemas"]["Image"] | null;
+        };
+        ProductAddonOption: {
+            /** @description Sent to the cart in addon_ids */
+            id: number;
+            label: string;
+            description: string | null;
+            price: components["schemas"]["Money"];
+            /** @description installation | other */
+            kind: string;
+            default: boolean;
+        };
+        ProductAddon: {
+            id: number;
+            title: string;
+            description: string | null;
+            /** @enum {string} */
+            type: "checkbox" | "radio";
+            required: boolean;
+            options: components["schemas"]["ProductAddonOption"][];
+        };
+        ProductRating: {
+            average: number;
+            count: number;
+            /** @description "5".."1" -> count */
+            distribution: {
+                [key: string]: number;
+            };
+        };
+        Review: {
+            id: number;
+            author_name: string;
+            is_verified_buyer: boolean;
+            rating: number | null;
+            body: string;
+            variant_label: string | null;
+            likes: number;
+            dislikes: number;
+            /** Format: date-time */
+            published_at: string | null;
+        };
+        ReviewListing: {
+            data: components["schemas"]["Review"][];
+            meta: {
+                page: number;
+                per_page: number;
+                total: number;
+                last_page: number;
+                rating: components["schemas"]["ProductRating"] | null;
+            };
+            links: {
+                prev_page: number | null;
+                next_page: number | null;
+            };
+        };
+        ShippingLine: {
+            icon: string;
+            label: string;
+            text: string;
+        };
+        ProductLive: {
+            id: number;
+            price: components["schemas"]["Money"] | null;
+            price_max: components["schemas"]["Money"] | null;
+            regular_price: components["schemas"]["Money"] | null;
+            discount_percent: number;
+            in_stock: boolean;
+            availability: components["schemas"]["Availability"];
+            variants: {
+                id: number;
+                price: components["schemas"]["Money"] | null;
+                regular_price: components["schemas"]["Money"] | null;
+                discount_percent: number;
+                in_stock: boolean;
+            }[];
+        };
+        /** @enum {string} */
+        Availability: "in_stock" | "out_of_stock" | "backorder" | "no_price";
+        ProductDetail: {
+            id: number;
+            slug: string;
+            name: string;
+            /** @description /shop/{slug}/ lowercase percent-encoded, like WordPress */
+            path: string;
+            /** @enum {string} */
+            type: "simple" | "variable";
+            sku: string | null;
+            brand: {
+                slug: string;
+                name: string;
+                url: string;
+            } | null;
+            primary_category: {
+                id: number;
+                name: string;
+                url: string;
+            } | null;
+            /** @description Category chain, root first (the product is appended by the page) */
+            breadcrumb: components["schemas"]["BreadcrumbItem"][];
+            images: components["schemas"]["Image"][];
+            short_description_html: string | null;
+            description_html: string | null;
+            key_features: string[];
+            specs: {
+                label: string;
+                value: string;
+            }[];
+            price: components["schemas"]["Money"] | null;
+            price_max: components["schemas"]["Money"] | null;
+            regular_price: components["schemas"]["Money"] | null;
+            discount_percent: number;
+            in_stock: boolean;
+            availability: components["schemas"]["Availability"];
+            /** Format: date */
+            price_valid_until: string | null;
+            options: components["schemas"]["ProductOption"][];
+            variants: components["schemas"]["ProductVariant"][];
+            addons: components["schemas"]["ProductAddon"][];
+            badges: {
+                install_service: boolean;
+            };
+            /** @description Null unless there are approved rated reviews (no AggregateRating then) */
+            rating: components["schemas"]["ProductRating"] | null;
+            reviews: {
+                total: number;
+                items: components["schemas"]["Review"][];
+            };
+            seller: {
+                name: string;
+                badge: string | null;
+                logo: string | null;
+                warranty: string;
+                shipping: {
+                    title: string;
+                    lines: components["schemas"]["ShippingLine"][];
+                    url: string;
+                };
+            };
+            faqs: components["schemas"]["Faq"][];
+            related: components["schemas"]["ProductCard"][];
+            related_posts: {
+                title: string;
+                url: string;
+                image?: components["schemas"]["Image"] | null;
+                category?: string | null;
+                published_at?: string | null;
+            }[];
+            seo: components["schemas"]["Seo"];
+            /** Format: date-time */
+            updated_at: string | null;
+        };
+        Menu: {
+            key: string;
+            name: string;
+            items: components["schemas"]["MenuItem"][];
+        };
+        MenuItem: {
+            id: number;
+            title: string;
+            /** @description Site-relative path (/shop/category/x/) or absolute external URL */
+            url: string;
+            image: components["schemas"]["MenuImage"] | null;
+            /** @description Icon image URL, or a built-in icon name (discount, bestseller, newest, track, phone, article, user) */
+            icon: string | null;
+            /** @description Published products of the linked category/tag; null for plain links or when hidden */
+            product_count: number | null;
+            highlight: boolean;
+            promo: components["schemas"]["MenuPromo"] | null;
+            children: components["schemas"]["MenuItem"][];
+        };
+        MenuImage: {
+            url: string;
+            alt?: string | null;
+            width?: number | null;
+            height?: number | null;
+        };
+        MenuPromo: {
+            image_url?: string;
+            title?: string;
+            badge?: string;
+            button_text?: string;
+            url?: string;
+        };
         Error: {
             error: {
                 code: string;
@@ -627,6 +1320,188 @@ export interface components {
                 /** @description Wrong OTP tries left for the current code (otp_invalid) */
                 attempts_left?: number;
             };
+        };
+        Address: {
+            title?: string;
+            recipient_name?: string;
+            recipient_phone?: string;
+            province?: string;
+            city?: string;
+            address_line?: string;
+            plaque?: string;
+            unit?: string;
+            postal_code?: string;
+            lat?: number;
+            lng?: number;
+        };
+        CartItemCreate: {
+            product_id: number;
+            variation_id?: number | null;
+            /** @description Alias of variation_id */
+            variant_id?: number | null;
+            /** @default 1 */
+            quantity: number;
+            installation?: boolean;
+            /** @description PDP add-on option ids (installation service) */
+            addon_ids?: number[];
+        };
+        CartUpdate: {
+            packaging?: boolean;
+            /** Format: date */
+            delivery_date?: string | null;
+            address?: components["schemas"]["Address"] | null;
+            /** @description Saved customer address (signed-in) */
+            address_id?: string | null;
+            payment_method?: string | null;
+            customer_note?: string | null;
+            attribution?: {
+                [key: string]: string;
+            };
+        };
+        CartLine: {
+            id: number;
+            product: {
+                id: number;
+                name: string;
+                slug: string;
+                path: string;
+                image: components["schemas"]["Image"] | null;
+                brand: {
+                    slug: string;
+                    name: string;
+                } | null;
+            };
+            variation: {
+                id: number;
+                attributes: {
+                    name: string;
+                    value: string;
+                }[];
+            } | null;
+            quantity: number;
+            max_quantity: number;
+            unit_price: components["schemas"]["Money"];
+            unit_regular_price: components["schemas"]["Money"];
+            discount_percent: number;
+            line_total: components["schemas"]["Money"];
+            line_regular_total: components["schemas"]["Money"];
+            purchasable: boolean;
+            issue: {
+                code: string;
+                message: string;
+            } | null;
+            installation: {
+                available: boolean;
+                available_in_zone: boolean;
+                selected: boolean;
+                addon_ids: number[];
+                unit_fee: components["schemas"]["Money"];
+                total: components["schemas"]["Money"];
+            };
+        };
+        DeliverySlot: {
+            /** Format: date */
+            date: string;
+            weekday: string;
+            /** @description Jalali */
+            day_label: string;
+            fee: components["schemas"]["Money"];
+        };
+        PaymentMethod: {
+            /** @enum {string} */
+            key: "zarinpal" | "card_to_card" | "installments";
+            label: string;
+            available: boolean;
+            description: string | null;
+        };
+        CartTotals: {
+            items_regular: components["schemas"]["Money"];
+            items: components["schemas"]["Money"];
+            product_discount: components["schemas"]["Money"];
+            installation: components["schemas"]["Money"];
+            packaging: components["schemas"]["Money"];
+            shipping: components["schemas"]["Money"];
+            service_fee: components["schemas"]["Money"];
+            coupon_discount: components["schemas"]["Money"];
+            payable: components["schemas"]["Money"];
+            savings: components["schemas"]["Money"];
+        };
+        Cart: {
+            token: string | null;
+            item_count: number;
+            items: components["schemas"]["CartLine"][];
+            options: {
+                packaging: boolean;
+                /** Format: date */
+                delivery_date: string | null;
+                address: components["schemas"]["Address"] | null;
+                payment_method: string | null;
+                customer_note: string | null;
+            };
+            coupon: {
+                code: string;
+                label: string;
+                discount: components["schemas"]["Money"];
+            } | null;
+            delivery: {
+                zone: {
+                    key: string;
+                    label: string;
+                };
+                fee: components["schemas"]["Money"];
+                fee_label: string | null;
+                window_label: string;
+                requires_slot: boolean;
+                slots: components["schemas"]["DeliverySlot"][];
+            };
+            addons: {
+                packaging: {
+                    label: string;
+                    description: string;
+                    fee: components["schemas"]["Money"];
+                } | null;
+                installation: {
+                    label: string;
+                    item_label: string;
+                    description: string;
+                    available_in_zone: boolean;
+                    available_items: number;
+                    selected_items: number;
+                };
+            };
+            payment_methods: components["schemas"]["PaymentMethod"][];
+            totals: components["schemas"]["CartTotals"];
+            issues: {
+                code: string;
+                message: string;
+                item_id: number | null;
+            }[];
+            ready_for_checkout: boolean;
+        };
+        OrderSummary: {
+            number: string;
+            status: string;
+            status_label: string;
+            is_paid: boolean;
+            payment_method: string | null;
+            payment_method_label: string | null;
+            total: components["schemas"]["Money"];
+            item_count: number;
+            /** Format: date-time */
+            placed_at: string | null;
+        };
+        PaymentStart: {
+            method: string;
+            /** @enum {string} */
+            status: "redirect" | "offline";
+            redirect_url: string | null;
+            message: string | null;
+        };
+        PlacedOrder: {
+            order: components["schemas"]["OrderSummary"];
+            /** @description Send as X-Order-Token to read/pay this order; null on replay */
+            access_token: string | null;
+            payment: components["schemas"]["PaymentStart"] | null;
         };
         OtpChallenge: {
             /** @description Normalized 09XXXXXXXXX */
@@ -695,7 +1570,7 @@ export interface components {
             /** @enum {string} */
             state: "done" | "current" | "upcoming";
         };
-        OrderSummary: {
+        AccountOrder: {
             number: string;
             /** @enum {string} */
             tab: "current" | "delivered" | "cancelled";
@@ -733,7 +1608,7 @@ export interface components {
                 image?: components["schemas"]["Image"] | null;
             } | null;
         };
-        OrderDetail: components["schemas"]["OrderSummary"] & {
+        AccountOrderDetail: components["schemas"]["AccountOrder"] & {
             recipient: {
                 name?: string | null;
                 phone?: string | null;
@@ -771,7 +1646,7 @@ export interface components {
             } | null;
             can_rate: boolean;
         };
-        AddressInput: {
+        CustomerAddressInput: {
             title?: string | null;
             recipient_name?: string | null;
             recipient_phone?: string | null;
@@ -785,7 +1660,7 @@ export interface components {
             lng?: number | null;
             is_default?: boolean;
         };
-        Address: components["schemas"]["AddressInput"] & {
+        CustomerAddress: components["schemas"]["CustomerAddressInput"] & {
             /** @description ULID; checkout accepts it as address_id */
             id: string;
             full_line: string;
@@ -880,6 +1755,26 @@ export interface components {
                 "application/json": components["schemas"]["Error"];
             };
         };
+        /** @description Stock/price/state conflict (out_of_stock, cart_changed, ...) */
+        Conflict: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Full cart */
+        CartResponse: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    data: components["schemas"]["Cart"];
+                };
+            };
+        };
         /** @description Invalid query */
         ValidationError: {
             headers: {
@@ -891,8 +1786,12 @@ export interface components {
         };
     };
     parameters: {
+        /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+        cartToken: string;
         /** @description Slug path after /shop/category/, e.g. vanity/cabinet-vanity (slashes allowed) */
         categoryPath: string;
+        /** @description Product slug after /shop/ (decoded or percent-encoded) */
+        productSlug: string;
         page: number;
         per_page: 12 | 24 | 36 | 48;
         sort: components["schemas"]["SortKey"];
@@ -1075,6 +1974,445 @@ export interface operations {
             404: components["responses"]["NotFound"];
         };
     };
+    getProduct: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Product slug after /shop/ (decoded or percent-encoded) */
+                slug: components["parameters"]["productSlug"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Product */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ProductDetail"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getProductLive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Product slug after /shop/ (decoded or percent-encoded) */
+                slug: components["parameters"]["productSlug"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Live price/stock */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ProductLive"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listProductReviews: {
+        parameters: {
+            query?: {
+                page?: components["parameters"]["page"];
+            };
+            header?: never;
+            path: {
+                /** @description Product slug after /shop/ (decoded or percent-encoded) */
+                slug: components["parameters"]["productSlug"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reviews */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewListing"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    createProductReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Product slug after /shop/ (decoded or percent-encoded) */
+                slug: components["parameters"]["productSlug"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    author_name: string;
+                    /** @description Optional mobile 09xxxxxxxxx (Persian digits accepted) */
+                    phone?: string;
+                    rating: number;
+                    body: string;
+                    variation_id?: number | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Received */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: number;
+                            /** @constant */
+                            status: "pending";
+                        };
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    getCart: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["CartResponse"];
+        };
+    };
+    updateCart: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CartUpdate"];
+            };
+        };
+        responses: {
+            200: components["responses"]["CartResponse"];
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    addCartItem: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CartItemCreate"];
+            };
+        };
+        responses: {
+            201: components["responses"]["CartResponse"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    removeCartItem: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path: {
+                item: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["CartResponse"];
+        };
+    };
+    updateCartItem: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path: {
+                item: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description 0 removes the line */
+                    quantity?: number;
+                    installation?: boolean;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["CartResponse"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    applyCoupon: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    code: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["CartResponse"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    removeCoupon: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["CartResponse"];
+        };
+    };
+    mergeCart: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    guest_token: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["CartResponse"];
+            401: components["responses"]["NotFound"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    placeOrder: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Replay of the same Idempotency-Key (payment is null) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PlacedOrder"];
+                    };
+                };
+            };
+            /** @description Order placed */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PlacedOrder"];
+                    };
+                };
+            };
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    getOrder: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Order-Token"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Order summary */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["OrderSummary"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    payOrder: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Order-Token"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    payment_method?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Payment started */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            order: components["schemas"]["OrderSummary"];
+                            payment: components["schemas"]["PaymentStart"];
+                        };
+                    };
+                };
+            };
+            409: components["responses"]["Conflict"];
+        };
+    };
+    verifyZarinpal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    authority: string;
+                    status: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Verification result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            paid: boolean;
+                            ref_id: string | null;
+                            order: components["schemas"]["OrderSummary"];
+                        };
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getMenu: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: "categories" | "header_nav" | "header_top" | "mobile_quick";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Menu */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Menu"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
     requestOtp: {
         parameters: {
             query?: never;
@@ -1228,6 +2566,175 @@ export interface operations {
             422: components["responses"]["ValidationError"];
         };
     };
+    listSellers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Sellers */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SellerCard"][];
+                    };
+                };
+            };
+        };
+    };
+    getSeller: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Seller */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Seller"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listSellerProducts: {
+        parameters: {
+            query?: {
+                page?: components["parameters"]["page"];
+                per_page?: components["parameters"]["per_page"];
+                sort?: components["parameters"]["sort"];
+                /** @description Comma-separated brand slugs (OR) */
+                brand?: components["parameters"]["brand"];
+                /** @description filter[pa_color]=white,black — values OR-ed inside a facet, facets AND-ed. Unknown facets are ignored. */
+                filter?: components["parameters"]["filter"];
+                /** @description Rial */
+                min_price?: components["parameters"]["min_price"];
+                /** @description Rial */
+                max_price?: components["parameters"]["max_price"];
+                in_stock?: components["parameters"]["in_stock"];
+                on_sale?: components["parameters"]["on_sale"];
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Listing */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductListing"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    listSellerReviews: {
+        parameters: {
+            query?: {
+                page?: components["parameters"]["page"];
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reviews */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SellerReviewList"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getContactSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Contact page settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ContactSettings"];
+                    };
+                };
+            };
+        };
+    };
+    createCallbackRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CallbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Received */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            /** @enum {string} */
+                            status: "received";
+                        };
+                    };
+                };
+            };
+            422: components["responses"]["ValidationError"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getAccountSummary: {
         parameters: {
             query?: never;
@@ -1333,7 +2840,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["OrderSummary"][];
+                        data: components["schemas"]["AccountOrder"][];
                         meta: {
                             page: number;
                             per_page: number;
@@ -1364,7 +2871,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["OrderDetail"];
+                        data: components["schemas"]["AccountOrderDetail"];
                     };
                 };
             };
@@ -1387,7 +2894,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["Address"][];
+                        data: components["schemas"]["CustomerAddress"][];
                     };
                 };
             };
@@ -1402,7 +2909,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AddressInput"];
+                "application/json": components["schemas"]["CustomerAddressInput"];
             };
         };
         responses: {
@@ -1413,7 +2920,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["Address"];
+                        data: components["schemas"]["CustomerAddress"];
                     };
                 };
             };
@@ -1458,7 +2965,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AddressInput"];
+                "application/json": components["schemas"]["CustomerAddressInput"];
             };
         };
         responses: {
@@ -1469,7 +2976,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["Address"];
+                        data: components["schemas"]["CustomerAddress"];
                     };
                 };
             };

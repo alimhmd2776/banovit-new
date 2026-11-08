@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import type { Address } from '@banovit/api-client';
+import type { CustomerAddress } from '@banovit/api-client';
 import { AddressEditor } from '@/features/account/AddressEditor';
 import { AppBar } from '@/features/account/AppBar';
 import { accountGet } from '@/lib/account/api';
@@ -11,7 +11,7 @@ export default async function EditAddressPage({ params }: { params: Promise<{ id
   const { id } = await params;
   const self = `/my-account/addresses/${id}/`;
   await requireCustomer(self);
-  const { data } = await accountGet<{ data: Address[] }>('/addresses', self);
+  const { data } = await accountGet<{ data: CustomerAddress[] }>('/addresses', self);
   const address = data.find((a) => a.id === id);
   if (!address) notFound();
   return (

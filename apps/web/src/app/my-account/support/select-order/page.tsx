@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import type { OrderSummary } from '@banovit/api-client';
+import type { AccountOrder } from '@banovit/api-client';
 import { AppBar } from '@/features/account/AppBar';
 import { EmptyState } from '@/features/account/EmptyState';
 import { OrderPickRow } from '@/features/account/OrderPickRow';
@@ -9,7 +9,7 @@ import { requireCustomer } from '@/lib/auth/session';
 
 export const metadata = { title: 'انتخاب سفارش' };
 
-type List = { data: OrderSummary[] };
+type List = { data: AccountOrder[] };
 
 /** «انتخاب سفارش» (design 31): recent orders from every tab, newest first. */
 export default async function SelectOrderPage({ searchParams }: { searchParams: Promise<{ topic?: string }> }) {

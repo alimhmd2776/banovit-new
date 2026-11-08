@@ -1,9 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { MyReview } from '@banovit/api-client';
-import { cx, faDigits, IconChevronLeft, IconStar } from '@banovit/ui';
+import { cx, faDigits, IconCheckCircle, IconChevronLeft, IconStar } from '@banovit/ui';
 import { jalaliLong } from './format';
-import { IconCheckCircle } from './icons';
 
 const RATING_LABEL = ['', 'ضعیف', 'متوسط', 'خوب', 'خیلی خوب', 'عالی'];
 

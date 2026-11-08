@@ -1,12 +1,11 @@
 import Link from 'next/link';
-import type { OrderSummary } from '@banovit/api-client';
-import { faDigits, formatToman, IconChevronLeft } from '@banovit/ui';
+import type { AccountOrder } from '@banovit/api-client';
+import { faDigits, formatToman, IconBag, IconChevronLeft } from '@banovit/ui';
 import { jalaliLong } from './format';
-import { IconBag } from './icons';
 import { Thumbs } from './OrderCard';
 
 /** Compact order row for the support flow (designs 31, 33). With `href` it is a link (select-order list). */
-export function OrderPickRow({ order, href, showTotal = true }: { order: OrderSummary; href?: string; showTotal?: boolean }) {
+export function OrderPickRow({ order, href, showTotal = true }: { order: AccountOrder; href?: string; showTotal?: boolean }) {
   const head = (
     <span className="flex items-center gap-3">
       <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-primary text-primary">

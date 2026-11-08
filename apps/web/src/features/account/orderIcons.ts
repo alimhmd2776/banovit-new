@@ -1,2 +1,2 @@
-export { IconBag, IconHeadset, IconPalette, IconPin, IconShield, IconTruck } from './icons';
-export { IconUser } from '@banovit/ui';
+export { IconHeadset, IconPalette, IconPin } from './icons';
+export { IconBag, IconShield, IconTruck, IconUser } from '@banovit/ui';

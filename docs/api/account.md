@@ -1,6 +1,6 @@
 # قرارداد حساب کاربری مشتری («داشبورد کاربران و مشتریان»)
 
-منبع حقیقت: [`packages/api-client/openapi/storefront-v1.yaml`](../../packages/api-client/openapi/storefront-v1.yaml)، بلوک `# --- account ---` (تگ `account`). پیاده‌سازی: banovit-cms شاخه `feature/storefront-account`، وب: `feature/web-account`. طرح‌ها: `designs/account/` روی شاخه `designs` (نگاشت فایل‌ها در `designs/README.md`).
+منبع حقیقت: [`packages/api-client/openapi/storefront-v1.yaml`](../../packages/api-client/openapi/storefront-v1.yaml)، بلوک `# --- account ---` (تگ `account`). نام‌های TypeScript: `AccountOrder`، `AccountOrderDetail`، `CustomerAddress`، `CustomerAddressInput` (چون `OrderSummary` و `Address` مال checkout هستند). پیاده‌سازی: banovit-cms شاخه `feature/storefront-account`، وب: `feature/web-account`. طرح‌ها: `designs/account/` روی شاخه `designs` (نگاشت فایل‌ها در `designs/README.md`).
 
 همه endpointها زیر `/api/storefront/v1/me/...` با `auth:sanctum` + `realm:customer` + `throttle:storefront-customer` هستند و `Cache-Control: private, no-store` برمی‌گردانند. پول‌ها ریال صحیح (`toman × 10`) هستند، مثل بقیه API.
 

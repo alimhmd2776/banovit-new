@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import type { OrderDetail } from '@banovit/api-client';
+import type { AccountOrderDetail } from '@banovit/api-client';
 import { cx, faDigits, formatToman } from '@banovit/ui';
 import { AppBar } from '@/features/account/AppBar';
 import { jalaliLong, phoneDisplay } from '@/features/account/format';
@@ -22,7 +22,7 @@ export default async function OrderDetailPage({ params }: { params: Params }) {
   const number = decodeURIComponent((await params).number);
   const self = `/my-account/orders/${encodeURIComponent(number)}/`;
   await requireCustomer(self);
-  const { data: o } = await accountGet<{ data: OrderDetail }>(`/orders/${encodeURIComponent(number)}`, self);
+  const { data: o } = await accountGet<{ data: AccountOrderDetail }>(`/orders/${encodeURIComponent(number)}`, self);
   const badge = o.tab === 'current' ? 'سفارش جاری' : o.tab === 'delivered' ? 'تحویل شده' : o.status_label;
 
   return (

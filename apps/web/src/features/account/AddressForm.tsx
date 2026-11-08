@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import type { Address, AddressInput } from '@banovit/api-client';
+import type { CustomerAddress, CustomerAddressInput } from '@banovit/api-client';
 import { cx } from '@banovit/ui';
 import { AccountError, me } from './client';
 import { IconEditBox, IconPin } from './icons';
@@ -12,7 +12,7 @@ import { MapPreview } from './MapPreview';
 
 const MapPicker = dynamic(() => import('./MapPicker').then((m) => m.MapPicker), { ssr: false });
 
-type Values = Required<Pick<AddressInput, 'province' | 'city' | 'address_line'>> & {
+type Values = Required<Pick<CustomerAddressInput, 'province' | 'city' | 'address_line'>> & {
   title: string;
   recipient_name: string;
   recipient_phone: string;
@@ -31,7 +31,7 @@ const empty: Values = { title: '', recipient_name: '', recipient_phone: '', prov
  * (feature/web-cart) can render it with `onSaved` to pick the saved address.
  * Saves through the BFF /api/me/addresses/.
  */
-export function AddressForm({ address, defaults, onSaved, submitLabel }: { address?: Address; defaults?: Partial<Values>; onSaved: (a: Address) => void; submitLabel?: string }) {
+export function AddressForm({ address, defaults, onSaved, submitLabel }: { address?: CustomerAddress; defaults?: Partial<Values>; onSaved: (a: CustomerAddress) => void; submitLabel?: string }) {
   const [v, setV] = useState<Values>(() =>
     address
       ? {
@@ -61,13 +61,13 @@ export function AddressForm({ address, defaults, onSaved, submitLabel }: { addre
   const submit = async () => {
     setBusy(true);
     setErrors({});
-    const body: AddressInput = {
+    const body: CustomerAddressInput = {
       title: v.title || null, recipient_name: v.recipient_name || null, recipient_phone: v.recipient_phone || null,
       province: v.province, city: v.city.trim(), address_line: v.address_line.trim(), plaque: v.plaque || null, unit: v.unit || null,
       postal_code: v.postal_code || null, lat: v.lat, lng: v.lng, ...(address ? {} : { is_default: v.is_default }),
     };
     try {
-      onSaved(address ? await me<Address>('PATCH', `addresses/${address.id}`, body) : await me<Address>('POST', 'addresses', body));
+      onSaved(address ? await me<CustomerAddress>('PATCH', `addresses/${address.id}`, body) : await me<CustomerAddress>('POST', 'addresses', body));
     } catch (e) {
       if (e instanceof AccountError && e.fields) setErrors(Object.fromEntries(Object.entries(e.fields).map(([k, m]) => [k, m[0] ?? ''])));
       else setErrors({ _: e instanceof Error ? e.message : 'ذخیره نشد.' });

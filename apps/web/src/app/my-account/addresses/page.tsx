@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { Address } from '@banovit/api-client';
+import type { CustomerAddress } from '@banovit/api-client';
 import { AddressList } from '@/features/account/AddressList';
 import { AppBar } from '@/features/account/AppBar';
 import { accountGet } from '@/lib/account/api';
@@ -9,7 +9,7 @@ export const metadata = { title: 'آدرس ها', alternates: { canonical: '/my-
 
 export default async function AddressesPage() {
   await requireCustomer('/my-account/addresses/');
-  const { data } = await accountGet<{ data: Address[] }>('/addresses', '/my-account/addresses/');
+  const { data } = await accountGet<{ data: CustomerAddress[] }>('/addresses', '/my-account/addresses/');
   return (
     <>
       <AppBar title="آدرس ها" />

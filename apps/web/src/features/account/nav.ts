@@ -1,6 +1,6 @@
 import type { ComponentType, SVGProps } from 'react';
-import { IconUser } from '@banovit/ui';
-import { IconBag, IconBell, IconComment, IconHeadset, IconHeart, IconHistory, IconInfo, IconPin, IconShield, IconStore } from './icons';
+import { IconBag, IconHeart, IconInfo, IconShield, IconStore, IconUser } from '@banovit/ui';
+import { IconBell, IconComment, IconHeadset, IconHistory, IconPin } from './icons';
 
 type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
 

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import type { Address } from '@banovit/api-client';
+import type { CustomerAddress } from '@banovit/api-client';
 import { cx, faDigits } from '@banovit/ui';
 import { me } from './client';
 import { IconMore, IconPin } from './icons';
@@ -11,7 +11,7 @@ import { MapPreview } from './MapPreview';
 import { EmptyState } from './EmptyState';
 
 /** «آدرس ها» (designs 21, 22). The default address shows its map. Menu: edit, make default, delete. */
-export function AddressList({ initial }: { initial: Address[] }) {
+export function AddressList({ initial }: { initial: CustomerAddress[] }) {
   const router = useRouter();
   const [items, setItems] = useState(initial);
   const [menu, setMenu] = useState<string | null>(null);
@@ -22,7 +22,7 @@ export function AddressList({ initial }: { initial: Address[] }) {
     setError('');
     try {
       await fn();
-      setItems(await me<Address[]>('GET', 'addresses'));
+      setItems(await me<CustomerAddress[]>('GET', 'addresses'));
       router.refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'انجام نشد.');

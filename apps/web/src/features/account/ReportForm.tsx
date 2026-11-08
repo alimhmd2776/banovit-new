@@ -2,12 +2,11 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { cx, faDigits } from '@banovit/ui';
+import { cx, faDigits, IconInfo } from '@banovit/ui';
 import { siteConfig } from '@/lib/site-config';
 import { AccountError, firstFieldError, me } from './client';
 import { EmptyState } from './EmptyState';
 import { AddImageButton, MAX_IMAGES, Thumbnails, useImageFiles } from './ImagePicker';
-import { IconInfo } from './icons';
 
 /** «ثبت گزارش» (designs 32–34): description + up to five photos, then the success state. */
 export function ReportForm({ topic, orderNumber, children }: { topic: string; orderNumber: string | null; children?: React.ReactNode }) {
