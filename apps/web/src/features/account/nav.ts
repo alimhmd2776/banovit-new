@@ -28,6 +28,6 @@ export const servicesNav: NavItem[] = [
   { key: 'support', label: 'پشتیبانی', href: '/my-account/support/', icon: IconHeadset },
   { key: 'notifications', label: 'اعلانات', href: '/my-account/notifications/', icon: IconBell },
   { key: 'about', label: 'درباره بانویت', href: '/about-us/', icon: IconInfo },
-  { key: 'terms', label: 'قوانین و شرایط', href: '/privacy-policy/', icon: IconShield },
+  { key: 'terms', label: 'قوانین و شرایط', href: '/terms/', icon: IconShield },
   { key: 'seller', label: 'فروشنده بانویت شوید!', href: '/landing/b2b/', icon: IconStore },
 ];

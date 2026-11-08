@@ -60,17 +60,21 @@ export function Prose({ html, className }: { html: string; className?: string })
   return <div className={cx('cms-prose', className)} dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
-/** «بانُ» badge + wordmark, as on the designs (no image asset needed). */
+/**
+ * Site logo for page intros: the original live header logo file
+ * (uploads/2026/07/Frame-1077.svg, copied to public/brand/logo.svg by the menu
+ * thread). Live has no separate «بانویت بار» logo, so both variants use it.
+ */
 export function Wordmark({ variant = 'banovit', className }: { variant?: 'banovit' | 'banovit-bar'; className?: string }) {
   return (
-    <span className={cx('inline-flex items-center gap-2', className)} aria-label={variant === 'banovit-bar' ? 'بانویت بار' : 'بانویت'} role="img">
-      <span className="inline-flex size-9 items-center justify-center rounded-sm bg-primary text-sm font-extrabold text-primary-on" aria-hidden="true">
-        بانُ
-      </span>
-      <span className="text-2xl font-extrabold text-primary" aria-hidden="true">
-        {variant === 'banovit-bar' ? 'بانُویت بار' : 'بانُویت'}
-      </span>
-    </span>
+    // eslint-disable-next-line @next/next/no-img-element -- static SVG, no optimization needed
+    <img
+      src="/brand/logo.svg"
+      alt={variant === 'banovit-bar' ? 'بانویت بار' : 'بانویت'}
+      width={131}
+      height={40}
+      className={cx('h-9 w-auto', className)}
+    />
   );
 }
 
@@ -86,7 +90,8 @@ function Hero({ title, highlight, subtitle, image, badge_icon, show_logo }: Extr
       <div className="absolute inset-x-0 bottom-0 -z-10 h-2/3 bg-gradient-to-t from-[var(--neutral-900)] to-transparent" aria-hidden="true" />
       <div className="flex min-h-[260px] flex-col items-center justify-end gap-3 px-6 pb-12 pt-16 text-center lg:min-h-[340px]">
         {show_logo ? (
-          <span className="inline-flex size-12 items-center justify-center rounded-md bg-primary text-base font-extrabold shadow-md">بانُ</span>
+          // eslint-disable-next-line @next/next/no-img-element -- live site icon (uploads/2026/08/cropped-Asset-1@3x-8.png)
+          <img src="/brand/site-icon-192x192.png" alt="" width={48} height={48} className="size-12 rounded-md shadow-md" />
         ) : badge_icon ? (
           <span className="inline-flex size-12 items-center justify-center rounded-md bg-surface text-[var(--color-warning)] shadow-md">
             <PageIcon name={badge_icon} size={26} />
@@ -378,7 +383,7 @@ function BrandLogos({ items }: { items: NonNullable<Extract<Block, { type: 'bran
           <Link href={b.url} className="flex w-20 flex-col items-center gap-2 text-center focus-visible:outline-2 focus-visible:outline-focus lg:w-24">
             <span className="relative flex size-20 items-center justify-center overflow-hidden rounded-md border border-border bg-surface p-2 lg:size-24">
               {b.logo?.url ? (
-                <Image src={b.logo.url} alt="" width={88} height={88} className="size-full object-contain" />
+                <Image src={b.logo.url} alt={b.logo.alt ?? ''} width={88} height={88} className="size-full object-contain" />
               ) : (
                 <span className="text-xs font-bold text-text-muted" aria-hidden="true">
                   {b.name}
