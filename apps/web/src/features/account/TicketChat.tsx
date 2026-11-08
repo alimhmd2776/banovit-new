@@ -19,7 +19,10 @@ export function TicketChat({ ticket }: { ticket: TicketDetail }) {
   const { previews, add, remove } = useImageFiles(files, setFiles, setError);
   const end = useRef<HTMLDivElement>(null);
 
-  useEffect(() => end.current?.scrollIntoView({ block: 'end' }), [messages.length]);
+  useEffect(() => {
+    // Braces matter: scrollIntoView can return a Promise in newer Chromium, and an effect's return value is its cleanup.
+    end.current?.scrollIntoView({ block: 'end' });
+  }, [messages.length]);
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
