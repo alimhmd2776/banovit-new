@@ -153,3 +153,14 @@ From "Banovit interface 7.zip" (2026-11-08). Info page for live `/shipping-metho
 | 01-about-mobile.jpg | Dark hero photo + app bar, logo, «به شرکت بانُویت خوش آمدید!»; About Banovit text; Company Values cards (icon/title/text); Team & Story text + group photo + two feature tiles; team-member carousel (photo/name/role); Partnership Brands logo row; Customer Review carousel (quote/avatar/name/rating label); bottom nav | Design 3.jpg |
 
 From the project chat upload (2026-11-08). Live URL `/about-us/`. No desktop frame.
+
+## sellers/ — پروفایل فروشگاه / فروشنده (mobile, 393px)
+
+| File | Screen | Original export |
+|---|---|---|
+| 01-seller-profile-products-mobile.jpg | پروفایل فروشگاه — app bar (back, «فروشگاه بانویت / پروفایل فروشگاه», share, wishlist), logo, name, tagline, stats row (امتیاز / سال در بانویت / فروش), tabs محصولات / نظرات کاربران / جزئیات فروشگاه, tab محصولات: sort/filter/brand/price chips + product cards | 1.jpg |
+| 02-seller-profile-reviews-mobile.jpg | same, tab نظرات کاربران — buyer review cards (avatar, «خریدار»، «خریدار فعال و باتجربه بانویت»، stars + label «عالی»، text + «مشاهده بیشتر»، date, purchased product row) | 2.jpg |
+| 03-seller-profile-details-mobile.jpg | same, tab جزئیات فروشگاه — about text, address + map («ورود به نشان»), opening hours row «باز است / امروز از ساعت ۰۸:۰۰ تا ۲۳:۰۰» (collapsed) | 3.jpg |
+| 04-seller-profile-details-hours-open-mobile.jpg | same, scrolled, weekly hours expanded (شنبه..پنجشنبه ۰۸:۰۰ تا ۲۳:۰۰، جمعه «تعطیل است») | 4.jpg |
+
+From "Banovit interface 6.zip" (2026-11-08). Only the seller profile was in the zip: no seller listing page, no «در بانویت بفروشید» signup, and no desktop frames — desktop is derived from the mobile layout.
