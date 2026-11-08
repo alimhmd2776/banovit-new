@@ -303,6 +303,7 @@ export interface paths {
          * @description categories = desktop mega menu + mobile category sheet (level 1 category, level 2 group, level 3 items);
          *     header_nav = desktop nav row; header_top = desktop top bar; mobile_quick = mobile drawer «دسترسی سریع».
          *     Inactive items and categories/tags without products are already removed.
+         *
          */
         get: operations["getMenu"];
         put?: never;
@@ -1081,7 +1082,6 @@ export interface components {
             };
         };
         ContactSettings: {
-            /** @example /contact-us/ */
             path: string;
             heading: string;
             intro?: string | null;
@@ -1089,9 +1089,7 @@ export interface components {
             hours_note?: string | null;
             opening_hours: {
                 days: ("Saturday" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday")[];
-                /** @example 09:00 */
                 opens: string;
-                /** @example 17:00 */
                 closes: string;
             }[];
             phones: {
