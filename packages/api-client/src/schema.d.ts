@@ -1967,6 +1967,12 @@ export interface components {
                 layout: "card" | "carousel";
                 title?: string | null;
                 subtitle?: string | null;
+                /** @description Card label (default «محصول پیشنهادی») */
+                badge?: string | null;
+                /** @description Card button / carousel «view all» text */
+                button?: string | null;
+                /** @description Carousel «view all» link (the product category page) */
+                button_url?: string | null;
                 products: components["schemas"]["ProductCard"][];
             };
         };
@@ -1975,11 +1981,54 @@ export interface components {
             type: "note";
             props: {
                 title?: string;
-                variant?: string;
+                /**
+                 * @description Absent = default blue
+                 * @enum {string}
+                 */
+                theme?: "red" | "green" | "orange";
                 html?: string;
             };
         };
-        BlogBlock: components["schemas"]["BlogHtmlBlock"] | components["schemas"]["BlogProductsBlock"] | components["schemas"]["BlogNoteBlock"];
+        /** @description Suggested post card inside the article («مقاله پیشنهادی») */
+        BlogArticleBlock: {
+            /** @constant */
+            type: "article";
+            props: {
+                label: string;
+                button: string;
+                post: components["schemas"]["BlogPostCard"];
+            };
+        };
+        BlogQuizQuestion: {
+            question: string;
+            options: string[];
+            /** @description 0-based index into options */
+            correct: number;
+        };
+        /** @description Multiple-choice self-check, graded in the browser */
+        BlogQuizBlock: {
+            /** @constant */
+            type: "quiz";
+            props: {
+                title: string;
+                subtitle?: string | null;
+                button: string;
+                /** @description Template with {correct} and {total} */
+                result: string;
+                incomplete: string;
+                questions: components["schemas"]["BlogQuizQuestion"][];
+            };
+        };
+        BlogMapBlock: {
+            /** @constant */
+            type: "map";
+            props: {
+                lat: number;
+                lng: number;
+                label?: string | null;
+            };
+        };
+        BlogBlock: components["schemas"]["BlogHtmlBlock"] | components["schemas"]["BlogProductsBlock"] | components["schemas"]["BlogNoteBlock"] | components["schemas"]["BlogArticleBlock"] | components["schemas"]["BlogQuizBlock"] | components["schemas"]["BlogMapBlock"];
         TocItem: {
             id: string;
             text: string;

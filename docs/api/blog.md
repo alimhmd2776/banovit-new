@@ -18,7 +18,7 @@ slug قدیمی (در `slug_history`) پاسخ `404` با `error.code = "moved"`
 
 ## بدنه مقاله
 
-`body_html` پاک‌سازی‌شده (allowlist، iframe فقط aparat/youtube) با idهای ثابت روی h2/h3 برای فهرست مطالب. اجزای داخل متن در ویرایشگر به شکل `<figure data-bv-block="products|note" data-*>` ذخیره و در API به `blocks` تایپ‌دار باز می‌شوند: `html`، `products` (`layout: card|carousel`، سند کارت از `storefront_product_index`)، `note`.
+`body_html` پاک‌سازی‌شده (allowlist، iframe فقط aparat/youtube) با idهای ثابت روی h2/h3 برای فهرست مطالب. اجزای داخل متن در ویرایشگر به شکل `<figure data-bv-block="products|note|article|quiz|map" data-*>` ذخیره و در API به `blocks` تایپ‌دار باز می‌شوند: `html`، `products` (`layout: card|carousel`، `badge`، `button`، `button_url`، سند کارت از `storefront_product_index`؛ با `data-category`/`data-tag` پرفروش‌های آن دسته، موجودها اول، هنگام درخواست انتخاب می‌شوند)، `note` (`theme: red|green|orange`)، `article` (کارت «مقاله پیشنهادی»؛ اگر نوشته منتشر نباشد حذف می‌شود)، `quiz` (آزمون چهارگزینه‌ای که در مرورگر تصحیح می‌شود)، `map` (lat/lng/label).
 
 ## سئو (هم‌ارز Yoast)
 
@@ -37,6 +37,6 @@ posts (CRUD، trash/untrash، revisions و restore، preview، analyze)، catego
 ## ورود از وردپرس
 
 1. روی سرور وردپرس: `wp eval-file tools/wp-export/blog-export.php > blog-export.json` (فقط خواندنی؛ محتوای رندرشده Elementor، Yoast، FAQ، بازدید، old_slugs، دیدگاه‌ها، رسانه).
-2. در CMS: `php artisan blog:import-wp blog-export.json --live-urls=audit/data/url-inventory.csv --media-dir=~/banovit-new/media/wp-content/uploads` (منبع: نسخه فقط‌خواندنی لایو `live_wp_ro` روی stage2، نه test2؛ رسانه همان فایل‌های اصلی لایو از کپی محلی، بدون درخواست به سرور لایو. بدون `--media-dir` تصاویر با همان آدرس اصلی banovit.com می‌مانند). HTML المنتور با `LegacyHtmlConverter` تمیز می‌شود (accordion → FAQ، ویجت محصول → بلاک products، alert → note، تصاویر lazy → واقعی). در پایان همه URLهای وبلاگ لایو با مسیرهای جدید مقایسه و گزارش می‌شوند.
+2. در CMS: `php artisan blog:import-wp blog-export.json --live-urls=audit/data/url-inventory.csv --media-dir=~/banovit-new/media/wp-content/uploads` (منبع: نسخه فقط‌خواندنی لایو `live_wp_ro` روی stage2، نه test2؛ رسانه همان فایل‌های اصلی لایو از کپی محلی، بدون درخواست به سرور لایو. بدون `--media-dir` تصاویر با همان آدرس اصلی banovit.com می‌مانند). HTML المنتور با `LegacyHtmlConverter` تمیز می‌شود (accordion → FAQ، ویجت محصول → بلاک products، alert → note، تصاویر lazy → واقعی). شورت‌کدهای افزونه seo-elementor-widgets سایت فعلی (`[banovit_related_products|products|article|tip|quiz]`) و ویجت‌های المنتوری همان افزونه (نشانگر `<div class="wp-widget" data-widget data-settings>` از خروجی، شامل `banovit_map`) با `LegacyShortcodes` به همین بلاک‌ها تبدیل می‌شوند و `[yasr_*]` حذف می‌شود. در پایان همه URLهای وبلاگ لایو با مسیرهای جدید مقایسه و گزارش می‌شوند.
 
 دیدگاه‌ها وارد می‌شوند ولی چون در طراحی بخش دیدگاه نیست، فعلاً نمایش داده نمی‌شوند.
