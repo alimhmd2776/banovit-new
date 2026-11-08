@@ -109,6 +109,27 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/ProductListing' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /menus/{key}:
+    get:
+      operationId: getMenu
+      summary: Navigation menu managed in the CMS («منوهای فروشگاه»)
+      description: |
+        categories = desktop mega menu + mobile category sheet (level 1 category, level 2 group, level 3 items);
+        header_nav = desktop nav row; header_top = desktop top bar; mobile_quick = mobile drawer «دسترسی سریع».
+        Inactive items and categories/tags without products are already removed.
+      parameters:
+        - { name: key, in: path, required: true, schema: { type: string, enum: [categories, header_nav, header_top, mobile_quick] } }
+      responses:
+        '200':
+          description: Menu
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Menu' }
+        '404': { $ref: '#/components/responses/NotFound' }
 components:
   parameters:
     categoryPath:
@@ -354,6 +375,42 @@ components:
           properties:
             prev_page: { type: [integer, 'null'] }
             next_page: { type: [integer, 'null'] }
+    Menu:
+      type: object
+      required: [key, name, items]
+      properties:
+        key: { type: string }
+        name: { type: string }
+        items: { type: array, items: { $ref: '#/components/schemas/MenuItem' } }
+    MenuItem:
+      type: object
+      required: [id, title, url, image, icon, product_count, highlight, promo, children]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        url: { type: string, description: 'Site-relative path (/shop/category/x/) or absolute external URL' }
+        image: { oneOf: [{ $ref: '#/components/schemas/MenuImage' }, { type: 'null' }] }
+        icon: { type: [string, 'null'], description: 'Icon image URL, or a built-in icon name (discount, bestseller, newest, track, phone, article, user)' }
+        product_count: { type: [integer, 'null'], description: 'Published products of the linked category/tag; null for plain links or when hidden' }
+        highlight: { type: boolean }
+        promo: { oneOf: [{ $ref: '#/components/schemas/MenuPromo' }, { type: 'null' }] }
+        children: { type: array, items: { $ref: '#/components/schemas/MenuItem' } }
+    MenuImage:
+      type: object
+      required: [url]
+      properties:
+        url: { type: string }
+        alt: { type: [string, 'null'] }
+        width: { type: [integer, 'null'] }
+        height: { type: [integer, 'null'] }
+    MenuPromo:
+      type: object
+      properties:
+        image_url: { type: string }
+        title: { type: string }
+        badge: { type: string }
+        button_text: { type: string }
+        url: { type: string }
     Error:
       type: object
       required: [error]
