@@ -52,6 +52,7 @@ Must be implemented against the final version of the menu/category plugin instal
 | 04-category-sheet-subcategory-groups-mobile.png | level 2 with grouped sub-categories (several «عنوان دسته» groups) | Mega Category 2.png |
 | 05-category-search-results-mobile.png | category search results («نتیجه جستجو "روشویی"») | Mega Category 3.png |
 | 06-category-search-empty-mobile.png | category search, no result | Mega Category 4.png |
+| 07-sidebar-drawer-mobile.jpg | منوی ساید‌بار (drawer) — logo, search, محصولات (دسته بندی / تخفیف‌دار / پرفروش‌ترین / جدیدترین), دسترسی سریع (پیگیری سفارشات / تماس / مقالات / پنل کاربران), cart summary card, user account row | sidebar-drawer.jpg |
 
 From the project chat uploads (2026-11-08).
 
