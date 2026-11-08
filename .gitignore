@@ -4,3 +4,9 @@ node_modules/
 !.env.example
 .next/
 dist/
+
+# monorepo
+.turbo/
+coverage/
+*.tsbuildinfo
+next-env.d.ts

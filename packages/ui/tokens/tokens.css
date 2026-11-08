@@ -1,0 +1,92 @@
+/*
+ * Banovit storefront tokens. Same primitives and scales as design system v1
+ * (admin-app / supplier-app, D:\LFA\design-system-draft\tokens.css); semantic
+ * colors live on :root here because the storefront has no legacy CSS to
+ * protect. Components use only the semantic --color-* names (no hex in pages).
+ */
+:root {
+  /* primitives */
+  --brand-50: #eef6fc;
+  --brand-100: #d6e9f7;
+  --brand-200: #aed3ef;
+  --brand-300: #7db7e3;
+  --brand-400: #4a97d2;
+  --brand-500: #2580c4;
+  --brand-600: #1f6fad;
+  --brand-700: #1a5a8e;
+  --brand-800: #174a73;
+  --brand-900: #143d5e;
+
+  --neutral-0: #ffffff;
+  --neutral-50: #f7f8fa;
+  --neutral-100: #eef1f4;
+  --neutral-200: #e2e6eb;
+  --neutral-300: #cbd2da;
+  --neutral-400: #9aa4b1;
+  --neutral-500: #6b7684;
+  --neutral-600: #525c69;
+  --neutral-700: #3d4651;
+  --neutral-800: #2a313a;
+  --neutral-900: #1b2028;
+
+  /* semantic */
+  --color-bg: var(--neutral-50);
+  --color-surface: var(--neutral-0);
+  --color-surface-muted: var(--neutral-100);
+  --color-border: var(--neutral-200);
+  --color-border-strong: #8a95a3;
+  --color-text: var(--neutral-900);
+  --color-text-muted: var(--neutral-600);
+  --color-text-subtle: var(--neutral-500);
+  --color-primary: var(--brand-600);
+  --color-primary-hover: var(--brand-700);
+  --color-primary-subtle: var(--brand-50);
+  --color-on-primary-subtle: var(--brand-700);
+  --color-on-primary: #ffffff;
+  --color-focus-ring: var(--brand-500);
+  --color-success: #18794a;
+  --color-success-subtle: #e3f5ea;
+  --color-on-success-subtle: #13623c;
+  --color-warning: #f2a20c;
+  --color-warning-subtle: #fff1d6;
+  --color-on-warning-subtle: #7a4a00;
+  --color-danger: #c8292f;
+  --color-danger-subtle: #fdeceb;
+  --color-on-danger-subtle: #a8232a;
+  --color-rating: #f2a20c;
+  --color-overlay: rgb(18 22 28 / 0.48);
+  /* «تخفیف شگفت‌انگیز» label */
+  --color-deal: #d6264f;
+  --color-on-deal: #ffffff;
+
+  /* type */
+  --font-sans: var(--font-vazirmatn, 'Vazirmatn'), Tahoma, system-ui, sans-serif;
+
+  /* radius / shadow / motion / z */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  --shadow-xs: 0 1px 2px rgb(18 22 28 / 0.06);
+  --shadow-sm: 0 1px 2px rgb(18 22 28 / 0.04), 0 2px 6px rgb(18 22 28 / 0.06);
+  --shadow-md: 0 2px 4px rgb(18 22 28 / 0.04), 0 6px 16px rgb(18 22 28 / 0.08);
+  --shadow-lg: 0 4px 8px rgb(18 22 28 / 0.06), 0 16px 40px rgb(18 22 28 / 0.14);
+  --duration-fast: 150ms;
+  --duration-slow: 300ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --z-sticky: 1100;
+  --z-drawer: 1200;
+  --z-modal: 1300;
+
+  --container-max: 1280px;
+  --header-height: 56px;
+  --bottom-nav-height: 64px;
+}
+
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes sheetUp { from { transform: translateY(100%) } to { transform: translateY(0) } }
+@keyframes drawerIn { from { transform: translateX(-100%) } to { transform: translateX(0) } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}
