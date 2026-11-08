@@ -89,10 +89,115 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/settings/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** «تماس با ما» page content (/contact-us/), editable in the CMS admin app */
+        get: operations["getContactSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/callback-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Visitor asks to be called back (listing callout, contact form) → CMS sales lead signal
+         * @description Called only by the Next.js BFF (/api/callback-requests/) with X-Storefront-Token and X-Client-IP. Rate limited per visitor IP.
+         */
+        post: operations["createCallbackRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ContactSettings: {
+            path: string;
+            heading: string;
+            intro?: string | null;
+            hours_title?: string | null;
+            hours_note?: string | null;
+            opening_hours: {
+                days: ("Saturday" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday")[];
+                opens: string;
+                closes: string;
+            }[];
+            phones: {
+                label: string;
+                /** @description Latin digits */
+                number: string;
+                /** @description E.164 for tel: links, e.g. +982191014093 */
+                tel: string;
+            }[];
+            email?: string | null;
+            locations: {
+                label: string;
+                street_address: string;
+                locality: string;
+                region?: string | null;
+                postal_code?: string | null;
+                /** @enum {string} */
+                icon: "office" | "warehouse" | "store";
+                /** @description The LocalBusiness address in JSON-LD */
+                is_primary: boolean;
+                display: string;
+            }[];
+            map: {
+                lat?: number | null;
+                lng?: number | null;
+                zoom: number;
+                pin_label?: string | null;
+                image?: components["schemas"]["Image"] | null;
+                neshan_url?: string | null;
+                directions_url: string;
+            };
+            form: {
+                title: string;
+                message_placeholder?: string | null;
+                submit_label: string;
+                success_message: string;
+            };
+            socials: {
+                /** @enum {string} */
+                network: "whatsapp" | "telegram" | "instagram" | "bale" | "rubika" | "eitaa" | "aparat" | "linkedin";
+                url: string;
+            }[];
+            seo: components["schemas"]["Seo"];
+        };
+        CallbackRequest: {
+            /** @description Iranian mobile */
+            phone: string;
+            name?: string | null;
+            message?: string | null;
+            /**
+             * @default callout
+             * @enum {string}
+             */
+            form: "callout" | "contact";
+            page_url?: string | null;
+            page_title?: string | null;
+            /** @description Honeypot; must be empty */
+            website?: string | null;
+        };
         /** @enum {string} */
         SortKey: "relevant" | "newest" | "popular" | "price_asc" | "price_desc" | "featured" | "rating";
         Money: {
@@ -472,6 +577,65 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+        };
+    };
+    getContactSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Contact page settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ContactSettings"];
+                    };
+                };
+            };
+        };
+    };
+    createCallbackRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CallbackRequest"];
+            };
+        };
+        responses: {
+            /** @description Received */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            /** @enum {string} */
+                            status: "received";
+                        };
+                    };
+                };
+            };
+            422: components["responses"]["ValidationError"];
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
 }

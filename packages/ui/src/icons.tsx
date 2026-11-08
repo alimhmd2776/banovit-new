@@ -47,3 +47,22 @@ export const IconArrowBack = make(<path d="M5 12h14M13 6l6 6-6 6" />, 'IconArrow
 export const IconSliders = make(<><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></>, 'IconSliders');
 export const IconPlus = make(<path d="M12 5v14M5 12h14" />, 'IconPlus');
 export const IconMinus = make(<path d="M5 12h14" />, 'IconMinus');
+
+/* contact page */
+export const IconMapFold = make(<path d="M9 4L3.5 6v14L9 18l6 2 5.5-2V4L15 6zM9 4v14M15 6v14" />, 'IconMapFold');
+export const IconBuilding = make(<><rect x="5" y="3" width="14" height="18" rx="1.5" /><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2M10 21v-3h4v3" /></>, 'IconBuilding');
+export const IconWarehouse = make(<><path d="M3 9l9-5 9 5v11H3z" /><path d="M7 20v-7h10v7M7 16h10" /></>, 'IconWarehouse');
+export const IconClock = make(<><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></>, 'IconClock');
+export const IconMail = make(<><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M4 7l8 6 8-6" /></>, 'IconMail');
+export const IconNavigation = make(<path d="M12 3l7 18-7-4-7 4z" />, 'IconNavigation');
+export const IconCheckCircle = make(<><circle cx="12" cy="12" r="8.5" /><path d="M8.5 12.5l2.5 2.5 4.5-5" /></>, 'IconCheckCircle');
+
+/* social networks (simplified marks, single color) */
+export const IconWhatsapp = make(
+  <><path d="M4 20l1.2-3.9A8.5 8.5 0 1 1 8 19z" /><path d="M9.2 8.6c.2-.5.6-.5.9-.5.3 0 .5.6.8 1.3.1.3-.4.8-.5 1 .4 1 1.2 1.8 2.2 2.3.2-.2.6-.7.9-.6.6.2 1.3.5 1.3.8 0 .7-.7 1.4-1.4 1.4-2.3 0-5-2.6-4.9-4.8 0-.3.2-.6.7-.9z" fill="currentColor" stroke="none" /></>,
+  'IconWhatsapp',
+);
+export const IconTelegram = make(<><circle cx="12" cy="12" r="9" fill="currentColor" stroke="none" /><path d="M7 11.8l9-3.6-1.5 8-3.2-2.4-1.6 1.6.2-2.6 3.8-3.6-5 3z" fill="var(--color-surface, #fff)" stroke="none" /></>, 'IconTelegram');
+export const IconInstagram = make(<><rect x="4" y="4" width="16" height="16" rx="4.5" /><circle cx="12" cy="12" r="3.6" /><circle cx="16.8" cy="7.2" r="0.9" fill="currentColor" stroke="none" /></>, 'IconInstagram');
+export const IconBale = make(<><circle cx="12" cy="12" r="8.5" /><path d="M8 9.5c1.3-1.4 2.7-1.4 4 0s2.7 1.4 4 0M8 14.5c1.3-1.4 2.7-1.4 4 0s2.7 1.4 4 0" /></>, 'IconBale');
+export const IconChat = make(<path d="M4 5h16v11H9l-5 4z" />, 'IconChat');

@@ -20,6 +20,8 @@ export type Seo = Schemas['Seo'];
 export type Faq = Schemas['Faq'];
 export type SortKey = Schemas['SortKey'];
 export type ApiError = Schemas['Error'];
+export type ContactSettings = Schemas['ContactSettings'];
+export type CallbackRequest = Schemas['CallbackRequest'];
 
 export type ListingParams = NonNullable<operations['listCategoryProducts']['parameters']['query']>;
 
@@ -113,6 +115,8 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: Brand }>(`/brands/${encodePath(slug)}`, init).then((r) => r.data),
     listBrandProducts: (slug: string, params?: Omit<ListingParams, 'brand'>, init?: RequestOptions) =>
       get<ProductListing>(`/brands/${encodePath(slug)}/products${listingQueryString(params)}`, init),
+    getContactSettings: (init?: RequestOptions) =>
+      get<{ data: ContactSettings }>('/settings/contact', init).then((r) => r.data),
   };
 }
 

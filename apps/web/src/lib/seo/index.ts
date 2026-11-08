@@ -51,6 +51,28 @@ export function listingMetadata({
   };
 }
 
+/** Head tags for a static content page (/contact-us/, /about-us/ ...): CMS (Yoast) values, real-domain canonical. */
+export function pageMetadata({ seo, path, ogType = 'website' }: { seo: Seo; path: string; ogType?: 'website' | 'article' }): Metadata {
+  const canonical = seo.canonical || `${env.canonicalOrigin}${path}`;
+  const robots: Metadata['robots'] = env.isProduction ? seo.robots : { index: false, follow: false };
+  return {
+    title: { absolute: seo.title },
+    description: seo.description ?? undefined,
+    alternates: { canonical },
+    robots,
+    openGraph: {
+      type: ogType,
+      locale: 'fa_IR',
+      siteName: SITE_NAME,
+      title: seo.og_title ?? seo.title,
+      description: seo.og_description ?? seo.description ?? undefined,
+      url: canonical,
+      images: seo.og_image?.url ? [{ url: seo.og_image.url, alt: seo.og_image.alt ?? seo.title }] : undefined,
+    },
+    twitter: { card: 'summary_large_image' },
+  };
+}
+
 export type Crumb = { name: string; url: string };
 
 function abs(url: string): string {
