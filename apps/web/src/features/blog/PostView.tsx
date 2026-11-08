@@ -8,7 +8,7 @@ import { PostBlocks, ProductCarousel, SummaryBox } from './blocks';
 import { BookmarkButton } from './BookmarkButton';
 import { PostRail, SectionHeader } from './cards';
 import { BlogTitleBar } from './chrome';
-import { faDate, internalHref } from './format';
+import { faDate, internalHref, mainHeadings } from './format';
 import { ShareBar, ShareButton } from './ShareButtons';
 import { Toc } from './Toc';
 import { ViewPing } from './ViewPing';
@@ -176,7 +176,7 @@ export function PostView({ post }: { post: BlogPost }) {
           </article>
 
           <aside className="lg:sticky lg:top-[calc(var(--header-height)+24px)]">
-            <Toc items={post.toc} />
+            <Toc items={mainHeadings(post.toc, post.faqs.length > 0 ? 'سوالات متداول' : null)} />
           </aside>
         </div>
 

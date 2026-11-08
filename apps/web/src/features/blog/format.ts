@@ -24,3 +24,10 @@ export function localizeLinks(html: string): string {
 export function postPagePath(base: string, page: number): string {
   return page > 1 ? `${base.replace(/\/$/, '')}/page/${page}/` : base;
 }
+
+/** «فهرست مطالب» lists only the main headings (h2; or the top level a post actually uses), plus the FAQ section when present. */
+export function mainHeadings(items: { id: string; text: string; level: number }[], faqTitle?: string | null): { id: string; text: string; level: 2 }[] {
+  const top = items.length ? Math.min(...items.map((i) => i.level)) : 2;
+  const main = items.filter((i) => i.level === top).map(({ id, text }) => ({ id, text, level: 2 as const }));
+  return faqTitle ? [...main, { id: 'post-faq', text: faqTitle, level: 2 as const }] : main;
+}
