@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { BottomSheet, cx, faDigits, formatToman, IconCheck, IconChevronLeft, IconMinus, IconPlus, IconTool } from '@banovit/ui';
+import type { ProductAddon } from '@banovit/api-client';
+import { BottomSheet, cx, faDigits, formatToman, IconCheck, IconChevronLeft, IconMinus, IconPhone, IconPlus, IconTool } from '@banovit/ui';
 import { siteConfig } from '@/lib/site-config';
-import { usePurchase } from './PurchaseContext';
+import { optionUnitAmount, usePurchase } from './PurchaseContext';
 import { valueState } from './variants';
 
 /* ---------------- variation pickers ---------------- */
@@ -82,13 +83,18 @@ export function OptionPickers() {
 /* ---------------- installation add-on ---------------- */
 
 /** «نصب محصول توسط تیم فنی» card; opens a sheet with the add-on options and their prices. */
-export function InstallCard({ installBadge }: { installBadge: boolean }) {
-  const { product, addonIds, toggleAddon, addonTotal } = usePurchase();
-  const [open, setOpen] = useState(false);
-  if (!product.addons.length && !installBadge) return null;
+const isInstall = (a: ProductAddon) => a.options.some((o) => o.kind === 'installation');
 
-  const chosen = product.addons.flatMap((a) => a.options).filter((o) => addonIds.includes(o.id));
-  const hasOptions = product.addons.length > 0;
+/** «خدمات نصب» (BDI rules): card + bottom sheet. Other add-ons are inline pickers (AddonPickers). */
+export function InstallCard({ installBadge }: { installBadge: boolean }) {
+  const { product, addonIds, toggleAddon, installTotal } = usePurchase();
+  const [open, setOpen] = useState(false);
+  const installAddons = product.addons.filter(isInstall);
+  if (product.made_to_order || (!installAddons.length && !installBadge)) return null;
+
+  const chosen = installAddons.flatMap((a) => a.options).filter((o) => addonIds.includes(o.id));
+  const hasOptions = installAddons.length > 0;
+  const addonTotal = installTotal;
 
   const card = (
     <span className="flex items-start gap-3">
@@ -133,7 +139,7 @@ export function InstallCard({ installBadge }: { installBadge: boolean }) {
         }
       >
         <div className="space-y-5">
-          {product.addons.map((a) => (
+          {installAddons.map((a) => (
             <fieldset key={a.id}>
               <legend className="mb-2 text-sm font-bold text-text">
                 {a.title}
@@ -185,24 +191,97 @@ export function InstallCard({ installBadge }: { installBadge: boolean }) {
   );
 }
 
+/* ---------------- product add-ons (Rico) ---------------- */
+
+/** Mirror anti-fog, light colour, model ... : pills (select/button/multiselect) or swatches (color). */
+export function AddonPickers() {
+  const { product, addonIds, toggleAddon, current } = usePurchase();
+  const addons = product.addons.filter((a) => !isInstall(a));
+  if (product.made_to_order || !addons.length) return null;
+  const unit = current.price?.amount ?? 0;
+
+  return (
+    <div className="space-y-5">
+      {addons.map((a) => {
+        const picked = a.options.find((o) => addonIds.includes(o.id));
+        return (
+          <fieldset key={a.id}>
+            <legend className="mb-3 flex items-center gap-2 text-sm text-text-muted">
+              <span className="font-bold text-text">{a.title}</span>
+              {a.required ? <span className="text-danger" aria-label="اجباری">*</span> : <span className="text-xs text-text-subtle">(اختیاری)</span>}
+              {a.display === 'color' && picked ? <span className="text-text">: {picked.label}</span> : null}
+            </legend>
+            <ul className="flex flex-wrap gap-2">
+              {a.options.map((o) => {
+                const on = addonIds.includes(o.id);
+                const amount = o.price_type === 'percentage' ? optionUnitAmount(o, unit) : o.price.amount;
+                const priceText = amount ? `+${formatToman(amount)} تومان${o.price_type === 'flat_rate' ? ' (یک‌بار)' : ''}` : null;
+                const input = (
+                  <input
+                    type={a.type === 'radio' ? 'radio' : 'checkbox'}
+                    name={`addon-${a.id}`}
+                    checked={on}
+                    onChange={() => toggleAddon(a.id, o.id)}
+                    className="peer sr-only"
+                  />
+                );
+                if (a.display === 'color' && o.color) {
+                  return (
+                    <li key={o.id}>
+                      <label title={priceText ? `${o.label} ${priceText}` : o.label} className="block cursor-pointer">
+                        {input}
+                        <span
+                          className={cx('block size-9 rounded-full border-2 ring-offset-2 peer-focus-visible:ring-2 peer-focus-visible:ring-focus', on ? 'border-primary' : 'border-border')}
+                          style={{ backgroundColor: o.color }}
+                        />
+                        <span className="sr-only">{o.label}</span>
+                      </label>
+                    </li>
+                  );
+                }
+                return (
+                  <li key={o.id}>
+                    <label
+                      className={cx(
+                        'flex min-h-10 cursor-pointer flex-col justify-center rounded-full border px-4 py-1.5 text-sm transition-colors peer-focus-visible:ring-2',
+                        on ? 'border-primary bg-primary-subtle font-bold text-primary' : 'border-border text-text hover:border-border-strong',
+                      )}
+                    >
+                      {input}
+                      <span>{o.label}</span>
+                      {priceText ? <span className="text-[11px] font-normal text-text-muted">{priceText}</span> : null}
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+            {picked?.description ? <p className="mt-2 text-xs leading-6 text-text-muted">{picked.description}</p> : null}
+          </fieldset>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ---------------- price + add to cart ---------------- */
 
 function PriceLine({ size = 'md' }: { size?: 'md' | 'lg' }) {
-  const { current } = usePurchase();
-  if (!current.price) return <p className="text-sm font-medium text-text-muted">برای استعلام قیمت تماس بگیرید</p>;
+  const { current, product, extrasTotal } = usePurchase();
+  if (!current.price)
+    return <p className="text-sm font-medium text-text-muted">{product.made_to_order ? 'سفارشی تولید می‌شود' : 'برای استعلام قیمت تماس بگیرید'}</p>;
   return (
     <div className="flex flex-col items-start gap-0.5">
       {current.regular && current.discount > 0 ? (
         <div className="flex items-center gap-1.5">
           <span className="rounded-full bg-danger px-1.5 text-[11px] font-bold leading-5 text-primary-on">{faDigits(current.discount)}٪</span>
           <del className="text-xs text-text-subtle" aria-label="قیمت قبل">
-            {formatToman(current.regular.amount)}
+            {formatToman(current.regular.amount + extrasTotal)}
           </del>
         </div>
       ) : null}
       <p className={cx('font-extrabold text-text', size === 'lg' ? 'text-xl' : 'text-base')}>
         {current.fromPrice ? <span className="me-1 text-xs font-normal text-text-muted">از</span> : null}
-        {formatToman(current.price.amount)}
+        {formatToman(current.price.amount + extrasTotal)}
         <span className="ms-1 text-xs font-normal text-text-muted">تومان</span>
       </p>
     </div>
@@ -214,10 +293,12 @@ function AddButton({ className }: { className?: string }) {
   const soldOut = product.type === 'variable' ? (variant ? !variant.in_stock : !product.in_stock) : !current.inStock;
   const noPrice = !current.price;
 
-  if (noPrice) {
+  if (product.made_to_order || noPrice) {
+    const phone = product.consult_phone || siteConfig.supportPhone;
     return (
-      <a href={`tel:${siteConfig.supportPhone}`} className={cx('flex h-12 items-center justify-center rounded-full bg-primary px-6 text-sm font-bold text-primary-on hover:bg-primary-hover', className)}>
-        تماس برای خرید
+      <a href={`tel:${phone}`} className={cx('flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary px-6 text-sm font-bold text-primary-on hover:bg-primary-hover', className)}>
+        <IconPhone size={18} />
+        {product.made_to_order ? 'مشاوره رایگان' : 'تماس برای خرید'}
       </a>
     );
   }
@@ -270,13 +351,26 @@ export function MobileBuyBar() {
 
 /** Desktop buy box (sticky in the side column). */
 export function BuyBox() {
-  const { quantity, setQuantity, addonTotal, current } = usePurchase();
+  const { quantity, setQuantity, installTotal, extrasTotal, extrasFlat, current, product } = usePurchase();
+  if (product.made_to_order) {
+    return (
+      <div className="space-y-4 rounded-lg border border-border bg-surface p-5 shadow-sm">
+        <PriceLine size="lg" />
+        <AddButton className="w-full" />
+      </div>
+    );
+  }
   return (
     <div className="space-y-4 rounded-lg border border-border bg-surface p-5 shadow-sm">
       <PriceLine size="lg" />
-      {addonTotal > 0 && current.price ? (
+      {current.price && (extrasTotal > 0 || extrasFlat > 0) ? (
         <p className="text-xs text-text-muted">
-          + هزینه نصب {formatToman(addonTotal)} تومان (برای هر عدد)
+          شامل افزودنی‌ها {formatToman(extrasTotal)} تومان (برای هر عدد){extrasFlat > 0 ? ` + ${formatToman(extrasFlat)} تومان یک‌بار` : ''}
+        </p>
+      ) : null}
+      {installTotal > 0 && current.price ? (
+        <p className="text-xs text-text-muted">
+          + هزینه نصب {formatToman(installTotal)} تومان (برای هر عدد)
         </p>
       ) : null}
       <div className="flex items-center gap-3">
