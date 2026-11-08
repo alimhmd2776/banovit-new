@@ -572,6 +572,49 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/SellerReviewList' }
         '404': { $ref: '#/components/responses/NotFound' }
+  # --- contact ---
+  /settings/contact:
+    get:
+      operationId: getContactSettings
+      summary: «تماس با ما» page content (/contact-us/), editable in the CMS admin app
+      responses:
+        '200':
+          description: Contact page settings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ContactSettings' }
+  /callback-requests:
+    post:
+      operationId: createCallbackRequest
+      summary: Visitor asks to be called back (listing callout, contact form) → CMS sales lead signal
+      description: Called only by the Next.js BFF (/api/callback-requests/) with X-Storefront-Token and X-Client-IP. Rate limited per visitor IP.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CallbackRequest' }
+      responses:
+        '201':
+          description: Received
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [status]
+                    properties:
+                      status: { type: string, enum: [received] }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429':
+          description: Too many requests
+  # --- /contact ---
 components:
   securitySchemes:
     customerToken: { type: http, scheme: bearer, description: Sanctum token from /auth/otp/verify (server-side only) }
@@ -644,6 +687,89 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
   schemas:
+    # --- contact ---
+    ContactSettings:
+      type: object
+      required: [path, heading, phones, locations, map, form, socials, opening_hours, seo]
+      properties:
+        path: { type: string, examples: ['/contact-us/'] }
+        heading: { type: string }
+        intro: { type: [string, 'null'] }
+        hours_title: { type: [string, 'null'] }
+        hours_note: { type: [string, 'null'] }
+        opening_hours:
+          type: array
+          items:
+            type: object
+            required: [days, opens, closes]
+            properties:
+              days: { type: array, items: { type: string, enum: [Saturday, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday] } }
+              opens: { type: string, examples: ['09:00'] }
+              closes: { type: string, examples: ['17:00'] }
+        phones:
+          type: array
+          items:
+            type: object
+            required: [label, number, tel]
+            properties:
+              label: { type: string }
+              number: { type: string, description: Latin digits, e.g. 02191014093 }
+              tel: { type: string, description: 'E.164 for tel: links, e.g. +982191014093' }
+        email: { type: [string, 'null'] }
+        locations:
+          type: array
+          items:
+            type: object
+            required: [label, street_address, locality, icon, is_primary, display]
+            properties:
+              label: { type: string }
+              street_address: { type: string }
+              locality: { type: string }
+              region: { type: [string, 'null'] }
+              postal_code: { type: [string, 'null'] }
+              icon: { type: string, enum: [office, warehouse, store] }
+              is_primary: { type: boolean, description: The LocalBusiness address in JSON-LD }
+              display: { type: string }
+        map:
+          type: object
+          required: [zoom, directions_url]
+          properties:
+            lat: { type: [number, 'null'] }
+            lng: { type: [number, 'null'] }
+            zoom: { type: integer }
+            pin_label: { type: [string, 'null'] }
+            image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+            neshan_url: { type: [string, 'null'] }
+            directions_url: { type: string }
+        form:
+          type: object
+          required: [title, submit_label, success_message]
+          properties:
+            title: { type: string }
+            message_placeholder: { type: [string, 'null'] }
+            submit_label: { type: string }
+            success_message: { type: string }
+        socials:
+          type: array
+          items:
+            type: object
+            required: [network, url]
+            properties:
+              network: { type: string, enum: [whatsapp, telegram, instagram, bale, rubika, eitaa, aparat, linkedin] }
+              url: { type: string }
+        seo: { $ref: '#/components/schemas/Seo' }
+    CallbackRequest:
+      type: object
+      required: [phone]
+      properties:
+        phone: { type: string, description: Iranian mobile, Persian digits allowed }
+        name: { type: [string, 'null'], maxLength: 100 }
+        message: { type: [string, 'null'], maxLength: 1000 }
+        form: { type: string, enum: [callout, contact], default: callout }
+        page_url: { type: [string, 'null'], maxLength: 500 }
+        page_title: { type: [string, 'null'], maxLength: 200 }
+        website: { type: [string, 'null'], description: Honeypot; must be empty }
+    # --- /contact ---
     SortKey:
       type: string
       enum: [relevant, newest, popular, price_asc, price_desc, featured, rating]

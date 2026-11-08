@@ -32,6 +32,11 @@ export const listBrandProducts = cache(async (slug: string, params: ListingParam
   client.listBrandProducts(slug, params, { next: { tags: ['products', `brand:${slug}`], revalidate: 300 } }),
 );
 
+/** «تماس با ما» content edited in the CMS (tag mirrors the API Surrogate-Key `settings:contact`). */
+export const getContactSettings = cache(async () =>
+  client.getContactSettings({ next: { tags: ['settings', 'settings:contact'], revalidate: 300 } }),
+);
+
 export const getProduct = cache(async (slug: string) =>
   client.getProduct(slug, { next: { tags: ['products', `product-slug:${slug}`], revalidate: REVALIDATE } }),
 );

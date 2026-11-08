@@ -20,6 +20,8 @@ export type Seo = Schemas['Seo'];
 export type Faq = Schemas['Faq'];
 export type SortKey = Schemas['SortKey'];
 export type ApiError = Schemas['Error'];
+export type ContactSettings = Schemas['ContactSettings'];
+export type CallbackRequest = Schemas['CallbackRequest'];
 export type Cart = Schemas['Cart'];
 export type CartLine = Schemas['CartLine'];
 export type CartTotals = Schemas['CartTotals'];
@@ -171,6 +173,8 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: Brand }>(`/brands/${encodePath(slug)}`, init).then((r) => r.data),
     listBrandProducts: (slug: string, params?: Omit<ListingParams, 'brand'>, init?: RequestOptions) =>
       get<ProductListing>(`/brands/${encodePath(slug)}/products${listingQueryString(params)}`, init),
+    getContactSettings: (init?: RequestOptions) =>
+      get<{ data: ContactSettings }>('/settings/contact', init).then((r) => r.data),
 
     // cart & checkout (docs/api/cart.md)
     getCart: (s: SessionHeaders) => send<{ data: Cart }>('GET', '/cart', s).then((r) => r.data),
