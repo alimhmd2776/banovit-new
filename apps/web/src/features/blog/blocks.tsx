@@ -7,7 +7,9 @@ import { faAgo, internalHref, localizeLinks } from './format';
 import { QuizBlock } from './QuizBlock';
 
 /** Renders the CMS blocks in order: sanitized HTML, product cards/carousels, notes, suggested posts, quizzes, maps. */
-export function PostBlocks({ blocks }: { blocks: BlogBlock[] }) {
+type BlockLabels = { map: { label: string; link: string }; stat: { views: string; updated: string } };
+
+export function PostBlocks({ blocks, labels }: { blocks: BlogBlock[]; labels: BlockLabels }) {
   return (
     <>
       {blocks.map((b, i) => {
@@ -16,8 +18,8 @@ export function PostBlocks({ blocks }: { blocks: BlogBlock[] }) {
         if (b.type === 'note') return <NoteBlock key={i} block={b as BlogNoteBlock} />;
         if (b.type === 'article') return <ArticleBlock key={i} block={b as BlogArticleBlock} />;
         if (b.type === 'quiz') return <QuizBlock key={i} block={b as BlogQuizBlock} />;
-        if (b.type === 'map') return <MapBlock key={i} block={b as BlogMapBlock} />;
-        if (b.type === 'stat') return <StatBlock key={i} block={b as BlogStatBlock} />;
+        if (b.type === 'map') return <MapBlock key={i} block={b as BlogMapBlock} labels={labels.map} />;
+        if (b.type === 'stat') return <StatBlock key={i} block={b as BlogStatBlock} labels={labels.stat} />;
         return null;
       })}
     </>
@@ -173,7 +175,7 @@ export function ArticleBlock({ block }: { block: BlogArticleBlock }) {
 }
 
 /** Location map from the old site's map widget: static tiles + a link to the full map. */
-export function MapBlock({ block }: { block: BlogMapBlock }) {
+export function MapBlock({ block, labels }: { block: BlogMapBlock; labels: BlockLabels['map'] }) {
   const { lat, lng, label } = block.props;
   return (
     <figure className="my-6">
@@ -181,7 +183,7 @@ export function MapBlock({ block }: { block: BlogMapBlock }) {
       <figcaption className="mt-2 flex items-center justify-between gap-2 text-sm text-text-muted">
         <span className="flex items-center gap-1">
           <IconMapPin size={16} />
-          {label || 'موقعیت روی نقشه'}
+          {label || labels.label}
         </span>
         <a
           href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=17/${lat}/${lng}`}
@@ -189,7 +191,7 @@ export function MapBlock({ block }: { block: BlogMapBlock }) {
           rel="noopener nofollow"
           className="inline-flex h-11 items-center text-primary hover:underline"
         >
-          نمایش نقشه بزرگ‌تر
+          {labels.link}
         </a>
       </figcaption>
     </figure>
@@ -197,11 +199,11 @@ export function MapBlock({ block }: { block: BlogMapBlock }) {
 }
 
 /** «خلاصه مقاله» box under the intro. */
-export function SummaryBox({ html }: { html: string }) {
+export function SummaryBox({ html, title = 'خلاصه مقاله' }: { html: string; title?: string }) {
   return (
     <section aria-labelledby="post-summary" className="rounded-lg bg-surface-muted p-4">
       <h2 id="post-summary" className="mb-2 text-base font-bold text-text-muted">
-        خلاصه مقاله
+        {title}
       </h2>
       <div className="blog-prose text-sm leading-7 [&_p]:text-text" dangerouslySetInnerHTML={{ __html: localizeLinks(html) }} />
     </section>
@@ -209,16 +211,18 @@ export function SummaryBox({ html }: { html: string }) {
 }
 
 /** [post-views] / [last_update] placed by the author: live view count or «… پیش». */
-export function StatBlock({ block }: { block: BlogStatBlock }) {
+export function StatBlock({ block, labels }: { block: BlogStatBlock; labels: BlockLabels['stat'] }) {
   const { kind, value } = block.props;
   return (
     <p className="my-2 inline-flex items-center gap-1 rounded-full bg-surface-muted px-3 py-1 text-xs text-text-muted">
       {kind === 'views' ? <IconEye size={14} /> : <IconHistory size={14} />}
       {kind === 'views' ? (
-        <>تعداد بازدید: {faDigits(Number(value) || 0)}</>
+        <>
+          {labels.views} {faDigits(Number(value) || 0)}
+        </>
       ) : (
         <>
-          آخرین بروزرسانی: <time dateTime={value}>{faAgo(value)}</time>
+          {labels.updated} <time dateTime={value}>{faAgo(value)}</time>
         </>
       )}
     </p>

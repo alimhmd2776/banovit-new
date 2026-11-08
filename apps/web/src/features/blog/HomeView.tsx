@@ -13,12 +13,13 @@ const SECTION_ICONS: Record<string, React.ReactNode> = {
   'design-room': <IconHomeDesign size={20} />,
 };
 
+import type { ResolvedBlogUi } from './ui';
 /**
  * /blog/ landing (design 01-blog-home-mobile): search, category tabs, featured
  * slider, popular rail, latest list, editorial sections, install promo, all posts.
  * «مطالب بیشتر» are real links to /blog/page/2/ (crawlable pagination).
  */
-export function HomeView({ home }: { home: BlogHome }) {
+export function HomeView({ home, ui }: { home: BlogHome; ui: ResolvedBlogUi }) {
   const [firstSection, ...otherSections] = home.sections;
 
   return (
@@ -26,17 +27,17 @@ export function HomeView({ home }: { home: BlogHome }) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={jsonLdScript(
-          blogArchiveJsonLd({ url: '/blog/', name: home.seo.title, description: home.seo.description, crumbs: [{ name: 'مقالات', url: '/blog/' }], posts: home.all.posts }),
+          blogArchiveJsonLd({ url: '/blog/', name: home.seo.title, description: home.seo.description, crumbs: [{ name: ui.labels.breadcrumb_root, url: '/blog/' }], posts: home.all.posts }),
         )}
       />
       <div className="mx-auto max-w-container space-y-6 px-4 pb-24 pt-3 lg:space-y-10 lg:pb-16 lg:pt-6">
         <div className="space-y-4">
-          <BlogTitleBar as="h1" />
-          <BlogSearch />
-          <CategoryTabs categories={home.categories} />
+          <BlogTitleBar as="h1" labels={ui.labels} />
+          <BlogSearch placeholder={ui.labels.search_placeholder} />
+          <CategoryTabs categories={home.categories} labels={ui.labels} />
         </div>
 
-        <HeroSlider posts={home.hero} />
+        <HeroSlider posts={home.hero} label={ui.labels.featured_title} />
 
         {home.popular.posts.length > 0 ? (
           <section aria-labelledby="blog-popular">
@@ -48,7 +49,7 @@ export function HomeView({ home }: { home: BlogHome }) {
         {home.latest.posts.length > 0 ? (
           <section aria-labelledby="blog-latest">
             <SectionHeader id="blog-latest" title={home.latest.title} kicker={home.latest.subtitle} icon={<IconHistory size={20} />} />
-            <PostList posts={home.latest.posts} footer={<MoreLink href="/blog/page/2/" />} />
+            <PostList posts={home.latest.posts} footer={<MoreLink href="/blog/page/2/">{ui.labels.more}</MoreLink>} />
           </section>
         ) : null}
 
@@ -79,7 +80,7 @@ export function HomeView({ home }: { home: BlogHome }) {
 
         <section aria-labelledby="blog-all">
           <SectionHeader id="blog-all" title={home.all.title} kicker={home.all.subtitle} icon={<IconList size={20} />} />
-          <PostList posts={home.all.posts} footer={home.all.total > home.all.posts.length ? <MoreLink href="/blog/page/2/" /> : null} />
+          <PostList posts={home.all.posts} footer={home.all.total > home.all.posts.length ? <MoreLink href="/blog/page/2/">{ui.labels.more}</MoreLink> : null} />
         </section>
       </div>
     </>
