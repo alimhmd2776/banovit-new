@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { cx, IconCart, IconHeart, IconSearch, IconUser } from '@banovit/ui';
+import { cx, IconCart, IconSearch } from '@banovit/ui';
 import { getMenu } from '@/lib/api';
 import { siteConfig } from '@/lib/site-config';
 import { CartBadge } from '@/features/cart/CartBadge';
+import { HeaderAccount } from '@/features/menu/HeaderAccount';
 import { Logo } from '@/features/menu/Logo';
 import { MegaMenu } from '@/features/menu/MegaMenu';
 import { MobileMenu } from '@/features/menu/MobileMenu';
@@ -90,22 +91,7 @@ export async function SiteHeader() {
               <IconCart />
               <CartBadge />
             </Link>
-            <Link
-              href="/my-account/"
-              className="hidden size-12 items-center justify-center rounded-md border border-border text-text hover:bg-surface-muted lg:inline-flex"
-              aria-label="علاقه‌مندی‌ها"
-            >
-              <IconHeart />
-            </Link>
-            <Link href="/my-account/" className="ms-3 hidden items-center gap-3 rounded-md px-2 py-1 hover:bg-surface-muted lg:flex">
-              <span className="inline-flex size-10 items-center justify-center rounded-full bg-surface-muted text-text-muted">
-                <IconUser size={20} />
-              </span>
-              <span className="leading-tight">
-                <span className="block text-[11px] text-text-subtle">خوش‌آمدید!</span>
-                <span className="block text-sm font-medium text-text">ورود / ثبت‌نام</span>
-              </span>
-            </Link>
+            <HeaderAccount />
           </nav>
         </div>
 
