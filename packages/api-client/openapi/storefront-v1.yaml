@@ -2484,6 +2484,9 @@ components:
             layout: { type: string, enum: [card, carousel] }
             title: { type: [string, 'null'] }
             subtitle: { type: [string, 'null'] }
+            badge: { type: [string, 'null'], description: Card label (default «محصول پیشنهادی») }
+            button: { type: [string, 'null'], description: Card button / carousel «view all» text }
+            button_url: { type: [string, 'null'], description: Carousel «view all» link (the product category page) }
             products: { type: array, items: { $ref: '#/components/schemas/ProductCard' } }
     BlogNoteBlock:
       type: object
@@ -2494,13 +2497,64 @@ components:
           type: object
           properties:
             title: { type: string }
-            variant: { type: string }
+            theme: { type: string, enum: [red, green, orange], description: Absent = default blue }
             html: { type: string }
+    BlogArticleBlock:
+      type: object
+      required: [type, props]
+      description: Suggested post card inside the article («مقاله پیشنهادی»)
+      properties:
+        type: { type: string, const: article }
+        props:
+          type: object
+          required: [label, button, post]
+          properties:
+            label: { type: string }
+            button: { type: string }
+            post: { $ref: '#/components/schemas/BlogPostCard' }
+    BlogQuizQuestion:
+      type: object
+      required: [question, options, correct]
+      properties:
+        question: { type: string }
+        options: { type: array, items: { type: string } }
+        correct: { type: integer, description: 0-based index into options }
+    BlogQuizBlock:
+      type: object
+      required: [type, props]
+      description: Multiple-choice self-check, graded in the browser
+      properties:
+        type: { type: string, const: quiz }
+        props:
+          type: object
+          required: [title, button, result, incomplete, questions]
+          properties:
+            title: { type: string }
+            subtitle: { type: [string, 'null'] }
+            button: { type: string }
+            result: { type: string, description: 'Template with {correct} and {total}' }
+            incomplete: { type: string }
+            questions: { type: array, items: { $ref: '#/components/schemas/BlogQuizQuestion' } }
+    BlogMapBlock:
+      type: object
+      required: [type, props]
+      properties:
+        type: { type: string, const: map }
+        props:
+          type: object
+          required: [lat, lng]
+          properties:
+            lat: { type: number }
+            lng: { type: number }
+            label: { type: [string, 'null'] }
     BlogBlock:
       oneOf:
         - $ref: '#/components/schemas/BlogHtmlBlock'
         - $ref: '#/components/schemas/BlogProductsBlock'
         - $ref: '#/components/schemas/BlogNoteBlock'
+        - $ref: '#/components/schemas/BlogArticleBlock'
+        - $ref: '#/components/schemas/BlogQuizBlock'
+        - $ref: '#/components/schemas/BlogMapBlock'
     TocItem:
       type: object
       required: [id, text, level]
