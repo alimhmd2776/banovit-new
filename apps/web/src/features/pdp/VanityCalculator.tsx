@@ -52,7 +52,7 @@ export function VanityCalculator({ calc, productName, consultPhone }: { calc: Ca
       `محصول: ${productName}`,
       `طول صفحه: ${L} سانتی‌متر (عرض ${calc.width_cm})`,
       `تعداد کاسه: ${N}`,
-      `پایه و کلاف فلزی و پیشانی: ${frame ? 'می‌خواهم' : 'نمی‌خواهم'}`,
+      `${calc.frame_label}: ${frame ? 'می‌خواهم' : 'نمی‌خواهم'}`,
       `قیمت تقریبی: ${formatToman(estimate)} تومان`,
     ].join('\n');
     try {
@@ -74,7 +74,7 @@ export function VanityCalculator({ calc, productName, consultPhone }: { calc: Ca
   return (
     <section id="price-calculator" aria-labelledby={`${id}-t`} className="scroll-mt-28 rounded-lg border border-primary/20 bg-primary-subtle/50 p-4 lg:p-5">
       <h2 id={`${id}-t`} className="text-[15px] font-bold text-text">
-        محاسبه قیمت
+        {calc.title}
       </h2>
       <p className="mt-1 text-xs leading-6 text-text-muted">
         هر متر صفحه {perMeter(calc.slab_price_per_cm.amount)} تومان در عرض {faDigits(calc.width_cm)} سانتی‌متر؛ قیمت هر کاسه {formatToman(calc.bowl_price.amount)} تومان.
@@ -110,7 +110,7 @@ export function VanityCalculator({ calc, productName, consultPhone }: { calc: Ca
         <label className="flex cursor-pointer items-start gap-3 rounded-md border border-border bg-surface p-3">
           <input type="checkbox" checked={frame} onChange={(e) => setFrame(e.target.checked)} className="mt-1 size-4 accent-[var(--color-primary)]" />
           <span className="text-sm text-text">
-            پایه و کلاف فلزی و پیشانی
+            {calc.frame_label}
             <span className="mt-0.5 block text-xs text-text-muted">متری {perMeter(calc.frame_price_per_cm.amount)} تومان اضافه</span>
           </span>
         </label>
@@ -171,10 +171,10 @@ export function VanityCalculator({ calc, productName, consultPhone }: { calc: Ca
 }
 
 /** «این محصول سفارشی تولید می‌شود» box for made-to-order products (replaces the buy controls). */
-export function MadeToOrderBox({ note, phone, hasCalculator }: { note: string | null; phone: string; hasCalculator: boolean }) {
+export function MadeToOrderBox({ title, note, phone, hasCalculator }: { title: string; note: string | null; phone: string; hasCalculator: boolean }) {
   return (
     <div className="rounded-lg border border-border bg-surface-muted p-4">
-      <p className="text-sm font-bold text-text">این محصول سفارشی تولید می‌شود</p>
+      <p className="text-sm font-bold text-text">{title}</p>
       {note ? <div className="prose-pdp mt-1 text-xs leading-6 text-text-muted" dangerouslySetInnerHTML={{ __html: note }} /> : null}
       <div className="mt-3 flex flex-wrap gap-2">
         <a href={`tel:${phone}`} className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-4 text-sm font-bold text-primary-on hover:bg-primary-hover">
