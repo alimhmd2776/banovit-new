@@ -5,16 +5,16 @@ import { supportTopic } from '@/features/account/supportTopics';
 import { requireCustomer } from '@/lib/auth/session';
 
 export async function generateMetadata({ params }: { params: Promise<{ topic: string }> }) {
-  const t = supportTopic((await params).topic);
+  const t = await supportTopic((await params).topic);
   return { title: t ? `${t.title} | پشتیبانی` : 'پشتیبانی' };
 }
 
 /** Topic guidance (design 30) with the next step: pick an order, or write the request directly. */
 export default async function SupportTopicPage({ params }: { params: Promise<{ topic: string }> }) {
-  const topic = supportTopic((await params).topic);
+  const topic = await supportTopic((await params).topic);
   if (!topic) notFound();
   await requireCustomer(`/my-account/support/topics/${topic.key}/`);
-  const next = topic.needsOrder ? `/my-account/support/select-order/?topic=${topic.key}` : `/my-account/support/new/?topic=${topic.key}`;
+  const next = topic.needs_order ? `/my-account/support/select-order/?topic=${topic.key}` : `/my-account/support/new/?topic=${topic.key}`;
   return (
     <div className="flex min-h-[calc(100dvh-90px)] flex-col lg:min-h-0">
       <AppBar title={topic.title} backHref="/my-account/support/" />
@@ -28,7 +28,7 @@ export default async function SupportTopicPage({ params }: { params: Promise<{ t
       </dl>
       <div className="sticky bottom-[calc(var(--bottom-nav-height)+16px)] bg-surface py-4 lg:static">
         <Link href={next} className="flex h-12 w-full items-center justify-center rounded-md bg-primary text-base font-bold text-primary-on hover:bg-primary-hover lg:w-60">
-          {topic.needsOrder ? 'انتخاب سفارش' : 'ثبت درخواست'}
+          {topic.needs_order ? 'انتخاب سفارش' : 'ثبت درخواست'}
         </Link>
       </div>
     </div>

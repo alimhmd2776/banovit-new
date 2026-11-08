@@ -52,6 +52,10 @@ export type SitemapRow = Schemas['SitemapRow'];
 export type BlogListParams = NonNullable<operations['listBlogPosts']['parameters']['query']>;
 export type BlogSitemapType = 'posts' | 'categories' | 'tags' | 'authors';
 export type ContactSettings = Schemas['ContactSettings'];
+export type AuthSettings = Schemas['AuthSettings'];
+// --- plp ---
+export type ListingSettings = Schemas['ListingSettings'];
+// --- /plp ---
 export type CallbackRequest = Schemas['CallbackRequest'];
 export type Cart = Schemas['Cart'];
 export type CartLine = Schemas['CartLine'];
@@ -79,6 +83,7 @@ export type Menu = Schemas['Menu'];
 export type MenuItem = Schemas['MenuItem'];
 export type MenuPromo = Schemas['MenuPromo'];
 export type MenuKey = operations['getMenu']['parameters']['path']['key'];
+export type HeaderSettings = Schemas['HeaderSettings'];
 export type Customer = Schemas['Customer'];
 export type CustomerSession = Schemas['CustomerSession'];
 export type OtpChallenge = Schemas['OtpChallenge'];
@@ -98,6 +103,7 @@ export type TicketTopic = Schemas['TicketTopic'];
 export type TicketSummary = Schemas['TicketSummary'];
 export type TicketDetail = Schemas['TicketDetail'];
 export type TicketMessage = Schemas['TicketMessage'];
+export type AccountSettings = Schemas['AccountSettings'];
 
 // --- sellers ---
 export type SellerCard = Schemas['SellerCard'];
@@ -240,8 +246,15 @@ export function createStorefrontClient(opts: ClientOptions) {
     listPages: (init?: RequestOptions) => get<{ data: PageListItem[] }>('/pages', init).then((r) => r.data),
     getPage: (path: string, init?: RequestOptions) =>
       get<{ data: ContentPage }>(`/pages/${encodePath(path)}`, init).then((r) => r.data),
+    // --- plp ---
+    getListingSettings: (init?: RequestOptions) =>
+      get<{ data: ListingSettings }>('/settings/listing', init).then((r) => r.data),
+    // --- /plp ---
     getContactSettings: (init?: RequestOptions) =>
       get<{ data: ContactSettings }>('/settings/contact', init).then((r) => r.data),
+    getAccountSettings: (init?: RequestOptions) =>
+      get<{ data: AccountSettings }>('/settings/account', init).then((r) => r.data),
+    getAuthSettings: (init?: RequestOptions) => get<{ data: AuthSettings }>('/settings/auth', init).then((r) => r.data),
 
     getBlogHome: (init?: RequestOptions) => get<{ data: BlogHome }>('/blog/home', init).then((r) => r.data),
     getBlogUi: (init?: RequestOptions) => get<{ data: BlogUi }>('/blog/ui', init).then((r) => r.data),
@@ -287,6 +300,7 @@ export function createStorefrontClient(opts: ClientOptions) {
     listProductReviews: (slug: string, page = 1, init?: RequestOptions) =>
       get<ReviewListing>(`/products/${encodePath(slug)}/reviews${page > 1 ? `?page=${page}` : ''}`, init),
     getMenu: (key: MenuKey, init?: RequestOptions) => get<{ data: Menu }>(`/menus/${key}`, init).then((r) => r.data),
+    getHeaderSettings: (init?: RequestOptions) => get<{ data: HeaderSettings }>('/settings/header', init).then((r) => r.data),
     // --- sellers ---
     listSellers: (init?: RequestOptions) => get<{ data: SellerCard[] }>('/sellers', init).then((r) => r.data),
     getSeller: (slug: string, init?: RequestOptions) =>

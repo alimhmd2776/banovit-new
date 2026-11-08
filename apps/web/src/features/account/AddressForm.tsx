@@ -6,8 +6,9 @@ import type { CustomerAddress, CustomerAddressInput } from '@banovit/api-client'
 import { cx } from '@banovit/ui';
 import { AccountError, me } from './client';
 import { IconEditBox, IconPin } from './icons';
-import { DEFAULT_CENTER, PROVINCES } from './iran';
+import { PROVINCES } from './iran';
 import { reverseGeocode } from './map';
+import { useMapConfig } from './settings';
 import { MapPreview } from './MapPreview';
 
 const MapPicker = dynamic(() => import('./MapPicker').then((m) => m.MapPicker), { ssr: false });
@@ -32,6 +33,7 @@ const empty: Values = { title: '', recipient_name: '', recipient_phone: '', prov
  * Saves through the BFF /api/me/addresses/.
  */
 export function AddressForm({ address, defaults, onSaved, submitLabel }: { address?: CustomerAddress; defaults?: Partial<Values>; onSaved: (a: CustomerAddress) => void; submitLabel?: string }) {
+  const map = useMapConfig();
   const [v, setV] = useState<Values>(() =>
     address
       ? {
@@ -49,7 +51,7 @@ export function AddressForm({ address, defaults, onSaved, submitLabel }: { addre
   const onPicked = async (p: { lat: number; lng: number }) => {
     setPicking(false);
     setV((s) => ({ ...s, ...p }));
-    const r = await reverseGeocode(p.lat, p.lng);
+    const r = await reverseGeocode(map.geocoder_url, p.lat, p.lng);
     setV((s) => ({
       ...s,
       province: r.province && PROVINCES.some((x) => x.name === r.province) ? r.province : s.province,
@@ -131,7 +133,7 @@ export function AddressForm({ address, defaults, onSaved, submitLabel }: { addre
         </button>
       </div>
 
-      {picking ? <MapPicker initial={v.lat !== null && v.lng !== null ? { lat: v.lat, lng: v.lng } : DEFAULT_CENTER} onConfirm={onPicked} onClose={() => setPicking(false)} /> : null}
+      {picking ? <MapPicker initial={v.lat !== null && v.lng !== null ? { lat: v.lat, lng: v.lng } : { lat: map.default_lat, lng: map.default_lng }} onConfirm={onPicked} onClose={() => setPicking(false)} /> : null}
     </form>
   );
 }

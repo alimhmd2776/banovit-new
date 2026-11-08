@@ -3,9 +3,10 @@
 import Link from 'next/link';
 import { faDigits, IconChevronDown, IconHeart, IconUser } from '@banovit/ui';
 import { useHeaderSession } from './header-session';
+import { DEFAULT_TEXTS, type HeaderTexts } from './header-texts';
 
 /** Desktop wishlist button (with count) and «خوش‌آمدید! name» account box (designs/menu/01). */
-export function HeaderAccount() {
+export function HeaderAccount({ texts = DEFAULT_TEXTS }: { texts?: HeaderTexts }) {
   const { name, signedIn, wishlistCount } = useHeaderSession();
   return (
     <>
@@ -30,9 +31,9 @@ export function HeaderAccount() {
           <IconUser size={20} />
         </span>
         <span className="min-w-[96px] leading-tight">
-          <span className="block text-[11px] text-text-subtle">خوش‌آمدید!</span>
+          <span className="block text-[11px] text-text-subtle">{texts.welcome}</span>
           <span className="block max-w-[160px] truncate text-sm font-medium text-text">
-            {name === undefined ? ' ' : signedIn ? name : 'ورود / ثبت‌نام'}
+            {name === undefined ? ' ' : signedIn ? name : texts.login}
           </span>
         </span>
         {signedIn ? <IconChevronDown size={18} className="text-text-muted" /> : null}

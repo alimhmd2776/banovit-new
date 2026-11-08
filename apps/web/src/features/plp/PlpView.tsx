@@ -2,10 +2,10 @@ import Image from 'next/image';
 import type { Category, Faq, Image as ImageData, ProductListing } from '@banovit/api-client';
 import { Accordion, Breadcrumb, Pagination, ProductCard, faDigits } from '@banovit/ui';
 import { jsonLdScript, listingJsonLd, type Crumb } from '@/lib/seo';
-import { siteConfig } from '@/lib/site-config';
-import { ChangeFilterButton, FilterSidebar, ListingToolbar } from './ListingControls';
+import { getListingSettings } from '@/lib/api';
+import { FilterSidebar, ListingToolbar } from './ListingControls';
 import { BrandRow, EmptyState, SeoDescription, SubcategoryCarousel } from './sections';
-import { SupportCallout } from './SupportCallout';
+import { SupportCallout } from './SupportCalloutBox';
 import { hasActiveFilters, pagePath, toQueryString, type ListingState } from './url-state';
 
 export type PlpViewProps = {
@@ -29,7 +29,7 @@ export type PlpViewProps = {
  * 2-col grid. From lg: sidebar filters + 3/4-col grid. Content is identical in
  * both layouts (SEO); only arrangement changes.
  */
-export function PlpView({
+export async function PlpView({
   title,
   crumbs,
   canonicalPath,
@@ -47,6 +47,7 @@ export function PlpView({
   const filtered = hasActiveFilters(state);
   const query = toQueryString(state);
   const brandFacet = meta.facets.find((f) => f.key === 'brand');
+  const settings = await getListingSettings();
 
   return (
     <>
@@ -91,9 +92,7 @@ export function PlpView({
                 ))}
               </ul>
             ) : (
-              <EmptyState filtered={filtered}>
-                <ChangeFilterButton meta={meta} state={state} basePath={basePath} />
-              </EmptyState>
+              <EmptyState filtered={filtered} changeFilter={{ meta, state, basePath }} />
             )}
 
             <Pagination
@@ -105,7 +104,7 @@ export function PlpView({
           </section>
         </div>
 
-        {showBrandRow ? <BrandRow facet={brandFacet} title={title} /> : null}
+        {showBrandRow && settings ? <BrandRow facet={brandFacet} title={settings.brands_row_title.replace('%%term_title%%', title)} /> : null}
 
         <SeoDescription html={descriptionHtml} title={title} />
 
@@ -118,7 +117,7 @@ export function PlpView({
           </section>
         ) : null}
 
-        <SupportCallout phone={siteConfig.supportPhone} phoneDisplay={siteConfig.supportPhoneDisplay} pageTitle={title} />
+        <SupportCallout pageTitle={title} />
       </div>
     </>
   );

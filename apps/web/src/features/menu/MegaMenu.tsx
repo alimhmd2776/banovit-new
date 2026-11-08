@@ -6,6 +6,7 @@ import type { MenuItem } from '@banovit/api-client';
 import { cx, IconMenu } from '@banovit/ui';
 import { countLabel, groupsOf } from './menu-model';
 import { CategoryThumb, MenuLink } from './parts';
+import { DEFAULT_TEXTS, type HeaderTexts } from './header-texts';
 
 /**
  * Desktop «دسته بندی کالاها» mega menu (designs/menu/01): opens on hover or
@@ -13,7 +14,7 @@ import { CategoryThumb, MenuLink } from './parts';
  * grid. Every link is in the server HTML (rendered hidden), so crawlers see
  * the whole category tree like the live site.
  */
-export function MegaMenu({ items }: { items: MenuItem[] }) {
+export function MegaMenu({ items, texts = DEFAULT_TEXTS }: { items: MenuItem[]; texts?: HeaderTexts }) {
   const panelId = useId();
   const [open, setOpen] = useState(false);
   const [activeId, setActiveId] = useState<number | null>(items[0]?.id ?? null);
@@ -57,7 +58,7 @@ export function MegaMenu({ items }: { items: MenuItem[] }) {
         className="flex h-11 items-center gap-2 text-sm font-medium text-primary hover:text-primary-hover"
       >
         <IconMenu size={20} />
-        دسته بندی کالاها
+        {texts.mega_menu_trigger}
       </button>
 
       {open ? <div className="pointer-events-none absolute inset-x-0 top-full h-dvh animate-[fadeIn_150ms_ease-out] bg-overlay" aria-hidden="true" /> : null}
@@ -84,8 +85,8 @@ export function MegaMenu({ items }: { items: MenuItem[] }) {
                   <CategoryThumb item={top} size={48} className={top.id === active.id ? 'bg-surface' : undefined} />
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-bold text-text">{top.title}</span>
-                    {countLabel(top.product_count) ? (
-                      <span className="mt-0.5 block text-xs text-text-subtle">{countLabel(top.product_count)}</span>
+                    {countLabel(top.product_count, texts.count_suffix) ? (
+                      <span className="mt-0.5 block text-xs text-text-subtle">{countLabel(top.product_count, texts.count_suffix)}</span>
                     ) : null}
                   </span>
                 </MenuLink>
@@ -100,7 +101,7 @@ export function MegaMenu({ items }: { items: MenuItem[] }) {
                     <div className="flex items-center justify-between rounded-sm bg-surface-muted px-3 py-2 text-sm">
                       <h3 className="truncate text-text-muted">{g.title}</h3>
                       <MenuLink href={g.url} className="shrink-0 font-medium text-primary hover:underline">
-                        مشاهده همه
+                        {texts.sheet_view_all}
                       </MenuLink>
                     </div>
                     <ul className="divide-y divide-border px-2">
@@ -108,8 +109,8 @@ export function MegaMenu({ items }: { items: MenuItem[] }) {
                         <li key={s.id}>
                           <MenuLink href={s.url} className="block py-3 hover:text-primary focus-visible:outline-2 focus-visible:outline-focus">
                             <span className="block text-sm font-medium text-text">{s.title}</span>
-                            {countLabel(s.product_count) ? (
-                              <span className="mt-1 block text-xs text-text-subtle">{countLabel(s.product_count)}</span>
+                            {countLabel(s.product_count, texts.count_suffix) ? (
+                              <span className="mt-1 block text-xs text-text-subtle">{countLabel(s.product_count, texts.count_suffix)}</span>
                             ) : null}
                           </MenuLink>
                         </li>
@@ -120,7 +121,7 @@ export function MegaMenu({ items }: { items: MenuItem[] }) {
               </div>
               {top.children.length === 0 ? (
                 <MenuLink href={top.url} className="text-sm font-medium text-primary hover:underline">
-                  مشاهده همه {top.title}
+                  {texts.sheet_view_all} {top.title}
                 </MenuLink>
               ) : null}
             </div>

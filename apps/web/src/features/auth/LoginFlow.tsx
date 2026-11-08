@@ -4,17 +4,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useNavRouter as useRouter } from '@/lib/use-nav-router';
 import { IconChevronRight, IconPhone, cx } from '@banovit/ui';
-import type { Customer } from '@banovit/api-client';
+import type { AuthSettings, Customer } from '@banovit/api-client';
 import { normalizeMobile, toLatinDigits, toPersianDigits } from '@/lib/auth/phone';
 import { Logo } from '@/features/menu/Logo';
 import { AuthAvatar, BrandTile } from './AuthArt';
 import { OtpInput } from './OtpInput';
-import { TERMS_HREF, PRIVACY_HREF } from './links';
+import { AUTH_SETTINGS_FALLBACK, fill, type AuthTexts } from './links';
 
 type Step = 'phone' | 'sending' | 'code' | 'profile';
 type ApiError = { code: string; message: string; retry_after?: number; fields?: Record<string, string[]> };
-
-const CODE_LENGTH = 4;
 
 async function post<T>(url: string, body: unknown): Promise<{ ok: true; data: T } | { ok: false; error: ApiError }> {
   try {
@@ -49,7 +47,18 @@ const mmss = (s: number) => toPersianDigits(`${Math.floor(s / 60)}:${String(s % 
  * phone → «درحال ارسال کد» → code (resend countdown) → name step for new customers.
  * Talks only to the BFF (/api/auth/*); the session token never reaches this code.
  */
-export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: string; initialStep?: 'phone' | 'profile' }) {
+export function LoginFlow({
+  redirectTo,
+  initialStep = 'phone',
+  settings = AUTH_SETTINGS_FALLBACK,
+}: {
+  redirectTo: string;
+  initialStep?: 'phone' | 'profile';
+  /** Texts, links and code length from the CMS panel. */
+  settings?: AuthSettings;
+}) {
+  const t = settings.texts;
+  const CODE_LENGTH = settings.code_length;
   const router = useRouter();
   const [step, setStep] = useState<Step>(initialStep);
   const [phoneInput, setPhoneInput] = useState('');
@@ -57,7 +66,9 @@ export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: s
   const [code, setCode] = useState('');
   const [first, setFirst] = useState('');
   const [last, setLast] = useState('');
-  const [error, setError] = useState<ApiError | null>(null);
+  const [error, setErrorRaw] = useState<ApiError | null>(null);
+  const setError = (e: ApiError | null) =>
+    setErrorRaw(e && e.code === 'network' ? { ...e, message: t.error_network } : e && e.code === 'http_error' ? { ...e, message: t.error_generic } : e);
   const [busy, setBusy] = useState(false);
   const [resendIn, setResendIn] = useCountdown();
   const lastSubmitted = useRef('');
@@ -91,7 +102,7 @@ export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: s
     setError(res.error);
     if (res.error.code === 'otp_cooldown' && phone === target) {
       // A code was sent a moment ago: go back to the code screen with the real wait.
-      setResendIn(res.error.retry_after ?? 60);
+      setResendIn(res.error.retry_after ?? settings.resend_cooldown);
       setStep('code');
     } else {
       setStep(phone === target && step === 'code' ? 'code' : 'phone');
@@ -167,7 +178,7 @@ export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: s
               if (normalized && !busy) void requestCode(normalized);
             }}
           >
-            <Heading active={!!normalized} title="ورود یا ثبت نام در بانویت" subtitle="لطفاً شماره موبایل خود را وارد کنید" />
+            <Heading active={!!normalized} title={t.phone_title} subtitle={t.phone_subtitle} />
             <label
               className={cx(
                 'mt-6 flex h-14 items-center gap-2 rounded-lg border bg-surface px-4 transition-colors',
@@ -176,7 +187,7 @@ export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: s
               )}
             >
               <IconPhone size={18} className="shrink-0" />
-              <span className="shrink-0 text-sm font-medium">شماره موبایل</span>
+              <span className="shrink-0 text-sm font-medium">{t.phone_label}</span>
               <input
                 type="tel"
                 inputMode="numeric"
@@ -184,7 +195,7 @@ export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: s
                 dir="ltr"
                 autoFocus
                 maxLength={16}
-                placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+                placeholder={t.phone_placeholder}
                 value={toPersianDigits(toLatinDigits(phoneInput))}
                 onChange={(e) => {
                   setPhoneInput(e.currentTarget.value);
@@ -196,16 +207,16 @@ export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: s
               />
             </label>
             <ErrorText error={error} />
-            <Terms />
-            <SubmitButton disabled={!normalized || busy} busy={busy}>دریافت کد پیامکی</SubmitButton>
+            <Terms t={t} />
+            <SubmitButton disabled={!normalized || busy} busy={busy}>{t.phone_submit}</SubmitButton>
           </form>
         )}
 
         {step === 'sending' && (
           <div className="flex flex-1 flex-col items-center pt-16 text-center" role="status" aria-live="polite">
             <AuthAvatar active spinning size={104} />
-            <p className="mt-6 font-bold text-text">درحال ارسال کد پیامکی ...</p>
-            <p className="mt-1 text-sm text-text-muted">از صبر و شکیبایی شما سپاسگذاریم</p>
+            <p className="mt-6 font-bold text-text">{t.sending_title}</p>
+            <p className="mt-1 text-sm text-text-muted">{t.sending_subtitle}</p>
           </div>
         )}
 
@@ -220,8 +231,8 @@ export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: s
           >
             <Heading
               active={code.length === CODE_LENGTH}
-              title="کد پیامکی برای شما ارسال شد"
-              subtitle={`کد پیامکی برای شماره (${toPersianDigits(phone)}) ارسال گردید`}
+              title={t.code_title}
+              subtitle={fill(t.code_subtitle, { phone: toPersianDigits(phone) })}
             />
             <div className="mt-6">
               <OtpInput
@@ -239,16 +250,16 @@ export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: s
               />
             </div>
             <ErrorText error={error} />
-            <Terms />
-            <SubmitButton disabled={code.length !== CODE_LENGTH || busy} busy={busy}>{busy ? 'در حال بررسی…' : 'ورود به بانُویت'}</SubmitButton>
+            <Terms t={t} />
+            <SubmitButton disabled={code.length !== CODE_LENGTH || busy} busy={busy}>{busy ? t.checking_label : t.code_submit}</SubmitButton>
             <div className="mt-5 text-center text-sm">
               {resendIn > 0 ? (
                 <p className="font-medium text-text-subtle" aria-live="off">
-                  {mmss(resendIn)} تا دریافت مجدد
+                  {fill(t.resend_wait, { time: mmss(resendIn) })}
                 </p>
               ) : (
                 <button type="button" onClick={() => void requestCode(phone)} disabled={busy} className="font-bold text-primary hover:underline">
-                  دریافت مجدد کد پیامکی
+                  {t.resend_label}
                 </button>
               )}
             </div>
@@ -259,17 +270,17 @@ export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: s
           <form noValidate onSubmit={saveProfile}>
             <div className="flex flex-col items-center text-center">
               <BrandTile />
-              <h1 className="mt-5 text-lg font-bold text-text">به خانواده بانُویت خوش‌آمدید!</h1>
-              <p className="mt-1 text-sm text-text-muted">امیدواریم بتوانیم برای شما تجربه خوبی بسازیم.</p>
+              <h1 className="mt-5 text-lg font-bold text-text">{t.welcome_title}</h1>
+              <p className="mt-1 text-sm text-text-muted">{t.welcome_subtitle}</p>
             </div>
             <hr className="my-5 border-border" />
             <div className="space-y-3">
-              <FloatingField id="first_name" label="نام کوچک" value={first} onChange={setFirst} autoComplete="given-name" error={fieldError('first_name')} autoFocus />
-              <FloatingField id="last_name" label="نام خانوادگی" value={last} onChange={setLast} autoComplete="family-name" error={fieldError('last_name')} />
+              <FloatingField id="first_name" label={t.first_name_label} value={first} onChange={setFirst} autoComplete="given-name" error={fieldError('first_name')} autoFocus />
+              <FloatingField id="last_name" label={t.last_name_label} value={last} onChange={setLast} autoComplete="family-name" error={fieldError('last_name')} />
             </div>
             {!error?.fields && <ErrorText error={error} />}
-            <Terms />
-            <SubmitButton disabled={!profileValid || busy} busy={busy}>ورود به بانُویت</SubmitButton>
+            <Terms t={t} />
+            <SubmitButton disabled={!profileValid || busy} busy={busy}>{t.profile_submit}</SubmitButton>
           </form>
         )}
       </div>
@@ -287,18 +298,18 @@ function Heading({ title, subtitle, active }: { title: string; subtitle: string;
   );
 }
 
-function Terms() {
+function Terms({ t }: { t: AuthTexts }) {
   return (
     <p className="mt-4 text-center text-xs text-text-subtle">
-      ورود شما به معنای پذیرش{' '}
-      <Link href={TERMS_HREF} className="text-primary hover:underline">
-        شرایط بانُویت
+      {t.consent_prefix}{' '}
+      <Link href={t.terms_url} className="text-primary hover:underline">
+        {t.terms_label}
       </Link>{' '}
-      و{' '}
-      <Link href={PRIVACY_HREF} className="text-primary hover:underline">
-        قوانین حریم‌خصوصی
+      {t.consent_middle}{' '}
+      <Link href={t.privacy_url} className="text-primary hover:underline">
+        {t.privacy_label}
       </Link>{' '}
-      است
+      {t.consent_suffix}
     </p>
   );
 }

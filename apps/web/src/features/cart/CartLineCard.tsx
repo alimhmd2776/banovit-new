@@ -6,6 +6,7 @@ import type { CartLine } from '@banovit/api-client';
 import { cx, faDigits, formatToman, IconInfo, IconStore, QuantityStepper, Switch } from '@banovit/ui';
 import { Money } from './Money';
 
+/** Fallback only: the CMS sends the house seller's name (admin «فروشندگان») on every line. */
 export const HOUSE_SELLER_NAME = 'بانویت';
 
 export function sellerName(line: CartLine): string {

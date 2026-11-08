@@ -396,6 +396,20 @@ paths:
                 properties:
                   data: { $ref: '#/components/schemas/Menu' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /settings/header:
+    get:
+      operationId: getHeaderSettings
+      summary: Header banner slides, logo, support line and UI copy («تنظیمات هدر» in the CMS)
+      responses:
+        '200':
+          description: Header settings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/HeaderSettings' }
   # --- auth (feature/web-auth, banovit-cms feature/storefront-auth) ---
   /auth/otp:
     post:
@@ -573,6 +587,22 @@ paths:
               schema: { $ref: '#/components/schemas/SellerReviewList' }
         '404': { $ref: '#/components/responses/NotFound' }
   # --- contact ---
+  # --- plp ---
+  /settings/listing:
+    get:
+      operationId: getListingSettings
+      summary: Listing-page texts (support box, empty states, brands row) and the site footer, editable in the CMS («صفحه فروشگاه و فوتر»)
+      responses:
+        '200':
+          description: Listing page + footer settings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ListingSettings' }
+  # --- /plp ---
   /settings/contact:
     get:
       operationId: getContactSettings
@@ -587,6 +617,20 @@ paths:
                 required: [data]
                 properties:
                   data: { $ref: '#/components/schemas/ContactSettings' }
+  /settings/auth:
+    get:
+      operationId: getAuthSettings
+      summary: Texts, links and timings of the /login/ page, editable in the CMS admin app («ورود و پیامک کد»)
+      responses:
+        '200':
+          description: Login page settings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AuthSettings' }
   /callback-requests:
     post:
       operationId: createCallbackRequest
@@ -935,6 +979,13 @@ paths:
       responses:
         '201': { description: Sent, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/TicketMessage' } } } } } }
         '409': { description: Ticket closed }
+  /settings/account:
+    get:
+      operationId: getAccountSettings
+      summary: Panel-edited wording/options of the customer account area (support topics, menu, empty states, map, limits)
+      tags: [account]
+      responses:
+        '200': { description: Account settings, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/AccountSettings' } } } } } }
   # --- /account ---
   # --- blog (feature/web-blog, banovit-cms feature/storefront-blog) ---
   /blog/home:
@@ -1200,11 +1251,90 @@ components:
           schema: { $ref: '#/components/schemas/Error' }
   schemas:
     # --- contact ---
+    # --- plp ---
+    ListingImage:
+      type: object
+      required: [url]
+      properties:
+        url: { type: string }
+        width: { type: [integer, 'null'] }
+        height: { type: [integer, 'null'] }
+        alt: { type: [string, 'null'] }
+    ListingSettings:
+      type: object
+      required: [support_box, brands_row_title, empty_state, empty_category, footer]
+      properties:
+        support_box:
+          type: object
+          required: [enabled, title, button, success]
+          properties:
+            enabled: { type: boolean }
+            title: { type: string }
+            text: { type: [string, 'null'] }
+            placeholder: { type: [string, 'null'] }
+            button: { type: string }
+            success: { type: string }
+        brands_row_title: { type: string, description: '%%term_title%% = listing title' }
+        empty_state:
+          type: object
+          required: [title, button]
+          properties:
+            title: { type: string }
+            text: { type: [string, 'null'] }
+            button: { type: string }
+            image: { oneOf: [{ $ref: '#/components/schemas/ListingImage' }, { type: 'null' }] }
+        empty_category:
+          type: object
+          required: [title, button, url]
+          properties:
+            title: { type: string }
+            text: { type: [string, 'null'] }
+            button: { type: string }
+            url: { type: string }
+        footer:
+          type: object
+          required: [site_name, columns, badges]
+          properties:
+            site_name: { type: string }
+            tagline: { type: [string, 'null'] }
+            about: { type: [string, 'null'] }
+            columns:
+              type: array
+              items:
+                type: object
+                required: [title, links]
+                properties:
+                  title: { type: string }
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      required: [label, url]
+                      properties: { label: { type: string }, url: { type: string } }
+            badges:
+              type: array
+              items:
+                type: object
+                required: [label, image]
+                properties:
+                  label: { type: string }
+                  url: { type: [string, 'null'] }
+                  image: { type: string }
+            copyright: { type: [string, 'null'], description: '%%year%% = Jalali year' }
+    # --- /plp ---
     ContactSettings:
       type: object
-      required: [path, heading, phones, locations, map, form, socials, opening_hours, seo]
+      description: Every visible text and image of /contact-us/ is edited in the CMS (صفحه تماس با ما); the page hardcodes none.
+      required: [path, page_bar, heading, phones, phones_caption, locations, map, form, socials, opening_hours, seo]
       properties:
         path: { type: string, examples: ['/contact-us/'] }
+        page_bar:
+          type: object
+          description: Mobile bar above the intro (not an H1)
+          required: [title, subtitle]
+          properties:
+            title: { type: [string, 'null'] }
+            subtitle: { type: [string, 'null'] }
         heading: { type: string }
         intro: { type: [string, 'null'] }
         hours_title: { type: [string, 'null'] }
@@ -1227,6 +1357,7 @@ components:
               label: { type: string }
               number: { type: string, description: Latin digits, e.g. 02191014093 }
               tel: { type: string, description: 'E.164 for tel: links, e.g. +982191014093' }
+        phones_caption: { type: [string, 'null'], description: Caption under the phone numbers }
         email: { type: [string, 'null'] }
         locations:
           type: array
@@ -1244,7 +1375,7 @@ components:
               display: { type: string }
         map:
           type: object
-          required: [zoom, directions_url]
+          required: [zoom, directions_url, neshan_label, directions_label]
           properties:
             lat: { type: [number, 'null'] }
             lng: { type: [number, 'null'] }
@@ -1253,21 +1384,38 @@ components:
             image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
             neshan_url: { type: [string, 'null'] }
             directions_url: { type: string }
+            neshan_label: { type: string, description: Button text when neshan_url is set }
+            directions_label: { type: string, description: Button text otherwise }
         form:
           type: object
-          required: [title, submit_label, success_message]
+          required: [title, submit_label, success_message, success_title, again_label, sending_label, name_label, phone_label, message_label, error_name, error_phone, error_message, error_rate_limit, error_generic, error_network]
           properties:
             title: { type: string }
             message_placeholder: { type: [string, 'null'] }
             submit_label: { type: string }
             success_message: { type: string }
+            success_title: { type: string }
+            again_label: { type: string }
+            sending_label: { type: string }
+            name_label: { type: string }
+            name_placeholder: { type: [string, 'null'] }
+            phone_label: { type: string }
+            phone_placeholder: { type: [string, 'null'] }
+            message_label: { type: string }
+            error_name: { type: string }
+            error_phone: { type: string }
+            error_message: { type: string }
+            error_rate_limit: { type: string }
+            error_generic: { type: string }
+            error_network: { type: string }
         socials:
           type: array
           items:
             type: object
-            required: [network, url]
+            required: [network, label, url]
             properties:
               network: { type: string, enum: [whatsapp, telegram, instagram, bale, rubika, eitaa, aparat, linkedin] }
+              label: { type: string, description: Display name (link text when there is no icon) }
               url: { type: string }
               icon: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }], description: Original file from live wp-content/uploads; null = no file on live }
         logo: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }], description: Brand mark (live upload) for the intro and map pin }
@@ -1874,6 +2022,52 @@ components:
               published_at: { type: [string, 'null'] }
         seo: { $ref: '#/components/schemas/Seo' }
         updated_at: { type: [string, 'null'], format: date-time }
+    HeaderSettings:
+      type: object
+      required: [top_banner, logo, support, texts]
+      properties:
+        top_banner:
+          type: object
+          required: [enabled, interval_seconds, slides]
+          properties:
+            enabled: { type: boolean }
+            interval_seconds: { type: integer }
+            slides:
+              type: array
+              items:
+                type: object
+                required: [image]
+                properties:
+                  url: { type: [string, 'null'] }
+                  image: { type: string }
+                  mobile_image: { type: [string, 'null'] }
+                  alt: { type: [string, 'null'] }
+        logo:
+          type: object
+          required: [image, alt, width, height]
+          properties:
+            image: { type: string }
+            alt: { type: string }
+            width: { type: integer }
+            height: { type: integer }
+        support:
+          type: object
+          required: [phones]
+          properties:
+            label: { type: [string, 'null'] }
+            hours: { type: [string, 'null'] }
+            phones:
+              type: array
+              items:
+                type: object
+                required: [number, display]
+                properties:
+                  number: { type: string }
+                  display: { type: string }
+        texts:
+          type: object
+          description: 'UI copy keyed by name (search_placeholder, sheet_title, ...); null = use the built-in default. :count / :query are placeholders.'
+          additionalProperties: { type: [string, 'null'] }
     Menu:
       type: object
       required: [key, name, items]
@@ -2014,7 +2208,7 @@ components:
       properties:
         id: { type: integer }
         seller:
-          description: 'Marketplace seller of this line; null = Banovit itself'
+          description: 'Seller of this line: the marketplace seller, else the house seller profile (admin «فروشندگان», supplier-less row); null only when no house seller profile exists'
           oneOf:
             - { type: object, required: [slug, name], properties: { slug: { type: string }, name: { type: string } } }
             - { type: 'null' }
@@ -2092,6 +2286,7 @@ components:
         packaging: { $ref: '#/components/schemas/Money' }
         shipping: { $ref: '#/components/schemas/Money' }
         service_fee: { $ref: '#/components/schemas/Money' }
+        service_fee_label: { type: string, description: 'Row title for service_fee (admin «تنظیمات فروشگاه › سبد و سفارش»)' }
         coupon_discount: { $ref: '#/components/schemas/Money' }
         payable: { $ref: '#/components/schemas/Money' }
         savings: { $ref: '#/components/schemas/Money' }
@@ -2159,7 +2354,7 @@ components:
           properties:
             packaging:
               oneOf:
-                - { type: object, required: [label, description, fee], properties: { label: { type: string }, description: { type: string }, fee: { $ref: '#/components/schemas/Money' }, default_selected: { type: boolean } } }
+                - { type: object, required: [label, description, fee], properties: { label: { type: string }, description: { type: string }, fee: { $ref: '#/components/schemas/Money' }, default_selected: { type: boolean }, fee_label: { type: string, description: 'Totals row title for the packaging fee' } } }
                 - { type: 'null' }
             installation:
               type: object
@@ -2223,6 +2418,46 @@ components:
         access_token: { type: [string, 'null'], description: Send as X-Order-Token to read/pay this order; null on replay }
         payment: { oneOf: [{ $ref: '#/components/schemas/PaymentStart' }, { type: 'null' }] }
     # --- auth ---
+    AuthSettings:
+      type: object
+      required: [code_length, resend_cooldown, code_ttl, texts]
+      properties:
+        code_length: { type: integer }
+        resend_cooldown: { type: integer, description: Seconds before a new code can be requested }
+        code_ttl: { type: integer, description: Seconds a code stays valid }
+        texts:
+          type: object
+          description: "code_subtitle has {phone}, resend_wait has {time}; *_url start with / or https://"
+          required: [page_title, phone_title, phone_subtitle, phone_label, phone_placeholder, phone_submit, sending_title, sending_subtitle, code_title, code_subtitle, code_submit, checking_label, resend_wait, resend_label, welcome_title, welcome_subtitle, first_name_label, last_name_label, profile_submit, consent_prefix, terms_label, terms_url, consent_middle, privacy_label, privacy_url, consent_suffix, error_generic, error_network]
+          properties:
+            page_title: { type: string }
+            phone_title: { type: string }
+            phone_subtitle: { type: string }
+            phone_label: { type: string }
+            phone_placeholder: { type: string }
+            phone_submit: { type: string }
+            sending_title: { type: string }
+            sending_subtitle: { type: string }
+            code_title: { type: string }
+            code_subtitle: { type: string }
+            code_submit: { type: string }
+            checking_label: { type: string }
+            resend_wait: { type: string }
+            resend_label: { type: string }
+            welcome_title: { type: string }
+            welcome_subtitle: { type: string }
+            first_name_label: { type: string }
+            last_name_label: { type: string }
+            profile_submit: { type: string }
+            consent_prefix: { type: string }
+            terms_label: { type: string }
+            terms_url: { type: string }
+            consent_middle: { type: string }
+            privacy_label: { type: string }
+            privacy_url: { type: string }
+            consent_suffix: { type: string }
+            error_generic: { type: string }
+            error_network: { type: string }
     OtpChallenge:
       type: object
       required: [phone, code_length, expires_in, resend_in]
@@ -2463,6 +2698,69 @@ components:
           properties:
             messages: { type: array, items: { $ref: '#/components/schemas/TicketMessage' } }
             can_reply: { type: boolean }
+    AccountSettings:
+      type: object
+      required: [support, orders, notifications, menu, empty_states, limits, map]
+      properties:
+        support:
+          type: object
+          required: [phone, heading, success_title, success_text, form_hint, max_images, max_image_mb, topics]
+          properties:
+            phone: { type: [string, 'null'] }
+            heading: { type: [string, 'null'] }
+            success_title: { type: [string, 'null'] }
+            success_text: { type: [string, 'null'] }
+            form_hint: { type: [string, 'null'] }
+            max_images: { type: integer }
+            max_image_mb: { type: integer }
+            topics:
+              type: array
+              description: Enabled topics only, in panel order
+              items:
+                type: object
+                required: [key, title, subtitle, needs_order, enabled, faq]
+                properties:
+                  key: { type: string }
+                  title: { type: string }
+                  subtitle: { type: [string, 'null'] }
+                  needs_order: { type: boolean }
+                  enabled: { type: boolean }
+                  faq: { type: array, items: { type: object, required: [q, a], properties: { q: { type: string }, a: { type: string } } } }
+        orders:
+          type: object
+          required: [status_labels, step_labels]
+          properties:
+            status_labels: { type: object, additionalProperties: { type: string } }
+            step_labels: { type: object, additionalProperties: { type: string } }
+        notifications: { type: object, additionalProperties: true }
+        menu:
+          type: array
+          items: { type: object, required: [key, group, label, href, enabled], properties: { key: { type: string }, group: { type: string, enum: [shopping, services] }, label: { type: string }, href: { type: string }, enabled: { type: boolean } } }
+        empty_states:
+          type: object
+          additionalProperties:
+            type: object
+            required: [title, text, image_url]
+            properties:
+              title: { type: [string, 'null'] }
+              text: { type: [string, 'null'] }
+              image_url: { type: [string, 'null'] }
+        limits:
+          type: object
+          required: [max_addresses, recently_viewed]
+          properties:
+            max_addresses: { type: integer }
+            recently_viewed: { type: integer }
+        map:
+          type: object
+          required: [tile_url, attribution, geocoder_url, default_lat, default_lng, default_zoom]
+          properties:
+            tile_url: { type: string }
+            attribution: { type: [string, 'null'] }
+            geocoder_url: { type: [string, 'null'] }
+            default_lat: { type: number }
+            default_lng: { type: number }
+            default_zoom: { type: integer }
     # --- /account ---
     # --- blog ---
     Crumb:

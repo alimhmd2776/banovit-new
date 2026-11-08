@@ -6,7 +6,7 @@ import type { TicketDetail, TicketMessage } from '@banovit/api-client';
 import { cx, IconChevronLeft } from '@banovit/ui';
 import { AccountError, me } from './client';
 import { attachmentUrl, clock, jalaliLong } from './format';
-import { AddImageButton, MAX_IMAGES, Thumbnails, useImageFiles } from './ImagePicker';
+import { AddImageButton, Thumbnails, useImageFiles } from './ImagePicker';
 
 /** Ticket conversation (design 39): staff bubbles at the start, customer bubbles at the end, composer with photos. */
 export function TicketChat({ ticket }: { ticket: TicketDetail }) {
@@ -16,7 +16,7 @@ export function TicketChat({ ticket }: { ticket: TicketDetail }) {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const { previews, add, remove } = useImageFiles(files, setFiles, setError);
+  const { previews, add, remove, max: MAX_IMAGES } = useImageFiles(files, setFiles, setError);
   const end = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

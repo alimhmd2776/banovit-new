@@ -1,6 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import type { Category, Facet } from '@banovit/api-client';
+import type { Category, Facet, ListingMeta } from '@banovit/api-client';
+import { getListingSettings } from '@/lib/api';
+import { ChangeFilterButton } from './ListingControls';
+import type { ListingState } from './url-state';
 import { faDigits } from '@banovit/ui';
 
 /** Horizontal subcategory rail (scroll-snap on mobile, wraps into a row on desktop). */
@@ -35,7 +38,7 @@ export function BrandRow({ facet, title }: { facet: Facet | undefined; title: st
   return (
     <section aria-labelledby="brands-title" className="space-y-3">
       <h2 id="brands-title" className="text-base font-bold text-text">
-        برندهای محصولات {title}
+        {title}
       </h2>
       <ul className="relative -mx-4 grid auto-cols-[84px] grid-flow-col gap-3 overflow-x-auto px-4 pb-1 scrollbar-none lg:mx-0 lg:auto-cols-auto lg:grid-flow-row lg:grid-cols-8 lg:px-0">
         {brands.map((b) => (
@@ -84,21 +87,31 @@ export function SeoDescription({ html, title }: { html: string | null | undefine
   );
 }
 
-export function EmptyState({ filtered, children }: { filtered: boolean; children?: React.ReactNode }) {
+export async function EmptyState({
+  filtered,
+  changeFilter,
+}: {
+  filtered: boolean;
+  /** Listing data for the «تغییر فیلتر» button (opens the filter sheet / clears filters). */
+  changeFilter?: { meta: ListingMeta; state: ListingState; basePath: string };
+}) {
+  // «صفحه فروشگاه و فوتر» › empty_state (filter result) / empty_category (no products at all)
+  const settings = await getListingSettings();
+  const texts = settings ? { filtered: settings.empty_state, category: settings.empty_category } : null;
+  const t = filtered ? texts?.filtered : texts?.category;
+  const image = filtered ? texts?.filtered.image : null;
   return (
     <div className="flex flex-col items-center px-6 py-16 text-center">
-      {/* The 3D «no results» illustration of the design is not exported yet; slot left empty on purpose. */}
-      <h2 className="text-base font-bold text-text">{filtered ? 'محصولی با این مشخصات پیدا نکردیم' : 'فعلاً محصولی در این دسته نیست'}</h2>
-      <p className="mt-2 max-w-sm text-xs leading-6 text-text-muted">
-        {filtered ? 'پیشنهاد می‌کنیم تغییراتی در فیلتر نمایش انجام دهید.' : 'به‌زودی محصولات این دسته اضافه می‌شوند. بقیه محصولات را در فروشگاه ببینید.'}
-      </p>
+      {image?.url ? <Image src={image.url} alt={image.alt ?? ''} width={image.width ?? 160} height={image.height ?? 160} className="mb-4 h-auto max-w-40" /> : null}
+      {t ? <h2 className="text-base font-bold text-text">{t.title}</h2> : null}
+      {t?.text ? <p className="mt-2 max-w-sm text-xs leading-6 text-text-muted">{t.text}</p> : null}
       {filtered ? (
-        children
-      ) : (
-        <Link href="/shop/" className="mt-6 inline-flex h-11 items-center rounded-sm bg-primary px-6 text-sm font-bold text-primary-on hover:bg-primary-hover">
-          رفتن به فروشگاه
+        changeFilter && texts ? <ChangeFilterButton {...changeFilter} label={texts.filtered.button} /> : null
+      ) : texts ? (
+        <Link href={texts.category.url} className="mt-6 inline-flex h-11 items-center rounded-sm bg-primary px-6 text-sm font-bold text-primary-on hover:bg-primary-hover">
+          {texts.category.button}
         </Link>
-      )}
+      ) : null}
     </div>
   );
 }

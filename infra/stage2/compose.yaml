@@ -11,6 +11,8 @@ name: banovit-new
 
 # Live endpoints the stage CMS must never reach (same list as banovit-clones).
 x-blackhole: &blackhole
+  console.melipayamak.com: 0.0.0.0
+  www.melipayamak.com: 0.0.0.0
   banovit.com: 0.0.0.0
   www.banovit.com: 0.0.0.0
   cms.banovit.com: 0.0.0.0
@@ -19,10 +21,6 @@ x-blackhole: &blackhole
   matomo.banovit.com: 0.0.0.0
   agent.banovit.com: 0.0.0.0
   ai.banovit.com: 0.0.0.0
-  api.payamak-panel.com: 0.0.0.0
-  rest.payamak-panel.com: 0.0.0.0
-  console.melipayamak.com: 0.0.0.0
-  www.melipayamak.com: 0.0.0.0
   api.kavenegar.com: 0.0.0.0
   ippanel.com: 0.0.0.0
   api2.ippanel.com: 0.0.0.0
@@ -79,6 +77,16 @@ services:
     <<: *cms
     depends_on: [cms-db, cms-redis]
     mem_limit: 384m
+
+  # Only the procurement broadcast job from routes/console.php (every 5 min). The full
+  # scheduler stays off on stage2 (wc:sync, didar, ads, matomo, sepidar must not run here).
+  cms-broadcasts:
+    <<: *cms
+    user: www-data
+    environment: { HOME: /tmp }
+    command: ["sh", "-c", "i=0; while true; do php artisan sub-orders:process-broadcasts --no-interaction; if [ $$((i % 12)) -eq 0 ]; then php artisan storefront:sellers --stats --no-interaction; fi; i=$$((i+1)); sleep 300; done"]
+    depends_on: [cms]
+    mem_limit: 192m
 
   cms-http:
     image: docker.arvancloud.ir/library/nginx:alpine
