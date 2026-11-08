@@ -1904,9 +1904,11 @@ components:
     VanityCalculator:
       type: object
       description: 'Public-vanity price form: price = length_cm × (slab_price_per_cm [+ frame_price_per_cm]) + bowls × bowl_price'
-      required: [kind, min_length_cm, max_length_cm, width_cm, min_bowls, max_bowls, slab_price_per_cm, frame_price_per_cm, bowl_price]
+      required: [kind, title, frame_label, min_length_cm, max_length_cm, width_cm, min_bowls, max_bowls, slab_price_per_cm, frame_price_per_cm, bowl_price]
       properties:
         kind: { type: string, const: vanity }
+        title: { type: string }
+        frame_label: { type: string, description: 'Label of the frame option («پایه و کلاف فلزی و پیشانی»)' }
         min_length_cm: { type: integer }
         max_length_cm: { type: integer }
         width_cm: { type: integer }
@@ -1917,7 +1919,7 @@ components:
         bowl_price: { $ref: '#/components/schemas/Money' }
     ProductDetail:
       type: object
-      required: [id, slug, name, path, type, sku, brand, primary_category, breadcrumb, images, short_description_html, description_html, key_features, specs, price, price_max, regular_price, discount_percent, in_stock, availability, price_valid_until, options, variants, addons, offers, badges, label, availability_note, made_to_order, consult_phone, calculator, default_selection, videos, shipping_html, rating, reviews, seller, faqs, related, related_posts, seo, updated_at]
+      required: [id, slug, name, path, type, sku, brand, primary_category, breadcrumb, images, short_description_html, description_html, key_features, specs, price, price_max, regular_price, discount_percent, in_stock, availability, price_valid_until, options, variants, addons, offers, badges, label, availability_note, made_to_order, made_to_order_title, consult_phone, calculator, default_selection, videos, shipping_html, rating, reviews, seller, faqs, related, related_posts, seo, updated_at]
       properties:
         label: { type: [string, 'null'], description: 'e.g. «سفارشی»' }
         availability_note: { type: [string, 'null'], description: 'Production time / stock text, HTML (ACF text_mojodi on live)' }
@@ -1937,6 +1939,7 @@ components:
         shipping_html: { type: [string, 'null'], description: 'Per-product delivery time text (ACF send-product on live), HTML' }
         offers: { $ref: '#/components/schemas/ProductOffers' }
         made_to_order: { type: boolean, description: 'No online purchase: show the «سفارشی تولید می‌شود + مشاوره رایگان» box' }
+        made_to_order_title: { type: string, description: 'Heading of the made-to-order box (admin store settings › product page)' }
         consult_phone: { type: string }
         calculator: { oneOf: [{ $ref: '#/components/schemas/VanityCalculator' }, { type: 'null' }] }
         id: { type: integer }

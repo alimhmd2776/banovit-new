@@ -146,7 +146,7 @@ export function PdpView({ product: p }: { product: ProductDetail }) {
             <InstallCard installBadge={p.badges.install_service} />
 
             {p.made_to_order || p.calculator ? (
-              <MadeToOrderBox note={p.availability_note} phone={p.consult_phone} hasCalculator={!!p.calculator} />
+              <MadeToOrderBox title={p.made_to_order_title} note={p.availability_note} phone={p.consult_phone} hasCalculator={!!p.calculator} />
             ) : p.availability_note ? (
               <div className="prose-pdp rounded-md bg-surface-muted p-3 text-xs leading-6 text-text-muted" dangerouslySetInnerHTML={{ __html: p.availability_note }} />
             ) : null}

@@ -1597,6 +1597,9 @@ export interface components {
         VanityCalculator: {
             /** @constant */
             kind: "vanity";
+            title: string;
+            /** @description Label of the frame option («پایه و کلاف فلزی و پیشانی») */
+            frame_label: string;
             min_length_cm: number;
             max_length_cm: number;
             width_cm: number;
@@ -1625,6 +1628,8 @@ export interface components {
             offers: components["schemas"]["ProductOffers"];
             /** @description No online purchase: show the «سفارشی تولید می‌شود + مشاوره رایگان» box */
             made_to_order: boolean;
+            /** @description Heading of the made-to-order box (admin store settings › product page) */
+            made_to_order_title: string;
             consult_phone: string;
             calculator: components["schemas"]["VanityCalculator"] | null;
             id: number;
