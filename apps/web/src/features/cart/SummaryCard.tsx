@@ -55,9 +55,9 @@ export function SummaryCard({
   }
   const rows: [string, number, string?][] = [
     ['مجموع خرید', t.items_regular.amount],
-    ['هزینه خدمات', t.service_fee.amount],
+    [t.service_fee_label || 'هزینه خدمات', t.service_fee.amount],
     ['هزینه نصب درب محل', t.installation.amount],
-    ['هزینه بسته‌بندی ایمن', t.packaging.amount],
+    [cart.addons.packaging?.fee_label || 'هزینه بسته‌بندی ایمن', t.packaging.amount],
   ];
   return (
     <section aria-label={title} className="rounded-lg border border-border bg-surface-muted/60 p-4">

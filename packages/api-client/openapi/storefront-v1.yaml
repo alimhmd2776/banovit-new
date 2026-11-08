@@ -2179,7 +2179,7 @@ components:
       properties:
         id: { type: integer }
         seller:
-          description: 'Marketplace seller of this line; null = Banovit itself'
+          description: 'Seller of this line: the marketplace seller, else the house seller profile (admin «فروشندگان», supplier-less row); null only when no house seller profile exists'
           oneOf:
             - { type: object, required: [slug, name], properties: { slug: { type: string }, name: { type: string } } }
             - { type: 'null' }
@@ -2257,6 +2257,7 @@ components:
         packaging: { $ref: '#/components/schemas/Money' }
         shipping: { $ref: '#/components/schemas/Money' }
         service_fee: { $ref: '#/components/schemas/Money' }
+        service_fee_label: { type: string, description: 'Row title for service_fee (admin «تنظیمات فروشگاه › سبد و سفارش»)' }
         coupon_discount: { $ref: '#/components/schemas/Money' }
         payable: { $ref: '#/components/schemas/Money' }
         savings: { $ref: '#/components/schemas/Money' }
@@ -2324,7 +2325,7 @@ components:
           properties:
             packaging:
               oneOf:
-                - { type: object, required: [label, description, fee], properties: { label: { type: string }, description: { type: string }, fee: { $ref: '#/components/schemas/Money' }, default_selected: { type: boolean } } }
+                - { type: object, required: [label, description, fee], properties: { label: { type: string }, description: { type: string }, fee: { $ref: '#/components/schemas/Money' }, default_selected: { type: boolean }, fee_label: { type: string, description: 'Totals row title for the packaging fee' } } }
                 - { type: 'null' }
             installation:
               type: object
