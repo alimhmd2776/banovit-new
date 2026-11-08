@@ -62,6 +62,7 @@ export type ProductOption = Schemas['ProductOption'];
 export type ProductVariant = Schemas['ProductVariant'];
 export type ProductAddon = Schemas['ProductAddon'];
 export type VanityCalculator = Schemas['VanityCalculator'];
+export type ProductOffers = Schemas['ProductOffers'];
 export type ProductLive = Schemas['ProductLive'];
 export type ProductRating = Schemas['ProductRating'];
 export type Review = Schemas['Review'];

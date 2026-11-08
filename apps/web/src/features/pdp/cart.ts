@@ -7,6 +7,8 @@
 export type AddToCartInput = {
   product_id: number;
   variation_id: number | null;
+  /** Storefront seller slug; null = Banovit itself. */
+  seller: string | null;
   quantity: number;
   addon_ids: number[];
   installation: boolean;
@@ -26,6 +28,7 @@ const MESSAGES: Record<string, string> = {
   variation_required: 'لطفاً گزینه‌های محصول را انتخاب کنید.',
   no_price: 'قیمت این کالا مشخص نیست؛ برای خرید تماس بگیرید.',
   cart_full: 'سبد خرید شما پر است.',
+  seller_offer_unavailable: 'این فروشنده دیگر این کالا را عرضه نمی‌کند؛ فروشنده دیگری انتخاب کنید.',
 };
 
 export async function addToCart(input: AddToCartInput): Promise<{ item_count?: number }> {

@@ -1401,6 +1401,7 @@ export interface components {
         };
         ProductLive: {
             id: number;
+            offers: components["schemas"]["ProductOffers"];
             price: components["schemas"]["Money"] | null;
             price_max: components["schemas"]["Money"] | null;
             regular_price: components["schemas"]["Money"] | null;
@@ -1417,6 +1418,19 @@ export interface components {
         };
         /** @enum {string} */
         Availability: "in_stock" | "out_of_stock" | "backorder" | "no_price";
+        /** @description Every seller's price per sellable unit. The page selects the house offer by default when in stock, else the cheapest in-stock one. */
+        ProductOffers: {
+            sellers: components["schemas"]["SellerCard"][];
+            items: {
+                /** @description SellerCard.slug; sent to the cart as seller (house seller: null) */
+                seller: string;
+                /** @description null = simple product */
+                variant_id: number | null;
+                price: components["schemas"]["Money"];
+                regular_price: components["schemas"]["Money"] | null;
+                in_stock: boolean;
+            }[];
+        };
         /** @description Public-vanity price form: price = length_cm × (slab_price_per_cm [+ frame_price_per_cm]) + bowls × bowl_price */
         VanityCalculator: {
             /** @constant */
@@ -1435,6 +1449,7 @@ export interface components {
             label: string | null;
             /** @description Production time / stock text */
             availability_note: string | null;
+            offers: components["schemas"]["ProductOffers"];
             /** @description No online purchase: show the «سفارشی تولید می‌شود + مشاوره رایگان» box */
             made_to_order: boolean;
             consult_phone: string;

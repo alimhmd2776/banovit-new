@@ -10,7 +10,6 @@ import {
   IconGift,
   IconShield,
   IconStar,
-  IconStore,
   IconTruck,
   ProductCard,
 } from '@banovit/ui';
@@ -22,6 +21,7 @@ import { Gallery } from './Gallery';
 import { PurchaseProvider, type PurchaseProduct } from './PurchaseContext';
 import { AddonPickers, BuyBox, InstallCard, MobileBuyBar, OptionPickers } from './PurchaseControls';
 import { MadeToOrderBox, VanityCalculator } from './VanityCalculator';
+import { SellerPanel } from './SellerPanel';
 import { MoreReviews, WriteReview } from './ReviewActions';
 import { ReviewCard } from './ReviewCard';
 import { SectionTabs, type SectionTab } from './SectionTabs';
@@ -75,6 +75,7 @@ export function PdpView({ product: p }: { product: ProductDetail }) {
     addons: p.addons,
     made_to_order: p.made_to_order,
     consult_phone: p.consult_phone,
+    offers: p.offers,
   };
 
   const tabs: SectionTab[] = [
@@ -349,16 +350,7 @@ function MoreLink({ href }: { href: string }) {
 function SellerBox({ seller }: { seller: ProductDetail['seller'] }) {
   return (
     <section aria-labelledby="seller-title" className="space-y-4 border-t-8 border-bg pt-5 lg:rounded-lg lg:border lg:border-border lg:bg-surface lg:p-5">
-      <h2 id="seller-title" className="text-[15px] font-bold text-text">
-        خرید مطمئن از بانویت
-      </h2>
-      <div className="flex items-center gap-3">
-        <span className="flex size-10 items-center justify-center rounded-full bg-primary-subtle text-primary">
-          <IconStore size={20} />
-        </span>
-        <p className="text-sm font-bold text-text">{seller.name}</p>
-        {seller.badge ? <span className="rounded-full bg-primary-subtle px-2 py-0.5 text-[11px] text-primary-on-subtle">{seller.badge}</span> : null}
-      </div>
+      <SellerPanel />
       <div className="flex items-start gap-3 border-t border-border pt-4">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-muted text-text-muted">
           <IconShield size={20} />
