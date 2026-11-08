@@ -91,7 +91,7 @@ export function ReportForm({ topic, orderNumber, children }: { topic: string; or
         <IconInfo size={14} />
         {error ?? 'لطفا به صورت کامل مشکل خود را بیان فرمایید.'}
       </p>
-      <div className="sticky bottom-0 mt-auto bg-surface py-4 lg:static lg:mt-6 lg:bg-transparent">
+      <div className="sticky bottom-[calc(var(--bottom-nav-height)+16px)] mt-auto bg-surface py-4 lg:static lg:mt-6 lg:bg-transparent">
         <button type="submit" disabled={busy} className="h-12 w-full rounded-md bg-primary text-base font-bold text-primary-on hover:bg-primary-hover disabled:opacity-60 lg:w-60">
           {busy ? 'در حال ارسال…' : 'ثبت گزارش'}
         </button>
