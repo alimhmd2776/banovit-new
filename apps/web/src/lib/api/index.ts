@@ -59,3 +59,15 @@ export const getMenu = cache(async (key: MenuKey): Promise<Menu> => {
 export function isNotFound(e: unknown): boolean {
   return e instanceof StorefrontApiError && e.status === 404;
 }
+
+export const getSeller = cache(async (slug: string) =>
+  client.getSeller(slug, { next: { tags: ['sellers', `seller:${slug}`], revalidate: REVALIDATE } }),
+);
+
+export const listSellerProducts = cache(async (slug: string, params: ListingParams) =>
+  client.listSellerProducts(slug, params, { next: { tags: ['products', `seller:${slug}`], revalidate: 300 } }),
+);
+
+export const listSellerReviews = cache(async (slug: string, page = 1) =>
+  client.listSellerReviews(slug, page, { next: { tags: ['reviews', `seller:${slug}`], revalidate: REVALIDATE } }),
+);
