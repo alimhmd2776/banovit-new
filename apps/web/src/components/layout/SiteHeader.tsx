@@ -12,7 +12,7 @@ export function SiteHeader() {
     <>
       <Link
         href={siteConfig.topBanner.href}
-        className="block bg-primary px-4 py-2 text-center text-xs font-medium text-primary-on hover:bg-primary-hover"
+        className="flex h-12 items-center justify-center bg-primary px-4 text-center text-lg font-extrabold text-primary-on hover:bg-primary-hover lg:h-10 lg:text-sm"
       >
         {siteConfig.topBanner.text}
       </Link>

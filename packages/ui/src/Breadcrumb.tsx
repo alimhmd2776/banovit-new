@@ -17,7 +17,7 @@ export function Breadcrumb({ items, className }: { items: BreadcrumbItem[]; clas
           return (
             <li key={`${item.name}-${i}`} className="flex items-center gap-1">
               {last || !item.url ? (
-                <span aria-current={last ? 'page' : undefined} className={last ? 'text-text' : undefined}>
+                <span aria-current={last ? 'page' : undefined} className={last ? 'font-bold text-text' : undefined}>
                   {item.name}
                 </span>
               ) : (

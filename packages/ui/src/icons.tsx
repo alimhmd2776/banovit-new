@@ -42,5 +42,8 @@ export const IconStar = make(<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.
 export const IconTool = make(<path d="M14.5 6.5a4 4 0 0 0-5.3 5.3L4 17l3 3 5.2-5.2a4 4 0 0 0 5.3-5.3l-2.5 2.5-2.5-.5-.5-2.5z" />, 'IconTool');
 export const IconBolt = make(<path d="M13 3L5 13h6l-1 8 8-10h-6z" fill="currentColor" stroke="none" />, 'IconBolt');
 export const IconBox = make(<><path d="M3 7l9-4 9 4-9 4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" /></>, 'IconBox');
+export const IconCheck = make(<path d="M5 12.5l4.5 4.5L19 7.5" />, 'IconCheck');
+export const IconArrowBack = make(<path d="M5 12h14M13 6l6 6-6 6" />, 'IconArrowBack');
+export const IconSliders = make(<><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></>, 'IconSliders');
 export const IconPlus = make(<path d="M12 5v14M5 12h14" />, 'IconPlus');
 export const IconMinus = make(<path d="M5 12h14" />, 'IconMinus');

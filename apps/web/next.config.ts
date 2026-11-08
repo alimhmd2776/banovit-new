@@ -4,6 +4,8 @@ const isProduction = process.env.SITE_ENV === 'production';
 
 const config: NextConfig = {
   output: 'standalone',
+  // Separate build dir so a production build can run next to `next dev`.
+  distDir: process.env.NEXT_DIST_DIR ?? '.next',
   // Same URLs as WordPress: every path ends with a slash.
   trailingSlash: true,
   reactStrictMode: true,

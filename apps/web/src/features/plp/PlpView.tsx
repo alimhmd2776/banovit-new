@@ -3,10 +3,10 @@ import type { Category, Faq, Image as ImageData, ProductListing } from '@banovit
 import { Accordion, Breadcrumb, Pagination, ProductCard, faDigits } from '@banovit/ui';
 import { jsonLdScript, listingJsonLd, type Crumb } from '@/lib/seo';
 import { siteConfig } from '@/lib/site-config';
-import { FilterSidebar, ListingToolbar } from './ListingControls';
+import { ChangeFilterButton, FilterSidebar, ListingToolbar } from './ListingControls';
 import { BrandRow, EmptyState, SeoDescription, SubcategoryCarousel } from './sections';
 import { SupportCallout } from './SupportCallout';
-import { hasActiveFilters, pagePath, toQueryString, clearFilters, type ListingState } from './url-state';
+import { hasActiveFilters, pagePath, toQueryString, type ListingState } from './url-state';
 
 export type PlpViewProps = {
   title: string;
@@ -64,12 +64,12 @@ export function PlpView({
           </div>
         ) : null}
 
-        <header className="space-y-2">
-          <Breadcrumb items={crumbs} />
+        <header className="space-y-3">
           <h1 className="text-lg font-bold text-text lg:text-2xl">
             {title}
             {page > 1 ? <span className="ms-2 text-sm font-normal text-text-muted">صفحه {faDigits(page)}</span> : null}
           </h1>
+          <Breadcrumb items={crumbs} />
         </header>
 
         <SubcategoryCarousel items={subcategories} />
@@ -78,12 +78,12 @@ export function PlpView({
           <FilterSidebar key={query} meta={meta} state={state} basePath={basePath} />
 
           <section aria-label="فهرست کالاها" className="space-y-4">
-            <div className="sticky top-header z-10 -mx-4 bg-bg/95 px-4 py-2 backdrop-blur lg:static lg:mx-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
+            <div className="sticky top-header z-10 -mx-4 border-b border-border bg-bg/95 px-4 py-3 backdrop-blur lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-none">
               <ListingToolbar key={query} meta={meta} state={state} basePath={basePath} />
             </div>
 
             {listing.data.length ? (
-              <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 xl:grid-cols-4">
+              <ul className="divide-y divide-border lg:grid lg:grid-cols-3 lg:gap-3 lg:divide-y-0 xl:grid-cols-4">
                 {listing.data.map((p, i) => (
                   <li key={p.id}>
                     <ProductCard product={p} priority={!banner && i < 2} />
@@ -91,7 +91,9 @@ export function PlpView({
                 ))}
               </ul>
             ) : (
-              <EmptyState filtered={filtered} clearHref={`${basePath}${toQueryString(clearFilters(state))}`} />
+              <EmptyState filtered={filtered}>
+                <ChangeFilterButton meta={meta} state={state} basePath={basePath} />
+              </EmptyState>
             )}
 
             <Pagination
@@ -103,16 +105,16 @@ export function PlpView({
           </section>
         </div>
 
-        {showBrandRow ? <BrandRow facet={brandFacet} /> : null}
+        {showBrandRow ? <BrandRow facet={brandFacet} title={title} /> : null}
 
-        <SeoDescription html={descriptionHtml} title={`درباره ${title}`} />
+        <SeoDescription html={descriptionHtml} title={title} />
 
         {faqs.length ? (
           <section aria-labelledby="faq-title" className="space-y-3">
             <h2 id="faq-title" className="text-base font-bold text-text">
               سوالات متداول
             </h2>
-            <Accordion items={faqs.map((f) => ({ id: f.id, title: f.question, html: f.answer_html }))} />
+            <Accordion variant="cards" items={faqs.map((f) => ({ id: f.id, title: f.question, html: f.answer_html }))} />
           </section>
         ) : null}
 

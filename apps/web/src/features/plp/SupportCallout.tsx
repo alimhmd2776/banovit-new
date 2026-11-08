@@ -33,17 +33,20 @@ export function SupportCallout({ phone, phoneDisplay, pageTitle }: { phone: stri
   }
 
   return (
-    <section aria-labelledby="support-title" className="rounded-md bg-primary-subtle p-4 lg:flex lg:items-center lg:justify-between lg:gap-8 lg:p-6">
-      <div className="mb-4 lg:mb-0">
-        <h2 id="support-title" className="text-base font-bold text-primary-on-subtle">
-          برای انتخاب مشاوره رایگان بگیرید
+    <section aria-labelledby="support-title" className="px-4 pt-6 lg:flex lg:items-center lg:justify-between lg:gap-12 lg:rounded-lg lg:bg-primary-subtle lg:p-8">
+      <div className="mb-5 lg:mb-0">
+        <h2 id="support-title" className="text-lg font-bold text-text">
+          آیا نیاز به تیم پشتیبانی دارید؟
         </h2>
-        <p className="mt-1 text-sm leading-7 text-text-muted">
-          شماره‌تان را بگذارید تا کارشناسان بانویت با شما تماس بگیرند، یا همین حالا تماس بگیرید:{' '}
-          <a href={`tel:${phone}`} className="inline-flex items-center gap-1 font-bold text-primary">
-            <IconPhone size={16} />
-            <span dir="ltr">{phoneDisplay}</span>
-          </a>
+        <p className="mt-2 text-sm leading-7 text-text-muted">
+          با ارسال شماره تلفن، همکاران ما در کوتاه‌ترین زمان ممکن، پاسخگوی سوالات شما خواهند بود.
+          <span className="mt-1 hidden lg:block">
+            یا همین حالا تماس بگیرید:{' '}
+            <a href={`tel:${phone}`} className="inline-flex items-center gap-1 font-bold text-primary">
+              <IconPhone size={16} />
+              <span dir="ltr">{phoneDisplay}</span>
+            </a>
+          </span>
         </p>
       </div>
 
@@ -53,7 +56,7 @@ export function SupportCallout({ phone, phoneDisplay, pageTitle }: { phone: stri
         </p>
       ) : (
         <form onSubmit={submit} noValidate className="flex w-full flex-col gap-2 lg:max-w-md">
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2">
             <label htmlFor="callback-phone" className="sr-only">
               شماره موبایل
             </label>
@@ -68,14 +71,14 @@ export function SupportCallout({ phone, phoneDisplay, pageTitle }: { phone: stri
               onChange={(e) => setValue(e.target.value)}
               aria-invalid={status.kind === 'error'}
               aria-describedby={status.kind === 'error' ? 'callback-error' : undefined}
-              className="h-12 min-w-0 flex-1 rounded-sm border border-border-strong bg-surface px-4 text-center text-base tracking-wider focus:border-primary focus:outline-none"
+              className="h-14 min-w-0 rounded-[14px] border border-border bg-surface px-4 text-start text-base tracking-wider placeholder:text-text-subtle focus:border-primary focus:outline-none"
             />
             <button
               type="submit"
               disabled={status.kind === 'sending'}
-              className="h-12 shrink-0 rounded-sm bg-primary px-5 text-sm font-bold text-primary-on hover:bg-primary-hover disabled:opacity-60"
+              className="h-14 w-full rounded-[14px] bg-primary px-5 text-sm font-bold text-primary-on hover:bg-primary-hover disabled:opacity-60"
             >
-              {status.kind === 'sending' ? 'در حال ثبت…' : 'تماس بگیرید'}
+              {status.kind === 'sending' ? 'در حال ثبت…' : 'ارسال درخواست'}
             </button>
           </div>
           {status.kind === 'error' ? (
