@@ -1,6 +1,6 @@
 import 'server-only';
 import { cache } from 'react';
-import { createStorefrontClient, StorefrontApiError, type BlogListParams, type BlogSitemapType, type ListingParams, type Menu, type MenuKey } from '@banovit/api-client';
+import { createStorefrontClient, StorefrontApiError, type BlogListParams, type BlogSitemapType, type ListingParams, type HeaderSettings, type Menu, type MenuKey } from '@banovit/api-client';
 import { env } from '@/lib/env';
 
 /**
@@ -100,6 +100,19 @@ export const getMenu = cache(async (key: MenuKey): Promise<Menu> => {
 export function isNotFound(e: unknown): boolean {
   return e instanceof StorefrontApiError && e.status === 404;
 }
+
+/**
+ * «تنظیمات هدر» (banner, logo, support line, UI copy). Never throws: null
+ * means the CMS is unreachable and the header falls back to built-in values.
+ */
+export const getHeaderSettings = cache(async (): Promise<HeaderSettings | null> => {
+  try {
+    return await client.getHeaderSettings({ next: { tags: ['settings', 'settings:header'], revalidate: 600 } });
+  } catch (e) {
+    console.error('header settings unavailable', e);
+    return null;
+  }
+});
 
 export const getSeller = cache(async (slug: string) =>
   client.getSeller(slug, { next: { tags: ['sellers', `seller:${slug}`], revalidate: REVALIDATE } }),

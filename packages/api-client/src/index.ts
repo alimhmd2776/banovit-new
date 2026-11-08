@@ -77,6 +77,7 @@ export type Menu = Schemas['Menu'];
 export type MenuItem = Schemas['MenuItem'];
 export type MenuPromo = Schemas['MenuPromo'];
 export type MenuKey = operations['getMenu']['parameters']['path']['key'];
+export type HeaderSettings = Schemas['HeaderSettings'];
 export type Customer = Schemas['Customer'];
 export type CustomerSession = Schemas['CustomerSession'];
 export type OtpChallenge = Schemas['OtpChallenge'];
@@ -284,6 +285,7 @@ export function createStorefrontClient(opts: ClientOptions) {
     listProductReviews: (slug: string, page = 1, init?: RequestOptions) =>
       get<ReviewListing>(`/products/${encodePath(slug)}/reviews${page > 1 ? `?page=${page}` : ''}`, init),
     getMenu: (key: MenuKey, init?: RequestOptions) => get<{ data: Menu }>(`/menus/${key}`, init).then((r) => r.data),
+    getHeaderSettings: (init?: RequestOptions) => get<{ data: HeaderSettings }>('/settings/header', init).then((r) => r.data),
     // --- sellers ---
     listSellers: (init?: RequestOptions) => get<{ data: SellerCard[] }>('/sellers', init).then((r) => r.data),
     getSeller: (slug: string, init?: RequestOptions) =>

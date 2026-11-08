@@ -314,6 +314,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/settings/header": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Header banner slides, logo, support line and UI copy («تنظیمات هدر» in the CMS) */
+        get: operations["getHeaderSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/otp": {
         parameters: {
             query?: never;
@@ -1536,6 +1553,36 @@ export interface components {
             seo: components["schemas"]["Seo"];
             /** Format: date-time */
             updated_at: string | null;
+        };
+        HeaderSettings: {
+            top_banner: {
+                enabled: boolean;
+                interval_seconds: number;
+                slides: {
+                    url?: string | null;
+                    image: string;
+                    mobile_image?: string | null;
+                    alt?: string | null;
+                }[];
+            };
+            logo: {
+                image: string;
+                alt: string;
+                width: number;
+                height: number;
+            };
+            support: {
+                label?: string | null;
+                hours?: string | null;
+                phones: {
+                    number: string;
+                    display: string;
+                }[];
+            };
+            /** @description UI copy keyed by name (search_placeholder, sheet_title, ...); null = use the built-in default. :count / :query are placeholders. */
+            texts: {
+                [key: string]: string | null;
+            };
         };
         Menu: {
             key: string;
@@ -3027,6 +3074,28 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+        };
+    };
+    getHeaderSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Header settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["HeaderSettings"];
+                    };
+                };
+            };
         };
     };
     requestOtp: {

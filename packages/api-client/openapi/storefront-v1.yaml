@@ -396,6 +396,20 @@ paths:
                 properties:
                   data: { $ref: '#/components/schemas/Menu' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /settings/header:
+    get:
+      operationId: getHeaderSettings
+      summary: Header banner slides, logo, support line and UI copy («تنظیمات هدر» in the CMS)
+      responses:
+        '200':
+          description: Header settings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/HeaderSettings' }
   # --- auth (feature/web-auth, banovit-cms feature/storefront-auth) ---
   /auth/otp:
     post:
@@ -1857,6 +1871,52 @@ components:
               published_at: { type: [string, 'null'] }
         seo: { $ref: '#/components/schemas/Seo' }
         updated_at: { type: [string, 'null'], format: date-time }
+    HeaderSettings:
+      type: object
+      required: [top_banner, logo, support, texts]
+      properties:
+        top_banner:
+          type: object
+          required: [enabled, interval_seconds, slides]
+          properties:
+            enabled: { type: boolean }
+            interval_seconds: { type: integer }
+            slides:
+              type: array
+              items:
+                type: object
+                required: [image]
+                properties:
+                  url: { type: [string, 'null'] }
+                  image: { type: string }
+                  mobile_image: { type: [string, 'null'] }
+                  alt: { type: [string, 'null'] }
+        logo:
+          type: object
+          required: [image, alt, width, height]
+          properties:
+            image: { type: string }
+            alt: { type: string }
+            width: { type: integer }
+            height: { type: integer }
+        support:
+          type: object
+          required: [phones]
+          properties:
+            label: { type: [string, 'null'] }
+            hours: { type: [string, 'null'] }
+            phones:
+              type: array
+              items:
+                type: object
+                required: [number, display]
+                properties:
+                  number: { type: string }
+                  display: { type: string }
+        texts:
+          type: object
+          description: 'UI copy keyed by name (search_placeholder, sheet_title, ...); null = use the built-in default. :count / :query are placeholders.'
+          additionalProperties: { type: [string, 'null'] }
     Menu:
       type: object
       required: [key, name, items]
