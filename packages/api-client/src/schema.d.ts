@@ -2625,6 +2625,11 @@ export interface components {
                 featured_title?: string | null;
                 feed_description?: string | null;
             };
+            /** @description Archive pages (/blog/, category, tag, author, search) and RSS, set in the CMS panel. /blog/posts uses per_page when the client sends none. */
+            archive?: {
+                per_page?: number;
+                feed_limit?: number;
+            };
             post_page: {
                 show_summary?: boolean;
                 summary_title?: string | null;

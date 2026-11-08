@@ -30,7 +30,6 @@ import { fillTemplate, resolveBlogUi } from './ui';
 
 export type SearchParams = Record<string, string | string[] | undefined>;
 
-const PER_PAGE = 12;
 const blogCrumb = (name: string): Crumb => ({ name, url: '/blog/' });
 const ui = async () => resolveBlogUi(await getBlogUi());
 
@@ -84,7 +83,7 @@ export async function blogIndexMetadata(pageParam: string | undefined, sp: Searc
   const home = await load(getBlogHome());
   const q = query(sp);
   if (q) return blogArchiveMetadata({ seo: { ...home.seo, title: `نتایج جستجو برای «${q}» - مقالات بانویت` }, page: 1, lastPage: 1, noindex: true });
-  const lastPage = page > 1 ? (await load(listBlogPosts({ page, per_page: PER_PAGE }))).meta.last_page : 1;
+  const lastPage = page > 1 ? (await load(listBlogPosts({ page}))).meta.last_page : 1;
   return blogArchiveMetadata({ seo: home.seo, page, lastPage });
 }
 
@@ -95,12 +94,12 @@ export async function BlogIndexPage({ pageParam, sp }: { pageParam?: string; sp:
   const BLOG = blogCrumb(u.labels.breadcrumb_root);
   if (q) {
     const spPage = Number(Array.isArray(sp.page) ? sp.page[0] : sp.page) || 1;
-    const [listing, categories] = await Promise.all([load(listBlogPosts({ q, page: Math.min(Math.max(1, spPage), 100), per_page: PER_PAGE })), load(listBlogCategories())]);
+    const [listing, categories] = await Promise.all([load(listBlogPosts({ q, page: Math.min(Math.max(1, spPage), 100)})), load(listBlogCategories())]);
     return <ArchiveView ui={u} title={fillTemplate(u.labels.search_title, { q })} crumbs={[BLOG, { name: 'جستجو', url: '/blog/' }]} basePath="/blog/" listing={listing} page={listing.meta.page} categories={categories} query={q} />;
   }
   if (page === 1) return <HomeView home={await load(getBlogHome())} ui={u} />;
 
-  const [listing, categories] = await Promise.all([load(listBlogPosts({ page, per_page: PER_PAGE })), load(listBlogCategories())]);
+  const [listing, categories] = await Promise.all([load(listBlogPosts({ page})), load(listBlogCategories())]);
   guardPage(page, listing.meta.last_page);
   const allTitle = (await getBlogHome().catch(() => null))?.all.title ?? 'همه مقالات بانویت';
   return <ArchiveView ui={u} title={allTitle} crumbs={[BLOG]} basePath="/blog/" listing={listing} page={page} categories={categories} />;
@@ -125,7 +124,7 @@ async function loadCategory(raw: string[]) {
   const path = segments.join('/').toLowerCase();
   const [category, listing, categories] = await Promise.all([
     load(getBlogCategory(path)),
-    load(listBlogPosts({ category: path, page, per_page: PER_PAGE })),
+    load(listBlogPosts({ category: path, page})),
     load(listBlogCategories()),
   ]);
   guardPage(page, listing.meta.last_page);
@@ -160,7 +159,7 @@ export async function BlogCategoryPage({ raw }: { raw: string[] }) {
 async function loadTag(slug: string, pageParam?: string) {
   const page = parsePage(pageParam);
   const s = decode(slug).toLowerCase();
-  const [tag, listing, categories] = await Promise.all([load(getBlogTag(s)), load(listBlogPosts({ tag: s, page, per_page: PER_PAGE })), load(listBlogCategories())]);
+  const [tag, listing, categories] = await Promise.all([load(getBlogTag(s)), load(listBlogPosts({ tag: s, page})), load(listBlogCategories())]);
   guardPage(page, listing.meta.last_page);
   return { tag, listing, categories, page };
 }
@@ -180,7 +179,7 @@ export async function BlogTagPage({ slug, pageParam }: { slug: string; pageParam
 async function loadAuthor(slug: string, pageParam?: string) {
   const page = parsePage(pageParam);
   const s = decode(slug).toLowerCase();
-  const [author, listing, categories] = await Promise.all([load(getBlogAuthor(s)), load(listBlogPosts({ author: s, page, per_page: PER_PAGE })), load(listBlogCategories())]);
+  const [author, listing, categories] = await Promise.all([load(getBlogAuthor(s)), load(listBlogPosts({ author: s, page})), load(listBlogCategories())]);
   guardPage(page, listing.meta.last_page);
   return { author, listing, categories, page };
 }

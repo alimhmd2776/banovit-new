@@ -3031,6 +3031,12 @@ components:
             more: { type: [string, 'null'] }
             featured_title: { type: [string, 'null'] }
             feed_description: { type: [string, 'null'] }
+        archive:
+          type: object
+          description: Archive pages (/blog/, category, tag, author, search) and RSS, set in the CMS panel. /blog/posts uses per_page when the client sends none.
+          properties:
+            per_page: { type: integer }
+            feed_limit: { type: integer }
         post_page:
           type: object
           properties:

@@ -11,7 +11,7 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 
 export async function GET() {
   const ui = resolveBlogUi(await getBlogUi());
-  const { data } = await listBlogPosts({ page: 1, per_page: 20 });
+  const { data } = await listBlogPosts({ page: 1, per_page: ui.archive.feed_limit });
   const items = data
     .map(
       (p) => `<item>
