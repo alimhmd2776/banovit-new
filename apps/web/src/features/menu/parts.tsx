@@ -39,7 +39,7 @@ export function MenuIcon({ name, size = 20, className }: { name: string | null |
   return Icon ? <Icon size={size} className={className} /> : null;
 }
 
-/** Round category thumbnail: CMS image, else the category's SVG icon, else a neutral grid icon. */
+/** Round category thumbnail: CMS image, else the category's live SVG icon, else an empty circle (no made-up assets). */
 export function CategoryThumb({ item, size = 48, className }: { item: MenuItem; size?: number; className?: string }) {
   return (
     <span
@@ -52,9 +52,7 @@ export function CategoryThumb({ item, size = 48, className }: { item: MenuItem; 
         <img src={item.image.url} alt="" width={size} height={size} className="size-full object-cover mix-blend-multiply" loading="lazy" />
       ) : item.icon ? (
         <MenuIcon name={item.icon} size={Math.round(size * 0.5)} />
-      ) : (
-        <IconGrid size={Math.round(size * 0.45)} />
-      )}
+      ) : null /* no live image/icon: slot stays empty */}
     </span>
   );
 }

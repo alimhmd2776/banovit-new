@@ -40,6 +40,8 @@ export type BlogPostListing = Schemas['BlogPostListing'];
 export type SitemapRow = Schemas['SitemapRow'];
 export type BlogListParams = NonNullable<operations['listBlogPosts']['parameters']['query']>;
 export type BlogSitemapType = 'posts' | 'categories' | 'tags' | 'authors';
+export type ContactSettings = Schemas['ContactSettings'];
+export type CallbackRequest = Schemas['CallbackRequest'];
 export type Cart = Schemas['Cart'];
 export type CartLine = Schemas['CartLine'];
 export type CartTotals = Schemas['CartTotals'];
@@ -67,6 +69,23 @@ export type MenuKey = operations['getMenu']['parameters']['path']['key'];
 export type Customer = Schemas['Customer'];
 export type CustomerSession = Schemas['CustomerSession'];
 export type OtpChallenge = Schemas['OtpChallenge'];
+// «حساب کاربری» (docs/api/account.md)
+export type AccountSummary = Schemas['AccountSummary'];
+export type Profile = Schemas['Profile'];
+export type OrderTabCounts = Schemas['OrderTabCounts'];
+export type OrderStep = Schemas['OrderStep'];
+export type AccountOrder = Schemas['AccountOrder'];
+export type AccountOrderDetail = Schemas['AccountOrderDetail'];
+export type OrderItem = Schemas['OrderItem'];
+export type CustomerAddress = Schemas['CustomerAddress'];
+export type CustomerAddressInput = Schemas['CustomerAddressInput'];
+export type MyReview = Schemas['MyReview'];
+export type CustomerNotification = Schemas['Notification'];
+export type TicketTopic = Schemas['TicketTopic'];
+export type TicketSummary = Schemas['TicketSummary'];
+export type TicketDetail = Schemas['TicketDetail'];
+export type TicketMessage = Schemas['TicketMessage'];
+
 // --- sellers ---
 export type SellerCard = Schemas['SellerCard'];
 export type Seller = Schemas['Seller'];
@@ -205,6 +224,8 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: Brand }>(`/brands/${encodePath(slug)}`, init).then((r) => r.data),
     listBrandProducts: (slug: string, params?: Omit<ListingParams, 'brand'>, init?: RequestOptions) =>
       get<ProductListing>(`/brands/${encodePath(slug)}/products${listingQueryString(params)}`, init),
+    getContactSettings: (init?: RequestOptions) =>
+      get<{ data: ContactSettings }>('/settings/contact', init).then((r) => r.data),
 
     getBlogHome: (init?: RequestOptions) => get<{ data: BlogHome }>('/blog/home', init).then((r) => r.data),
     listBlogPosts: (params?: BlogListParams, init?: RequestOptions) =>

@@ -27,14 +27,14 @@ export function AuthAvatar({ active, spinning, size = 64 }: { active?: boolean; 
   );
 }
 
-/** «بانُ» app tile on the welcome step (designs/auth 07–08). */
+/**
+ * «بانُ» app tile on the welcome step (designs/auth 07–08): the live WP site
+ * icon (uploads/2026/08/cropped-Asset-1@3x-8.png), added by the menu thread
+ * as public/brand/site-icon-192x192.png.
+ */
 export function BrandTile() {
   return (
-    <div
-      aria-hidden="true"
-      className="flex size-16 items-center justify-center rounded-lg bg-gradient-to-b from-primary to-primary-hover text-2xl font-black text-primary-on shadow-md"
-    >
-      بانُ
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element -- small static brand file
+    <img src="/brand/site-icon-192x192.png" alt="" width={64} height={64} className="size-16 rounded-lg shadow-md" />
   );
 }
