@@ -10,18 +10,15 @@ export function compactCount(n: number): string {
   return faDigits(n);
 }
 
+/**
+ * Only the seller's real logo file (docs/05-conventions.md «رسانه و داده سئو از لایو»):
+ * no generated placeholder. Without a logo the slot is left out.
+ */
 function Logo({ seller, className }: { seller: Seller; className: string }) {
-  if (seller.logo) {
-    return (
-      <span className={`relative block overflow-hidden rounded-lg bg-surface-muted ${className}`}>
-        <Image src={seller.logo.url} alt={seller.logo.alt ?? seller.name} fill priority sizes="112px" className="object-cover" />
-      </span>
-    );
-  }
-  // No logo uploaded: Banovit's mark for the house seller, otherwise the first letter.
+  if (!seller.logo) return null;
   return (
-    <span aria-hidden="true" className={`flex items-center justify-center rounded-lg bg-primary font-extrabold text-primary-on ${className}`}>
-      <span className="text-3xl">{seller.is_house ? 'بانُ' : seller.name.replace(/^فروشگاه\s+/, '').slice(0, 1)}</span>
+    <span className={`relative block shrink-0 overflow-hidden rounded-lg bg-surface-muted ${className}`}>
+      <Image src={seller.logo.url} alt={seller.logo.alt ?? seller.name} fill priority sizes="112px" className="object-cover" />
     </span>
   );
 }
