@@ -17,3 +17,12 @@ Static design exports (JPG) so that every thread / machine can read them from gi
 | 09-payment-failed-mobile.jpg | پرداخت ناموفق | Design-8.jpg |
 
 The uploaded zip ("Banovit interface.zip", 2026-11-08) contained only these 9 cart/checkout screens; other sections will go in sibling folders (designs/<section>/) when they are exported. No desktop frames were provided — desktop is derived from the mobile layout.
+
+## contact/ — «تماس با ما» (desktop 1440px + mobile 393px)
+
+| File | Screen | Original export |
+|---|---|---|
+| 01-contact-desktop.png | تماس با ما — header, پشتیبانی بانویت intro + ساعت پاسخگویی, info cards (انبار / شرکت / تلفن), map with «ورود به نشان», فرم «درخواست مشاوره», social icons, footer CTA | Contact us - Desktop.png |
+| 02-contact-mobile.png | same, mobile: app bar «تماس با ما», form first, info cards, map, hours, footer, bottom nav | Contact us - Mobile.png |
+
+From "Banovit interface 1.zip" (2026-11-08).
