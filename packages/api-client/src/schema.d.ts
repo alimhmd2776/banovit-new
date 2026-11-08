@@ -1297,6 +1297,15 @@ export interface components {
             label: string;
             description: string | null;
             price: components["schemas"]["Money"];
+            /**
+             * @description fixed = per unit; percentage = percent of the unit price, per unit; flat_rate = once per cart line
+             * @enum {string}
+             */
+            price_type: "fixed" | "percentage" | "flat_rate";
+            /** @description percentage options only */
+            percent: number | null;
+            /** @description Swatch for display=color (#rrggbb) */
+            color: string | null;
             /** @description installation | other */
             kind: string;
             default: boolean;
@@ -1307,6 +1316,11 @@ export interface components {
             description: string | null;
             /** @enum {string} */
             type: "checkbox" | "radio";
+            /**
+             * @description Rico-wc-addons control type
+             * @enum {string}
+             */
+            display: "select" | "multiselect" | "button" | "color";
             required: boolean;
             options: components["schemas"]["ProductAddonOption"][];
         };
@@ -1367,7 +1381,28 @@ export interface components {
         };
         /** @enum {string} */
         Availability: "in_stock" | "out_of_stock" | "backorder" | "no_price";
+        /** @description Public-vanity price form: price = length_cm × (slab_price_per_cm [+ frame_price_per_cm]) + bowls × bowl_price */
+        VanityCalculator: {
+            /** @constant */
+            kind: "vanity";
+            min_length_cm: number;
+            max_length_cm: number;
+            width_cm: number;
+            min_bowls: number;
+            max_bowls: number;
+            slab_price_per_cm: components["schemas"]["Money"];
+            frame_price_per_cm: components["schemas"]["Money"];
+            bowl_price: components["schemas"]["Money"];
+        };
         ProductDetail: {
+            /** @description e.g. «سفارشی» */
+            label: string | null;
+            /** @description Production time / stock text */
+            availability_note: string | null;
+            /** @description No online purchase: show the «سفارشی تولید می‌شود + مشاوره رایگان» box */
+            made_to_order: boolean;
+            consult_phone: string;
+            calculator: components["schemas"]["VanityCalculator"] | null;
             id: number;
             slug: string;
             name: string;
