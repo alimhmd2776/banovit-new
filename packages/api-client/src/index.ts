@@ -52,6 +52,7 @@ export type SitemapRow = Schemas['SitemapRow'];
 export type BlogListParams = NonNullable<operations['listBlogPosts']['parameters']['query']>;
 export type BlogSitemapType = 'posts' | 'categories' | 'tags' | 'authors';
 export type ContactSettings = Schemas['ContactSettings'];
+export type AuthSettings = Schemas['AuthSettings'];
 export type CallbackRequest = Schemas['CallbackRequest'];
 export type Cart = Schemas['Cart'];
 export type CartLine = Schemas['CartLine'];
@@ -243,6 +244,7 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: ContentPage }>(`/pages/${encodePath(path)}`, init).then((r) => r.data),
     getContactSettings: (init?: RequestOptions) =>
       get<{ data: ContactSettings }>('/settings/contact', init).then((r) => r.data),
+    getAuthSettings: (init?: RequestOptions) => get<{ data: AuthSettings }>('/settings/auth', init).then((r) => r.data),
 
     getBlogHome: (init?: RequestOptions) => get<{ data: BlogHome }>('/blog/home', init).then((r) => r.data),
     getBlogUi: (init?: RequestOptions) => get<{ data: BlogUi }>('/blog/ui', init).then((r) => r.data),

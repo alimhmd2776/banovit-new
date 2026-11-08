@@ -601,6 +601,20 @@ paths:
                 required: [data]
                 properties:
                   data: { $ref: '#/components/schemas/ContactSettings' }
+  /settings/auth:
+    get:
+      operationId: getAuthSettings
+      summary: Texts, links and timings of the /login/ page, editable in the CMS admin app («ورود و پیامک کد»)
+      responses:
+        '200':
+          description: Login page settings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AuthSettings' }
   /callback-requests:
     post:
       operationId: createCallbackRequest
@@ -2280,6 +2294,46 @@ components:
         access_token: { type: [string, 'null'], description: Send as X-Order-Token to read/pay this order; null on replay }
         payment: { oneOf: [{ $ref: '#/components/schemas/PaymentStart' }, { type: 'null' }] }
     # --- auth ---
+    AuthSettings:
+      type: object
+      required: [code_length, resend_cooldown, code_ttl, texts]
+      properties:
+        code_length: { type: integer }
+        resend_cooldown: { type: integer, description: Seconds before a new code can be requested }
+        code_ttl: { type: integer, description: Seconds a code stays valid }
+        texts:
+          type: object
+          description: "code_subtitle has {phone}, resend_wait has {time}; *_url start with / or https://"
+          required: [page_title, phone_title, phone_subtitle, phone_label, phone_placeholder, phone_submit, sending_title, sending_subtitle, code_title, code_subtitle, code_submit, checking_label, resend_wait, resend_label, welcome_title, welcome_subtitle, first_name_label, last_name_label, profile_submit, consent_prefix, terms_label, terms_url, consent_middle, privacy_label, privacy_url, consent_suffix, error_generic, error_network]
+          properties:
+            page_title: { type: string }
+            phone_title: { type: string }
+            phone_subtitle: { type: string }
+            phone_label: { type: string }
+            phone_placeholder: { type: string }
+            phone_submit: { type: string }
+            sending_title: { type: string }
+            sending_subtitle: { type: string }
+            code_title: { type: string }
+            code_subtitle: { type: string }
+            code_submit: { type: string }
+            checking_label: { type: string }
+            resend_wait: { type: string }
+            resend_label: { type: string }
+            welcome_title: { type: string }
+            welcome_subtitle: { type: string }
+            first_name_label: { type: string }
+            last_name_label: { type: string }
+            profile_submit: { type: string }
+            consent_prefix: { type: string }
+            terms_label: { type: string }
+            terms_url: { type: string }
+            consent_middle: { type: string }
+            privacy_label: { type: string }
+            privacy_url: { type: string }
+            consent_suffix: { type: string }
+            error_generic: { type: string }
+            error_network: { type: string }
     OtpChallenge:
       type: object
       required: [phone, code_length, expires_in, resend_in]
