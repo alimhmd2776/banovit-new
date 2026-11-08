@@ -11,9 +11,9 @@ export function Proforma({ cart }: { cart: Cart }) {
   const rows: [string, number][] = [
     ['جمع کالاها', t.items.amount],
     ['خدمات نصب', t.installation.amount],
-    ['بسته‌بندی ایمن', t.packaging.amount],
+    [cart.addons.packaging?.fee_label || 'بسته‌بندی ایمن', t.packaging.amount],
     ['هزینه ارسال', t.shipping.amount],
-    ['هزینه خدمات', t.service_fee.amount],
+    [t.service_fee_label || 'هزینه خدمات', t.service_fee.amount],
     ['کد تخفیف', -t.coupon_discount.amount],
   ];
   return (
