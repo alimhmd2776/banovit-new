@@ -32,7 +32,7 @@ export function MoreReviews({ slug, shownIds, total }: { slug: string; shownIds:
   return (
     <>
       <List items={items} />
-      <button type="button" onClick={load} disabled={loading} className="flex w-full items-center justify-center gap-1 rounded-md border border-border py-3 text-sm font-medium text-primary hover:border-primary disabled:opacity-60">
+      <button type="button" onClick={load} disabled={loading} data-busy={loading || undefined} className="flex w-full items-center justify-center gap-1 rounded-md border border-border py-3 text-sm font-medium text-primary hover:border-primary disabled:opacity-60">
         {loading ? 'در حال بارگذاری…' : 'نمایش دیدگاه‌های بیشتر'}
       </button>
     </>
@@ -157,7 +157,7 @@ export function WriteReview({ slug, productName, variationId }: { slug: string; 
                 {status.message}
               </p>
             ) : null}
-            <button type="submit" disabled={status.kind === 'sending'} className="h-12 w-full rounded-sm bg-primary text-sm font-bold text-primary-on hover:bg-primary-hover disabled:opacity-60">
+            <button type="submit" disabled={status.kind === 'sending'} data-busy={status.kind === 'sending' || undefined} className="h-12 w-full rounded-sm bg-primary text-sm font-bold text-primary-on hover:bg-primary-hover disabled:opacity-60">
               {status.kind === 'sending' ? 'در حال ثبت…' : 'ثبت دیدگاه'}
             </button>
           </form>

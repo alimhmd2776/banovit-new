@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useNavRouter as useRouter } from '@/lib/use-nav-router';
 import { useEffect, useRef, useState } from 'react';
 import type { TicketDetail, TicketMessage } from '@banovit/api-client';
 import { cx, IconChevronLeft } from '@banovit/ui';
@@ -122,9 +122,10 @@ export function TicketChat({ ticket }: { ticket: TicketDetail }) {
               type="submit"
               disabled={busy || (!body.trim() && !files.length)}
               aria-label="ارسال پیام"
+              aria-busy={busy}
               className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-on hover:bg-primary-hover disabled:opacity-50"
             >
-              <IconChevronLeft size={22} />
+              {busy ? <span aria-hidden className="size-5 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <IconChevronLeft size={22} />}
             </button>
           </div>
         </form>

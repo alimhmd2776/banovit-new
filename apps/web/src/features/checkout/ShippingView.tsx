@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useNavRouter as useRouter } from '@/lib/use-nav-router';
 import { useEffect, useState } from 'react';
 import type { Cart } from '@banovit/api-client';
 import { rialToToman } from '@banovit/ui';

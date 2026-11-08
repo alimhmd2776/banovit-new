@@ -4,6 +4,8 @@
  * Browser-side calls for the account area: always the BFF (/api/me/…/), never
  * the CMS. Throws AccountError with the API's Persian message.
  */
+import { doneNavProgress, startNavProgress } from '@/lib/nav-progress';
+
 export class AccountError extends Error {
   constructor(
     public readonly status: number,
@@ -17,6 +19,17 @@ export class AccountError extends Error {
 
 export async function me<T = unknown>(method: string, path: string, body?: unknown): Promise<T> {
   const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
+  // Saves/deletes show the top progress bar (reads may be background polls).
+  const visible = method.toUpperCase() !== 'GET';
+  if (visible) startNavProgress();
+  try {
+    return await call<T>(method, path, body, isForm);
+  } finally {
+    if (visible) doneNavProgress();
+  }
+}
+
+async function call<T>(method: string, path: string, body: unknown, isForm: boolean): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`/api/me/${path.replace(/^\/|\/$/g, '')}/`, {

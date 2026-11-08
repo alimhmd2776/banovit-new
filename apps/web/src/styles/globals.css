@@ -11,6 +11,25 @@
 }
 
 @layer utilities {
+  /*
+   * Busy buttons: any control with data-busy shows a small spinner in front of
+   * its label (colour follows the text), so a click that waits on the server
+   * always gives feedback. Usage: <button data-busy={busy || undefined}>.
+   */
+  [data-busy]::before {
+    content: '';
+    display: inline-block;
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+    margin-inline-end: 0.5em;
+    vertical-align: -0.15em;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 9999px;
+    animation: bnv-spin 0.7s linear infinite;
+  }
+  @keyframes bnv-spin { to { transform: rotate(360deg); } }
   .scrollbar-none { scrollbar-width: none; }
   .scrollbar-none::-webkit-scrollbar { display: none; }
 }

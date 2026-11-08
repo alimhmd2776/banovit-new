@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useNavRouter as useRouter } from '@/lib/use-nav-router';
 import { useRef, useState } from 'react';
 import type { Cart } from '@banovit/api-client';
 import { cx, faDigits, IconCheck, IconCreditCard, IconReceipt, IconWallet, rialToToman } from '@banovit/ui';
@@ -141,7 +141,7 @@ export function PaymentView({ initial }: { initial: Cart }) {
                   حذف کد
                 </button>
               ) : (
-                <button type="submit" disabled={busy === 'coupon'} className="h-12 shrink-0 rounded-md bg-primary px-5 text-sm font-bold text-primary-on hover:bg-primary-hover disabled:opacity-60">
+                <button type="submit" disabled={busy === 'coupon'} data-busy={busy === 'coupon' || undefined} className="h-12 shrink-0 rounded-md bg-primary px-5 text-sm font-bold text-primary-on hover:bg-primary-hover disabled:opacity-60">
                   اعمال تخفیف
                 </button>
               )}
