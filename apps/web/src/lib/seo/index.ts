@@ -60,28 +60,6 @@ export function listingMetadata({
   };
 }
 
-/** Head tags for a static content page (/contact-us/, /about-us/ ...): CMS (Yoast) values, real-domain canonical. */
-export function pageMetadata({ seo, path, ogType = 'website' }: { seo: Seo; path: string; ogType?: 'website' | 'article' }): Metadata {
-  const canonical = seo.canonical || `${env.canonicalOrigin}${path}`;
-  const robots: Metadata['robots'] = env.isProduction ? seo.robots : { index: false, follow: false };
-  return {
-    title: { absolute: seo.title },
-    description: seo.description ?? undefined,
-    alternates: { canonical },
-    robots,
-    openGraph: {
-      type: ogType,
-      locale: 'fa_IR',
-      siteName: SITE_NAME,
-      title: seo.og_title ?? seo.title,
-      description: seo.og_description ?? seo.description ?? undefined,
-      url: canonical,
-      images: seo.og_image?.url ? [{ url: seo.og_image.url, alt: seo.og_image.alt ?? seo.title }] : undefined,
-    },
-    twitter: { card: 'summary_large_image' },
-  };
-}
-
 function safePath(url: string): string | null {
   try {
     return new URL(url, env.canonicalOrigin).pathname;
@@ -204,6 +182,79 @@ export function sellerJsonLd({ seller, crumbs, products }: { seller: Seller; cru
 /** Safe inline JSON-LD (no </script> breakout). */
 export function jsonLdScript(data: unknown): { __html: string } {
   return { __html: JSON.stringify(data).replace(/</g, '\\u003c') };
+}
+
+/** Head tags for a CMS content page: stored Yoast values, self canonical, never indexed off production. */
+export function pageMetadata({ seo, path, ogType = 'article', modified }: { seo: Seo; path: string; ogType?: 'article' | 'website'; modified?: string | null }): Metadata {
+  const canonical = seo.canonical || `${env.canonicalOrigin}${path}`;
+  let robots: Metadata['robots'] = seo.robots;
+  if (!env.isProduction) robots = { index: false, follow: false };
+
+  return {
+    title: { absolute: seo.title },
+    description: seo.description ?? undefined,
+    alternates: { canonical },
+    robots,
+    openGraph: {
+      type: ogType,
+      locale: 'fa_IR',
+      siteName: SITE_NAME,
+      title: seo.og_title ?? seo.title,
+      description: seo.og_description ?? seo.description ?? undefined,
+      url: canonical,
+      modifiedTime: ogType === 'article' ? (modified ?? undefined) : undefined,
+      images: seo.og_image?.url ? [{ url: seo.og_image.url, alt: seo.og_image.alt ?? seo.title }] : undefined,
+    },
+    twitter: { card: 'summary_large_image' },
+  };
+}
+
+/** WebPage (AboutPage for /about-us/) + BreadcrumbList (+ FAQPage), like Yoast's page graph. */
+export function pageJsonLd({
+  name,
+  description,
+  url,
+  crumbs,
+  faqs = [],
+  type = 'WebPage',
+  published,
+  modified,
+}: {
+  name: string;
+  description?: string | null;
+  url: string;
+  crumbs: Crumb[];
+  faqs?: Faq[];
+  type?: 'WebPage' | 'AboutPage' | 'ContactPage';
+  published?: string | null;
+  modified?: string | null;
+}) {
+  const graph: Record<string, unknown>[] = [
+    {
+      '@type': type,
+      '@id': `${abs(url)}#webpage`,
+      url: abs(url),
+      name,
+      description: description ?? undefined,
+      inLanguage: 'fa-IR',
+      datePublished: published ?? undefined,
+      dateModified: modified ?? undefined,
+      isPartOf: { '@type': 'WebSite', '@id': `${env.canonicalOrigin}/#website`, name: SITE_NAME, url: `${env.canonicalOrigin}/` },
+      breadcrumb: { '@id': `${abs(url)}#breadcrumb` },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${abs(url)}#breadcrumb`,
+      itemListElement: crumbs.map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: abs(c.url) })),
+    },
+  ];
+  if (faqs.length) {
+    graph.push({
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer_html } })),
+    });
+  }
+  return { '@context': 'https://schema.org', '@graph': graph };
 }
 
 /**

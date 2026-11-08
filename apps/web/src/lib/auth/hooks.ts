@@ -1,6 +1,7 @@
 import 'server-only';
 import type { NextRequest, NextResponse } from 'next/server';
 import { env } from '@/lib/env';
+import { stripMiddlewareCookieHeader } from '@/lib/http/cookies';
 
 /**
  * Runs after a successful login. Contract with the cart thread
@@ -45,4 +46,5 @@ export async function mergeGuestCartOnLogin(req: NextRequest, res: NextResponse,
     // Signed-in carts resolve by customer on the CMS side.
     res.cookies.set(CART_COOKIE, '', { path: '/', maxAge: 0 });
   }
+  stripMiddlewareCookieHeader(res);
 }

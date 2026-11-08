@@ -926,6 +926,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/pages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Published CMS content pages (routing, page-sitemap.xml) */
+        get: operations["listPages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pages/{path}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One content page (/{path}/), e.g. about-us, shipping-methods, terms, landing/b2b */
+        get: operations["getPage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1508,6 +1542,51 @@ export interface components {
             badge?: string;
             button_text?: string;
             url?: string;
+        };
+        PageListItem: {
+            id: number;
+            path: string;
+            url: string;
+            title: string;
+            indexable: boolean;
+            /** Format: date-time */
+            updated_at: string | null;
+        };
+        PageCrumb: {
+            name: string;
+            url: string;
+        };
+        /** @description Typed block {id, type, v, props}. Types and props: banovit-cms App\Domain\Content\Blocks\BlockRegistry; TS union in apps/web/src/features/pages/types.ts. */
+        ContentBlock: {
+            id: string;
+            type: string;
+            v: number;
+            props: {
+                [key: string]: unknown;
+            };
+        };
+        ContentPage: {
+            id: number;
+            /** @description H1 */
+            title: string;
+            slug: string;
+            path: string;
+            /** @description Site-relative, trailing slash, percent-encoded */
+            url: string;
+            /** @enum {string} */
+            template: "default" | "document" | "feature";
+            excerpt?: string | null;
+            hero_image?: components["schemas"]["Image"] | null;
+            blocks: components["schemas"]["ContentBlock"][];
+            /** @description Sanitized HTML; rendered when blocks is empty */
+            body_html?: string | null;
+            /** Format: date-time */
+            published_at?: string | null;
+            /** Format: date-time */
+            updated_at?: string | null;
+            breadcrumb: components["schemas"]["PageCrumb"][];
+            seo: components["schemas"]["Seo"];
+            faqs: components["schemas"]["Faq"][];
         };
         Error: {
             error: {
@@ -4044,6 +4123,54 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    listPages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Pages */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PageListItem"][];
+                    };
+                };
+            };
+        };
+    };
+    getPage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description URL path without the outer slashes, percent-encoded or not (slashes allowed) */
+                path: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ContentPage"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
         };
     };
 }

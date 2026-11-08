@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import type { NextResponse } from 'next/server';
 import type { Customer } from '@banovit/api-client';
 import { env } from '@/lib/env';
+import { stripMiddlewareCookieHeader } from '@/lib/http/cookies';
 import { loginPath } from './redirect';
 
 /**
@@ -65,8 +66,10 @@ export function setSessionCookie(res: NextResponse, token: string, expiresAt: st
     path: '/',
     expires: Number.isNaN(expires.getTime()) ? new Date(Date.now() + 30 * 864e5) : expires,
   });
+  stripMiddlewareCookieHeader(res);
 }
 
 export function clearSessionCookie(res: NextResponse): void {
   res.cookies.set(SESSION_COOKIE, '', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/', maxAge: 0 });
+  stripMiddlewareCookieHeader(res);
 }

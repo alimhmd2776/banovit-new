@@ -22,6 +22,7 @@
 - هر پاسخ سبد، کل Cart است (قیمت‌ها و جمع‌ها از CMS)، UI هیچ جمعی حساب نمی‌کند.
 - کوکی خوانا `bnv_cart_count` فقط تعداد اقلام را دارد تا badge هدر و منوی پایین بدون درخواست کار کند؛ رویداد `cart:updated` با `{item_count}` هم پخش می‌شود.
 - بعد از ثبت سفارش: کوکی `bnv_order` = `NUMBER:token` (دسترسی به صفحه نتیجه و «تلاش مجدد»)، `bnv_cart` پاک می‌شود.
+- توکن سبد و سفارش فقط در کوکی httpOnly می‌ماند: BFF مقدار `token` را در JSON و props صفحه `null` می‌کند و هدر `x-middleware-set-cookie` را حذف می‌کند (`stripMiddlewareCookieHeader`).
 
 ## endpointها (CMS، شاخه `feature/storefront-cart`)
 
