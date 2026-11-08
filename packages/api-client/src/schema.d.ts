@@ -1447,8 +1447,19 @@ export interface components {
         ProductDetail: {
             /** @description e.g. «سفارشی» */
             label: string | null;
-            /** @description Production time / stock text */
+            /** @description Production time / stock text, HTML (ACF text_mojodi on live) */
             availability_note: string | null;
+            /** @description The variation live opens on (WC default attributes), as option key => value. Null: cheapest in-stock. */
+            default_selection: {
+                [key: string]: string;
+            } | null;
+            /** @description Product videos (woodmart): an mp4 URL or a YouTube/Vimeo page URL, with the gallery image as poster */
+            videos: {
+                video_url: string;
+                poster: components["schemas"]["Image"] | null;
+            }[];
+            /** @description Per-product delivery time text (ACF send-product on live), HTML */
+            shipping_html: string | null;
             offers: components["schemas"]["ProductOffers"];
             /** @description No online purchase: show the «سفارشی تولید می‌شود + مشاوره رایگان» box */
             made_to_order: boolean;

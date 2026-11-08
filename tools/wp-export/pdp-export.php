@@ -35,7 +35,7 @@ $terms = function ($pid, $tax) {
     }
     return $out;
 };
-$acf_keys = ['kase_gheymat', 'omomi', 'product_label', 'text_mojodi', 'product_details', 'feachers_one'];
+$acf_keys = ['kase_gheymat', 'omomi', 'product_label', 'text_mojodi', 'product_details', 'feachers_one', 'send-product'];
 $yoast_keys = ['title', 'metadesc', 'canonical', 'meta-robots-noindex', 'meta-robots-nofollow', 'meta-robots-adv', 'opengraph-title', 'opengraph-description', 'opengraph-image', 'focuskw', 'focuskeywords', 'primary_product_cat'];
 
 $addon_groups = [];
@@ -116,6 +116,20 @@ foreach ($ids as $pid) {
         'terms' => ['cats' => $terms($pid, 'product_cat'), 'tags' => $terms($pid, 'product_tag'), 'brands' => array_merge($terms($pid, 'pa_brand'), $terms($pid, 'product_brand'))],
         'install_disabled' => (string) get_post_meta($pid, '_bdi_install_disabled', true),
         'sink_product' => (string) get_post_meta($pid, '_sink_products', true),
+        // WC default variation: {attribute slug (urlencoded for local attributes) => value}.
+        'default_attributes' => $p->get_default_attributes(),
+        // Woodmart videos per gallery attachment id; uploaded files resolved to their URL.
+        'videos' => (function () use ($pid) {
+            $v = maybe_unserialize(get_post_meta($pid, 'woodmart_wc_video_gallery', true));
+            $out = [];
+            foreach (is_array($v) ? $v : [] as $att => $cfg) {
+                if (!is_array($cfg)) { continue; }
+                if (empty($cfg['upload_video_url']) && !empty($cfg['upload_video_id'])) { $cfg['upload_video_url'] = (string) wp_get_attachment_url((int) $cfg['upload_video_id']); }
+                if (trim(($cfg['upload_video_url'] ?? '') . ($cfg['youtube_url'] ?? '') . ($cfg['vimeo_url'] ?? '')) === '') { continue; }
+                $out[$att] = $cfg;
+            }
+            return $out ?: (object) [];
+        })(),
         'acf' => array_filter(array_combine($acf_keys, array_map(fn ($k) => get_post_meta($pid, $k, true), $acf_keys)), fn ($v) => $v !== '' && $v !== null && $v !== false),
     ];
     echo ($first ? '' : ',') . wp_json_encode($row, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

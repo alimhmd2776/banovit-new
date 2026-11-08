@@ -72,3 +72,12 @@ Source: docs/07-feature-parity.md §10–12.
   - The rates are in CMS config `storefront.pdp.vanity_calculator`. They match the live form: 275,000 / 375,000 toman per cm.
   - `bowl_price` comes from ACF `kase_gheymat`.
   - «ثبت درخواست» posts to `/api/callback-requests/` with `form=product_quote`. The CMS records it as a sales lead.
+
+## Live content fields (2026-11-08)
+
+- `description_html` falls back to ACF `product_details` (live keeps the main text there; post_content is set on 18 products).
+- `shipping_html` is ACF `send-product`, shown under the shipping lines in the seller box.
+- `availability_note` is ACF `text_mojodi` as HTML.
+- `videos` are woodmart `woodmart_wc_video_gallery` entries with a URL (empty per-image entries are skipped), posters are the gallery image. YouTube/Vimeo open embedded, mp4 in `<video>`.
+- `default_selection` is WC `_default_attributes` mapped to option keys; the page opens on it unless a `?attribute_…` link chooses.
+- `tools/wp-export/pdp-export.php` exports `send-product`, `default_attributes` and `videos` (uploaded ids resolved to URLs).
