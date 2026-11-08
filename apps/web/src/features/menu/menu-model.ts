@@ -69,9 +69,9 @@ export function searchMenu(items: MenuItem[], query: string): MenuSearchResult {
 
 const faNumber = new Intl.NumberFormat('fa-IR');
 
-/** «۴۳۵ محصول», or null when the CMS hides the count. */
-export function countLabel(n: number | null | undefined): string | null {
-  return n == null ? null : `${faNumber.format(n)} محصول`;
+/** «۴۳۵ محصول», or null when the CMS hides the count. The word comes from «تنظیمات هدر». */
+export function countLabel(n: number | null | undefined, suffix = 'محصول'): string | null {
+  return n == null ? null : `${faNumber.format(n)} ${suffix}`;
 }
 
 export function isExternal(url: string): boolean {

@@ -1,53 +1,59 @@
 import Link from 'next/link';
 import { cx, IconCart, IconSearch } from '@banovit/ui';
-import { getMenu } from '@/lib/api';
+import { getHeaderSettings, getMenu } from '@/lib/api';
 import { siteConfig } from '@/lib/site-config';
 import { CartBadge } from '@/features/cart/CartBadge';
 import { HeaderAccount } from '@/features/menu/HeaderAccount';
-import { Logo } from '@/features/menu/Logo';
+import { resolveTexts } from '@/features/menu/header-texts';
+import { FALLBACK_LOGO, Logo } from '@/features/menu/Logo';
 import { MegaMenu } from '@/features/menu/MegaMenu';
 import { MobileMenu } from '@/features/menu/MobileMenu';
 import { MenuIcon, MenuLink } from '@/features/menu/parts';
+import { TopBanner } from '@/features/menu/TopBanner';
 
 /**
  * Shared header (layout component, docs/05-conventions.md). Promo banner,
  * then on desktop (designs/menu/01): support/links top bar, logo + search +
  * cart/wishlist/account row, and the nav row with the mega menu. On mobile:
  * menu button (drawer + category sheet), logo, search, cart.
- * All menus are edited in the CMS («منوهای فروشگاه»).
+ * Menus: CMS «منوهای فروشگاه». Banner, logo, support line and every text:
+ * CMS «تنظیمات هدر» (GET /settings/header). Nothing here is developer-only.
  */
 export async function SiteHeader() {
-  const [categories, headerNav, headerTop, mobileQuick] = await Promise.all([
+  const [categories, headerNav, headerTop, mobileQuick, settings] = await Promise.all([
     getMenu('categories'),
     getMenu('header_nav'),
     getMenu('header_top'),
     getMenu('mobile_quick'),
+    getHeaderSettings(),
   ]);
   const navLinks = headerNav.items;
+  const texts = resolveTexts(settings?.texts);
+  const logo = settings?.logo ?? FALLBACK_LOGO;
+  const support = settings?.support;
 
   return (
     <>
-      <Link
-        href={siteConfig.topBanner.href}
-        className="flex h-12 items-center justify-center bg-primary px-4 text-center text-lg font-extrabold text-primary-on hover:bg-primary-hover lg:h-10 lg:text-sm"
-      >
-        {siteConfig.topBanner.text}
-      </Link>
+      {settings ? <TopBanner slides={settings.top_banner.slides} interval={settings.top_banner.interval_seconds} /> : null}
 
       <div className="hidden bg-surface lg:block">
         <div className="mx-auto flex max-w-container items-center justify-between gap-4 border-b border-border px-4 py-3 text-xs text-text-muted">
-          <p>
-            پشتیبانی:{' '}
-            {siteConfig.supportPhones.map((p, i) => (
-              <span key={p.tel}>
-                {i > 0 ? ' و ' : null}
-                <a href={`tel:${p.tel}`} className="hover:text-primary">
-                  {p.display}
-                </a>
-              </span>
-            ))}{' '}
-            ({siteConfig.supportHours})
-          </p>
+          {support && (support.phones.length || support.hours) ? (
+            <p>
+              {support.label ? `${support.label} ` : null}
+              {support.phones.map((p, i) => (
+                <span key={`${p.number}-${i}`}>
+                  {i > 0 ? ' و ' : null}
+                  <a href={`tel:${p.number}`} className="hover:text-primary">
+                    {p.display}
+                  </a>
+                </span>
+              ))}
+              {support.hours ? ` (${support.hours})` : null}
+            </p>
+          ) : (
+            <span />
+          )}
           {headerTop.items.length ? (
             <nav aria-label="لینک‌های سریع">
               <ul className="flex items-center">
@@ -66,8 +72,11 @@ export async function SiteHeader() {
 
       <header className="sticky top-0 z-sticky border-b border-border bg-surface/95 backdrop-blur lg:bg-surface lg:backdrop-blur-none">
         <div className="mx-auto flex h-header max-w-container items-center gap-2 px-4 lg:h-[84px] lg:gap-6">
-          <MobileMenu categories={categories.items} productLinks={navLinks.filter((l) => !l.highlight && !mobileQuick.items.some((q) => q.url === l.url))} quickLinks={mobileQuick.items} />
-          <Logo />
+          <MobileMenu categories={categories.items} productLinks={navLinks.filter((l) => !l.highlight && !mobileQuick.items.some((q) => q.url === l.url))} quickLinks={mobileQuick.items}
+            texts={texts}
+            logo={logo}
+          />
+          <Logo logo={logo} />
           <form action="/" role="search" className="relative min-w-0 flex-1 lg:max-w-[370px]">
             <label htmlFor="site-search" className="sr-only">
               جستجو در محصولات
@@ -76,7 +85,7 @@ export async function SiteHeader() {
               id="site-search"
               name="s"
               type="search"
-              placeholder="جستجو در بانویت…"
+              placeholder={texts.search_placeholder}
               className="h-10 w-full rounded-full border border-border bg-surface-muted pe-10 ps-4 text-sm text-text placeholder:text-text-subtle focus:border-primary focus:bg-surface focus:outline-none lg:h-12 lg:rounded-md"
             />
             <input type="hidden" name="post_type" value="product" />
@@ -91,14 +100,14 @@ export async function SiteHeader() {
               <IconCart />
               <CartBadge />
             </Link>
-            <HeaderAccount />
+            <HeaderAccount texts={texts} />
           </nav>
         </div>
 
         <nav aria-label="منوی اصلی" className="hidden lg:block">
           <div className="mx-auto flex h-12 max-w-container items-center gap-6 px-4 text-sm text-text-muted">
             {categories.items.length ? (
-              <MegaMenu items={categories.items} />
+              <MegaMenu items={categories.items} texts={texts} />
             ) : (
               siteConfig.mainNav.map((item) => (
                 <Link key={item.href} href={item.href} className="py-3 hover:text-primary">
