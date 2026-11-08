@@ -14,3 +14,10 @@
   .scrollbar-none { scrollbar-width: none; }
   .scrollbar-none::-webkit-scrollbar { display: none; }
 }
+
+/* Side drawer entering from the inline-start edge (right in RTL): mobile menu */
+@keyframes drawerInStart { from { transform: translateX(100%) } to { transform: translateX(0) } }
+@keyframes megaIn { from { opacity: 0; transform: translateY(-4px) } to { opacity: 1; transform: none } }
+@media (prefers-reduced-motion: reduce) {
+  [class*='animate-[drawerInStart'], [class*='animate-[megaIn'] { animation: none !important; }
+}

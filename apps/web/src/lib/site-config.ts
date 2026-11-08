@@ -1,6 +1,7 @@
 /**
- * Static site chrome until the CMS menu/settings endpoints exist (header/footer
- * thread will replace this with GET /storefront/v1/menus + /settings).
+ * Static site chrome. Header menus now come from the CMS (GET /menus/{key},
+ * features/menu); mainNav is only the fallback when the CMS is unreachable.
+ * Footer still static until a /settings endpoint exists.
  */
 export const siteConfig = {
   name: 'بانویت',
@@ -21,6 +22,12 @@ export const siteConfig = {
     href: 'https://trustseal.enamad.ir/?id=516602&Code=bEu3ObZADXWU4nC4jLQ10pdhqFhN3ehP',
     img: 'https://trustseal.enamad.ir/logo.aspx?id=516602&Code=bEu3ObZADXWU4nC4jLQ10pdhqFhN3ehP',
   },
+  /** Desktop header top bar (designs/menu/01). */
+  supportPhones: [
+    { tel: '09927809601', display: '۰۹۹۲۷۸۰۹۶۰۱' },
+    { tel: '02191014093', display: '۰۲۱-۹۱۰۱۴۰۹۳' },
+  ],
+  supportHours: 'شنبه تا چهارشنبه ۹ تا ۱۷ پنجشنبه تا ۱۴',
   mainNav: [
     { name: 'روشویی', href: '/shop/category/vanity/' },
     { name: 'شیرآلات', href: '/shop/category/faucets/' },
