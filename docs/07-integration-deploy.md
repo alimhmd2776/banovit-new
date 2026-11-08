@@ -65,3 +65,17 @@ flock -w 900 ~/banovit-new/.deploy.lock -c '<مراحل استقرار در docs
 - وب: `infra/stage2/deploy-web.sh <sha> <thread>` (روی سرور `~/banovit-new/deploy-web.sh`) داخل قفل: `flock -w 600 .deploy.lock bash deploy-web.sh <sha> <thread>`. فایل `web-<sha>.tgz` باید از قبل کنار آن باشد (build محلی طبق «به‌روزرسانی» در docs/06). اسکریپت sharp لینوکسی را منتقل می‌کند، مالکیت را درست می‌کند، smoke test می‌زند و در DEPLOYED.log ثبت می‌کند.
 - بررسی یکدستی CMS: `git archive <sha>` را در `/tmp` باز کن و `md5sum -c` روی `cms-src` (به‌جز storage و bootstrap/cache) بزن؛ نباید FAILED بدهد. آخرین بررسی ۱۲:۳۷Z: cms-src = 6e6da16، هیچ اختلافی.
 - **داده لایو دیگر تازه‌سازی نمی‌شود** (دستور Ali ۱۲:۳۱): فقط با داده فعلی stage2 کار کنید؛ همگام‌سازی نهایی بعد از تکمیل پیاده‌سازی.
+
+## قفل ضد عقب‌گرد (۲۰۲۶-۱۱-۰۸ ۲۲:۴۰، بعد از race ساعت ۲۲:۱۰)
+
+- `deploy-cms.sh` و `deploy-web.sh` حالا sha مستقرشده را در `~/banovit-new/state/cms_sha` و `state/web_sha` نگه می‌دارند و **فقط وقتی اجرا می‌شوند که `EXPECT_PREV=<sha فعلی>` بدهی**:
+  ```bash
+  ssh ... 'cat ~/banovit-new/state/cms_sha'          # مثلاً 354b073
+  git merge-base --is-ancestor 354b073 <sha جدید>     # باید موفق باشد؛ اگر نه، اول integration را merge کن
+  ssh ... 'cd ~/banovit-new && flock -w 1200 .deploy.lock env EXPECT_PREV=354b073 bash deploy-cms.sh <sha جدید> <thread>'
+  ```
+  اگر کسی بین بررسی و اجرا مستقر کرده باشد، اسکریپت با exit 3 متوقف می‌شود. `FORCE_DEPLOY=1` فقط برای rollback عمدی.
+- فقط HEAD شاخه‌های یکپارچه را مستقر کن، هرگز شاخه feature.
+- `reval.sh [tag...]` فقط کش Next.js را باطل می‌کند و دیگر چیزی در DEPLOYED.log نمی‌نویسد.
+- قبل از استقرار md5 فایل آپلودشده را با فایل محلی مقایسه کن (scp از این سیستم گاهی ناقص می‌شود).
+- پشتیبان کد CMS با `sudo tar` و بدون `storage` گرفته می‌شود.
