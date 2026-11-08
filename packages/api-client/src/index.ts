@@ -52,6 +52,10 @@ export type SitemapRow = Schemas['SitemapRow'];
 export type BlogListParams = NonNullable<operations['listBlogPosts']['parameters']['query']>;
 export type BlogSitemapType = 'posts' | 'categories' | 'tags' | 'authors';
 export type ContactSettings = Schemas['ContactSettings'];
+export type AuthSettings = Schemas['AuthSettings'];
+// --- plp ---
+export type ListingSettings = Schemas['ListingSettings'];
+// --- /plp ---
 export type CallbackRequest = Schemas['CallbackRequest'];
 export type Cart = Schemas['Cart'];
 export type CartLine = Schemas['CartLine'];
@@ -242,10 +246,15 @@ export function createStorefrontClient(opts: ClientOptions) {
     listPages: (init?: RequestOptions) => get<{ data: PageListItem[] }>('/pages', init).then((r) => r.data),
     getPage: (path: string, init?: RequestOptions) =>
       get<{ data: ContentPage }>(`/pages/${encodePath(path)}`, init).then((r) => r.data),
+    // --- plp ---
+    getListingSettings: (init?: RequestOptions) =>
+      get<{ data: ListingSettings }>('/settings/listing', init).then((r) => r.data),
+    // --- /plp ---
     getContactSettings: (init?: RequestOptions) =>
       get<{ data: ContactSettings }>('/settings/contact', init).then((r) => r.data),
     getAccountSettings: (init?: RequestOptions) =>
       get<{ data: AccountSettings }>('/settings/account', init).then((r) => r.data),
+    getAuthSettings: (init?: RequestOptions) => get<{ data: AuthSettings }>('/settings/auth', init).then((r) => r.data),
 
     getBlogHome: (init?: RequestOptions) => get<{ data: BlogHome }>('/blog/home', init).then((r) => r.data),
     getBlogUi: (init?: RequestOptions) => get<{ data: BlogUi }>('/blog/ui', init).then((r) => r.data),

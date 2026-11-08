@@ -69,3 +69,15 @@
 - کوکی `bnv_session`: httpOnly، Secure (در build تولیدی)، SameSite=Lax، path=/، انقضا = `expires_at` توکن. توکن هرگز در JS مرورگر نیست.
 - helperهای سمت سرور در `apps/web/src/lib/auth/session.ts`: `getSessionToken()`، `customerHeaders()`، `getCustomer()`، `requireCustomer(nextPath)` (ریدایرکت به `/login/?redirect=`). `redirect` فقط مسیر نسبی همین سایت را می‌پذیرد (`lib/auth/redirect.ts`).
 - **ادغام سبد مهمان** (`lib/auth/hooks.ts`، قرارداد با thread سبد): اگر کوکی `bnv_cart` باشد، بعد از ورود `POST /cart/merge {guest_token}` با Bearer مشتری؛ اگر `data.token` برگشت کوکی سبد با آن جایگزین می‌شود. خطا یا 404 ورود را خراب نمی‌کند.
+
+## Panel settings (`GET /settings/auth`)
+
+Everything about login is edited in the CMS admin app, «ورود و پیامک کد سایت» (`/panel/settings/storefront-auth`, admin only):
+login SMS on/off, MeliPayamak pattern id, optional separate MeliPayamak account (password write-only, stored encrypted),
+test numbers that get a real SMS off production (`*` = all), every abuse limit, session length, and every text and link of
+`/login/`. Values not saved yet fall back to env (`STOREFRONT_OTP_*`) and the built-in copy.
+
+The storefront reads the public part (no secrets) from `GET /api/storefront/v1/settings/auth`
+(`code_length`, `resend_cooldown`, `code_ttl`, `texts`; Surrogate-Key `settings:auth`, Next tag `settings:auth`, revalidate 300 s).
+`code_subtitle` has `{phone}`, `resend_wait` has `{time}`. If the CMS is unreachable the page uses
+`features/auth/links.ts` `AUTH_TEXT_DEFAULTS`, which must match `AuthSettings::TEXT_DEFAULTS`.

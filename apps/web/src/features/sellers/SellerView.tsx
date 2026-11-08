@@ -1,6 +1,6 @@
 import type { ProductListing, Seller, SellerReviewList } from '@banovit/api-client';
 import { Breadcrumb, Pagination, ProductCard } from '@banovit/ui';
-import { ChangeFilterButton, FilterSidebar, ListingToolbar } from '@/features/plp/ListingControls';
+import { FilterSidebar, ListingToolbar } from '@/features/plp/ListingControls';
 import { EmptyState } from '@/features/plp/sections';
 import { hasActiveFilters, pagePath, toQueryString, type ListingState } from '@/features/plp/url-state';
 import { jsonLdScript, sellerJsonLd, type Crumb } from '@/lib/seo';
@@ -43,9 +43,7 @@ export function SellerView({ seller, crumbs, listing, reviews, state, page }: Se
             ))}
           </ul>
         ) : (
-          <EmptyState filtered={hasActiveFilters(state)}>
-            <ChangeFilterButton meta={listing.meta} state={state} basePath={basePath} />
-          </EmptyState>
+          <EmptyState filtered={hasActiveFilters(state)} changeFilter={{ meta: listing.meta, state, basePath }} />
         )}
         <Pagination current={page} last={listing.meta.last_page} hrefFor={(p) => `${pagePath(basePath, p)}${query}`} className="pt-2" />
       </div>

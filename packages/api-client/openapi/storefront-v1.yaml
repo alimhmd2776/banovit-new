@@ -587,6 +587,22 @@ paths:
               schema: { $ref: '#/components/schemas/SellerReviewList' }
         '404': { $ref: '#/components/responses/NotFound' }
   # --- contact ---
+  # --- plp ---
+  /settings/listing:
+    get:
+      operationId: getListingSettings
+      summary: Listing-page texts (support box, empty states, brands row) and the site footer, editable in the CMS («صفحه فروشگاه و فوتر»)
+      responses:
+        '200':
+          description: Listing page + footer settings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ListingSettings' }
+  # --- /plp ---
   /settings/contact:
     get:
       operationId: getContactSettings
@@ -601,6 +617,20 @@ paths:
                 required: [data]
                 properties:
                   data: { $ref: '#/components/schemas/ContactSettings' }
+  /settings/auth:
+    get:
+      operationId: getAuthSettings
+      summary: Texts, links and timings of the /login/ page, editable in the CMS admin app («ورود و پیامک کد»)
+      responses:
+        '200':
+          description: Login page settings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/AuthSettings' }
   /callback-requests:
     post:
       operationId: createCallbackRequest
@@ -1221,6 +1251,77 @@ components:
           schema: { $ref: '#/components/schemas/Error' }
   schemas:
     # --- contact ---
+    # --- plp ---
+    ListingImage:
+      type: object
+      required: [url]
+      properties:
+        url: { type: string }
+        width: { type: [integer, 'null'] }
+        height: { type: [integer, 'null'] }
+        alt: { type: [string, 'null'] }
+    ListingSettings:
+      type: object
+      required: [support_box, brands_row_title, empty_state, empty_category, footer]
+      properties:
+        support_box:
+          type: object
+          required: [enabled, title, button, success]
+          properties:
+            enabled: { type: boolean }
+            title: { type: string }
+            text: { type: [string, 'null'] }
+            placeholder: { type: [string, 'null'] }
+            button: { type: string }
+            success: { type: string }
+        brands_row_title: { type: string, description: '%%term_title%% = listing title' }
+        empty_state:
+          type: object
+          required: [title, button]
+          properties:
+            title: { type: string }
+            text: { type: [string, 'null'] }
+            button: { type: string }
+            image: { oneOf: [{ $ref: '#/components/schemas/ListingImage' }, { type: 'null' }] }
+        empty_category:
+          type: object
+          required: [title, button, url]
+          properties:
+            title: { type: string }
+            text: { type: [string, 'null'] }
+            button: { type: string }
+            url: { type: string }
+        footer:
+          type: object
+          required: [site_name, columns, badges]
+          properties:
+            site_name: { type: string }
+            tagline: { type: [string, 'null'] }
+            about: { type: [string, 'null'] }
+            columns:
+              type: array
+              items:
+                type: object
+                required: [title, links]
+                properties:
+                  title: { type: string }
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      required: [label, url]
+                      properties: { label: { type: string }, url: { type: string } }
+            badges:
+              type: array
+              items:
+                type: object
+                required: [label, image]
+                properties:
+                  label: { type: string }
+                  url: { type: [string, 'null'] }
+                  image: { type: string }
+            copyright: { type: [string, 'null'], description: '%%year%% = Jalali year' }
+    # --- /plp ---
     ContactSettings:
       type: object
       required: [path, heading, phones, locations, map, form, socials, opening_hours, seo]
@@ -2287,6 +2388,46 @@ components:
         access_token: { type: [string, 'null'], description: Send as X-Order-Token to read/pay this order; null on replay }
         payment: { oneOf: [{ $ref: '#/components/schemas/PaymentStart' }, { type: 'null' }] }
     # --- auth ---
+    AuthSettings:
+      type: object
+      required: [code_length, resend_cooldown, code_ttl, texts]
+      properties:
+        code_length: { type: integer }
+        resend_cooldown: { type: integer, description: Seconds before a new code can be requested }
+        code_ttl: { type: integer, description: Seconds a code stays valid }
+        texts:
+          type: object
+          description: "code_subtitle has {phone}, resend_wait has {time}; *_url start with / or https://"
+          required: [page_title, phone_title, phone_subtitle, phone_label, phone_placeholder, phone_submit, sending_title, sending_subtitle, code_title, code_subtitle, code_submit, checking_label, resend_wait, resend_label, welcome_title, welcome_subtitle, first_name_label, last_name_label, profile_submit, consent_prefix, terms_label, terms_url, consent_middle, privacy_label, privacy_url, consent_suffix, error_generic, error_network]
+          properties:
+            page_title: { type: string }
+            phone_title: { type: string }
+            phone_subtitle: { type: string }
+            phone_label: { type: string }
+            phone_placeholder: { type: string }
+            phone_submit: { type: string }
+            sending_title: { type: string }
+            sending_subtitle: { type: string }
+            code_title: { type: string }
+            code_subtitle: { type: string }
+            code_submit: { type: string }
+            checking_label: { type: string }
+            resend_wait: { type: string }
+            resend_label: { type: string }
+            welcome_title: { type: string }
+            welcome_subtitle: { type: string }
+            first_name_label: { type: string }
+            last_name_label: { type: string }
+            profile_submit: { type: string }
+            consent_prefix: { type: string }
+            terms_label: { type: string }
+            terms_url: { type: string }
+            consent_middle: { type: string }
+            privacy_label: { type: string }
+            privacy_url: { type: string }
+            consent_suffix: { type: string }
+            error_generic: { type: string }
+            error_network: { type: string }
     OtpChallenge:
       type: object
       required: [phone, code_length, expires_in, resend_in]
