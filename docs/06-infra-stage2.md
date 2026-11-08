@@ -31,6 +31,36 @@
 - کاربر colleague اکنون sudo بدون رمز دارد (`/etc/sudoers.d/90-colleague`).
 - تست شد: robots.txt بدون رمز با Disallow کامل، هدر X-Robots-Tag روی همه پاسخ‌ها. سایت‌های stage2، test2، plane، okr و ai بدون تغییر.
 
+## استقرار PLP (۲۰۲۶-۱۱-۰۸، thread صفحه دسته‌بندی)
+
+سرویس‌های placeholder وب و CMS در `~colleague/banovit-new` با پشته واقعی جایگزین شدند (`infra/stage2/compose.yaml`، شبکه جدا `banovit_new`، روی همه سرویس‌ها `mem_limit`):
+
+| سرویس | چیست | حافظه |
+|---|---|---|
+| `web` | Next.js standalone روی `node:24-alpine`، کد در `./web-app` (فقط‌خواندنی)، پورت 127.0.0.1:8110 | 384m |
+| `cms` | php8.3-fpm (image `banovit-clones/cms`)، کد شاخه `feature/storefront-plp` در `./cms-src` | 384m |
+| `cms-http` | nginx جلوی CMS (`infra/stage2/nginx-cms.conf`، با X-Robots-Tag و robots بسته)، پورت 127.0.0.1:8111 | 64m |
+| `cms-db` | MariaDB 10.11 **جدا** (volume `banovit_new_cms_db`)، دیتابیس `new_cms` کپی از `stage2_cms` | 384m |
+| `cms-redis` | Redis جدا برای کش/سشن CMS | 64m |
+| `supplier` | همان placeholder | 64m |
+
+- DB جدا داخل همین پروژه است تا MariaDB مشترک banovit-clones دست نخورد. کپی با `mariadb-dump` فقط‌خواندنی از `stage2_cms` انجام شد.
+- ایمنی مثل banovit-clones: `x-blackhole` (پیامک، ترب، بله، دامنه‌های لایو) روی CMS، `MAIL_MAILER=log`، در دیتابیس `sms_settings`/`bale_settings` خاموش و توکن‌ها null، همه `notification_templates` خاموش. scheduler اجرا نمی‌شود و صف `sync` است. WC همان کلید فقط‌خواندنی test2 (از `.env` استیج).
+- سرویس `web` به `banovit.com` نیاز دارد (بهینه‌سازی تصاویر محصولات)، پس blackhole ندارد؛ جز API داخلی CMS به جای دیگری درخواست نمی‌زند.
+- رازها در `~/banovit-new/secrets/` (۶۰۰): `cms.env` (کپی `.env` استیج + override)، `cms-db.env`، `web.env` (`STOREFRONT_INTERNAL_TOKEN`، `REVALIDATE_SECRET`). داخل مخزن نیستند.
+- لایه‌های noindex: `SITE_ENV=staging` و `SITE_INDEXABLE=false` در web (متای robots، هدر X-Robots-Tag، `robots.txt` با `Disallow: /`، canonical به خود new.banovit.com)، به‌اضافه nginx میزبان.
+
+### به‌روزرسانی
+
+1. build وب روی سیستم محلی (نه روی stage2): `git archive` شاخه در یک پوشه موقت، `pnpm install --config.node-linker=hoisted` (روی ویندوز standalone با symlinkهای pnpm کپی نمی‌شود)، `SITE_ENV=staging NEXT_PUBLIC_SITE_URL=https://new.banovit.com pnpm --filter @banovit/web build`، کپی `.next/static` به `standalone/apps/web/.next/static`، جایگزینی `@img/sharp-win32-x64` با `sharp-linuxmusl-x64` (`npm install --os=linux --libc=musl --cpu=x64 sharp@0.33.5`)، tar و انتقال به `~/banovit-new/web-app`.
+2. CMS: `git archive feature/storefront-plp` + `composer install --no-dev -o`، انتقال به `~/banovit-new/cms-src`، سپس `sudo chown -R 33:33 cms-src/storage cms-src/bootstrap/cache`.
+3. `docker compose up -d`، سپس `docker compose exec -u www-data cms php artisan migrate --force` و `php artisan storefront:reindex` و `config:cache`.
+4. داده وردپرس: `storefront:import-wp-export import/wp-plp-export.json --live-urls=import/url-inventory.csv` (خروجی فعلی از test2 است؛ قبل از cutover از لایو گرفته شود).
+
+نسخه مستقر: banovit-new `feature/web-plp`، banovit-cms `feature/storefront-plp`. نسخه قبلی compose در `~/banovit-new/backups/`.
+
+محدودیت فعلی: admin-app (پنل `/panel`) روی cms-new build نشده، فقط API فروشگاه فعال است. موجودی همه محصولات در `stage2_cms` «ناموجود» است، پس روی new.banovit.com همه کارت‌ها «ناموجود» نشان داده می‌شوند.
+
 ## ظرفیت
 
 stage2 برای آزمون عملکرد کافی نیست (Next.js build حدود ۱.۵ گیگ رم می‌خواهد؛ build روی CI یا سیستم محلی انجام و image آماده منتقل می‌شود). آزمون بار فاز ۶ روی زیرساخت تولید هدف انجام می‌شود.
