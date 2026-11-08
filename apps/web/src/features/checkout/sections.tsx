@@ -44,7 +44,7 @@ export function DeliverySlots({ cart, selected, onSelect, busy }: { cart: Cart; 
       <h2 id="slots-title" className="flex flex-wrap items-center gap-x-1.5 text-sm">
         <span className="font-bold text-text">زمان ارسال مرسوله</span>
         {d.requires_slot ? <span className="text-primary">*</span> : null}
-        <span className="text-xs text-text-muted">{d.requires_slot ? d.window_label : `ارسال با ${d.method?.title ?? d.zone.label}`}</span>
+        <span className="text-xs text-text-muted">{d.requires_slot ? d.window_label : (d.method?.title ?? '')}</span>
       </h2>
       {d.requires_slot ? (
         <div role="radiogroup" aria-labelledby="slots-title" className="-mx-4 mt-3 flex snap-x gap-3 overflow-x-auto px-4 pb-1 scrollbar-none lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 xl:grid-cols-7">
@@ -74,7 +74,7 @@ export function DeliverySlots({ cart, selected, onSelect, busy }: { cart: Cart; 
         </div>
       ) : (
         <p className="mt-3 rounded-md bg-surface-muted px-3 py-2.5 text-xs leading-5 text-text-muted">
-          سفارش‌های این شهر با باربری یا پست ارسال می‌شوند؛ هزینه ارسال {d.fee.amount > 0 ? `${formatToman(d.fee.amount)} تومان` : `«${d.fee_label ?? 'رایگان'}»`} است و زمان تحویل پس از ثبت سفارش هماهنگ می‌شود.
+          هزینه {d.fee.amount > 0 ? `${formatToman(d.fee.amount)} تومان` : `«${d.fee_label ?? 'رایگان'}»`} است و زمان تحویل پس از ثبت سفارش هماهنگ می‌شود.
         </p>
       )}
     </section>

@@ -21,7 +21,9 @@ export function CartView({ initial }: { initial: Cart }) {
     if (initial.item_count > 0) track('view_cart', { value: rialToToman(initial.totals.payable.amount), items: analyticsItems(initial) });
   }, [initial]);
 
-  const subtitle = [`ارسال به ${cart.delivery.zone.label}`, cart.item_count ? `${faDigits(cart.item_count)} عدد محصول` : 'بدون محصول'];
+  // zone labels are admin-internal («تحت پوشش»); only name a place once an address is chosen
+  const city = cart.options.address?.city;
+  const subtitle = [...(city ? [`ارسال به ${city}`] : []), cart.item_count ? `${faDigits(cart.item_count)} عدد محصول` : 'بدون محصول'];
   const wishlist = (
     <Link
       href="/my-account/wishlist/"
