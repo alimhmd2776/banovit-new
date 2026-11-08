@@ -214,6 +214,327 @@ paths:
                   data: { $ref: '#/components/schemas/Customer' }
         '401': { description: Not signed in }
         '422': { $ref: '#/components/responses/ValidationError' }
+  # --- account (feature/web-account, banovit-cms feature/storefront-account) ---
+  /me/summary:
+    get:
+      operationId: getAccountSummary
+      summary: «پروفایل» dashboard counters
+      tags: [account]
+      security: [{ customerToken: [] }]
+      responses:
+        '200': { description: Summary, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/AccountSummary' } } } } } }
+        '401': { description: Not signed in }
+  /me/profile:
+    get:
+      operationId: getProfile
+      tags: [account]
+      security: [{ customerToken: [] }]
+      responses:
+        '200': { description: Profile, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/Profile' } } } } } }
+    patch:
+      operationId: updateProfile
+      summary: «اطلاعات کاربری» email, national code (checksum), birth date (Jalali 1388/01/30 or ISO)
+      tags: [account]
+      security: [{ customerToken: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: [string, 'null'], format: email }
+                national_code: { type: [string, 'null'], pattern: '^\d{10}$' }
+                birth_date: { type: [string, 'null'] }
+      responses:
+        '200': { description: Updated, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/Profile' } } } } } }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /me/orders:
+    get:
+      operationId: listMyOrders
+      summary: «سفارش ها» (WooCommerce orders, imported WP history and storefront orders)
+      tags: [account]
+      security: [{ customerToken: [] }]
+      parameters:
+        - { name: tab, in: query, schema: { type: string, enum: [current, delivered, cancelled], default: current } }
+        - { name: q, in: query, description: Order number or product name; searches all tabs, schema: { type: string } }
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 10 } }
+      responses:
+        '200':
+          description: Orders
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/OrderSummary' } }
+                  meta:
+                    type: object
+                    required: [page, per_page, total, counts]
+                    properties:
+                      page: { type: integer }
+                      per_page: { type: integer }
+                      total: { type: integer }
+                      tab: { type: [string, 'null'] }
+                      counts: { $ref: '#/components/schemas/OrderTabCounts' }
+  /me/orders/{number}:
+    get:
+      operationId: getMyOrder
+      summary: «جزئیات سفارش»
+      tags: [account]
+      security: [{ customerToken: [] }]
+      parameters: [{ name: number, in: path, required: true, schema: { type: string } }]
+      responses:
+        '200': { description: Order, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/OrderDetail' } } } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /me/addresses:
+    get:
+      operationId: listAddresses
+      tags: [account]
+      security: [{ customerToken: [] }]
+      responses:
+        '200': { description: Addresses, content: { application/json: { schema: { type: object, required: [data], properties: { data: { type: array, items: { $ref: '#/components/schemas/Address' } } } } } } }
+    post:
+      operationId: createAddress
+      tags: [account]
+      security: [{ customerToken: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AddressInput' } } } }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/Address' } } } } } }
+        '409': { description: Address limit (20) reached }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /me/addresses/{id}:
+    parameters: [{ name: id, in: path, required: true, schema: { type: string, description: ULID } }]
+    patch:
+      operationId: updateAddress
+      tags: [account]
+      security: [{ customerToken: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AddressInput' } } } }
+      responses:
+        '200': { description: Updated, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/Address' } } } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      operationId: deleteAddress
+      tags: [account]
+      security: [{ customerToken: [] }]
+      responses:
+        '204': { description: Deleted (the newest remaining address becomes default) }
+  /me/wishlist:
+    get:
+      operationId: listWishlist
+      tags: [account]
+      security: [{ customerToken: [] }]
+      parameters: [{ name: sort, in: query, schema: { type: string, enum: [newest, price_asc, price_desc, discount], default: newest } }]
+      responses:
+        '200':
+          description: Product cards
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/ProductCard' } }
+                  meta: { type: object, required: [total, notify], properties: { total: { type: integer }, sort: { type: string }, notify: { type: boolean } } }
+  /me/wishlist/slugs:
+    get:
+      operationId: listWishlistSlugs
+      summary: Heart state for PLP/PDP
+      tags: [account]
+      security: [{ customerToken: [] }]
+      responses:
+        '200': { description: Slugs, content: { application/json: { schema: { type: object, required: [data], properties: { data: { type: array, items: { type: string } } } } } } }
+  /me/wishlist/settings:
+    patch:
+      operationId: updateWishlistSettings
+      summary: «اطلاع رسانی ها» (stock / discount alerts for wishlist items)
+      tags: [account]
+      security: [{ customerToken: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [notify], properties: { notify: { type: boolean } } } } } }
+      responses:
+        '200': { description: Saved }
+  /me/wishlist/{slug}:
+    parameters: [{ name: slug, in: path, required: true, schema: { type: string } }]
+    put:
+      operationId: addToWishlist
+      tags: [account]
+      security: [{ customerToken: [] }]
+      responses:
+        '200': { description: Added (idempotent) }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: removeFromWishlist
+      tags: [account]
+      security: [{ customerToken: [] }]
+      responses:
+        '200': { description: Removed }
+  /me/recently-viewed:
+    get:
+      operationId: listRecentlyViewed
+      tags: [account]
+      security: [{ customerToken: [] }]
+      parameters: [{ name: q, in: query, schema: { type: string } }]
+      responses:
+        '200': { description: Newest first (max 50), content: { application/json: { schema: { type: object, required: [data], properties: { data: { type: array, items: { $ref: '#/components/schemas/ProductCard' } } } } } } }
+    post:
+      operationId: recordProductView
+      summary: Called by the PDP (through the BFF /api/me/recently-viewed/) for signed-in customers
+      tags: [account]
+      security: [{ customerToken: [] }]
+      requestBody: { required: true, content: { application/json: { schema: { type: object, required: [product_slug], properties: { product_slug: { type: string } } } } } }
+      responses:
+        '201': { description: Recorded }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: clearRecentlyViewed
+      tags: [account]
+      security: [{ customerToken: [] }]
+      responses:
+        '204': { description: Cleared }
+  /me/reviews:
+    get:
+      operationId: listMyReviews
+      summary: «دیدگاه های من» (product_reviews, owned by the PDP module)
+      tags: [account]
+      security: [{ customerToken: [] }]
+      parameters: [{ name: q, in: query, schema: { type: string } }]
+      responses:
+        '200': { description: Reviews, content: { application/json: { schema: { type: object, required: [data], properties: { data: { type: array, items: { $ref: '#/components/schemas/MyReview' } } } } } } }
+    post:
+      operationId: rateProduct
+      summary: Star rating from a delivered order; goes to moderation (status pending)
+      tags: [account]
+      security: [{ customerToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [product_slug, rating]
+              properties:
+                product_slug: { type: string }
+                rating: { type: integer, minimum: 1, maximum: 5 }
+                body: { type: [string, 'null'], maxLength: 3000 }
+      responses:
+        '201': { description: Created }
+        '200': { description: Updated }
+        '503': { description: product_reviews table not deployed yet }
+  /me/notifications:
+    get:
+      operationId: listNotifications
+      summary: «اعلانات من»
+      tags: [account]
+      security: [{ customerToken: [] }]
+      parameters:
+        - { name: category, in: query, schema: { type: string, enum: [orders, products, support] } }
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+      responses:
+        '200':
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Notification' } }
+                  meta:
+                    type: object
+                    properties:
+                      page: { type: integer }
+                      per_page: { type: integer }
+                      total: { type: integer }
+                      unread: { type: object, additionalProperties: { type: integer } }
+    delete:
+      operationId: clearNotifications
+      tags: [account]
+      security: [{ customerToken: [] }]
+      parameters: [{ name: category, in: query, schema: { type: string, enum: [orders, products, support] } }]
+      responses:
+        '204': { description: Deleted }
+  /me/notifications/read:
+    post:
+      operationId: markNotificationsRead
+      tags: [account]
+      security: [{ customerToken: [] }]
+      requestBody: { content: { application/json: { schema: { type: object, properties: { ids: { type: array, items: { type: string } } } } } } }
+      responses:
+        '200': { description: Number marked read }
+  /me/tickets:
+    get:
+      operationId: listTickets
+      summary: «پشتیبانی بانویت» tickets
+      tags: [account]
+      security: [{ customerToken: [] }]
+      parameters: [{ name: tab, in: query, schema: { type: string, enum: [in_review, reviewed], default: in_review } }]
+      responses:
+        '200':
+          description: Tickets
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/TicketSummary' } }
+                  meta:
+                    type: object
+                    properties:
+                      tab: { type: string }
+                      counts: { type: object, properties: { in_review: { type: integer }, reviewed: { type: integer } } }
+                      topics: { type: object, additionalProperties: { type: string } }
+    post:
+      operationId: createTicket
+      summary: «ثبت گزارش» (multipart, up to 5 images of 5 MB)
+      tags: [account]
+      security: [{ customerToken: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [topic, body]
+              properties:
+                topic: { $ref: '#/components/schemas/TicketTopic' }
+                subject: { type: string, maxLength: 200 }
+                order_number: { type: string }
+                body: { type: string, minLength: 5, maxLength: 5000 }
+                'images[]': { type: array, items: { type: string, format: binary }, maxItems: 5 }
+      responses:
+        '201': { description: Created, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/TicketSummary' } } } } } }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /me/tickets/{id}:
+    get:
+      operationId: getTicket
+      tags: [account]
+      security: [{ customerToken: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        '200': { description: Conversation, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/TicketDetail' } } } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /me/tickets/{id}/messages:
+    post:
+      operationId: replyTicket
+      tags: [account]
+      security: [{ customerToken: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                body: { type: string, maxLength: 5000 }
+                'images[]': { type: array, items: { type: string, format: binary }, maxItems: 5 }
+      responses:
+        '201': { description: Sent, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/TicketMessage' } } } } } }
+        '409': { description: Ticket closed }
+  # --- /account ---
 components:
   securitySchemes:
     customerToken: { type: http, scheme: bearer, description: Sanctum token from /auth/otp/verify (server-side only) }
@@ -507,3 +828,215 @@ components:
         expires_at: { type: string, format: date-time }
         is_new: { type: boolean }
         customer: { $ref: '#/components/schemas/Customer' }
+    # --- account (feature/web-account, banovit-cms feature/storefront-account) ---
+    AccountSummary:
+      type: object
+      required: [name, phone, orders, unread_notifications, open_tickets, identity_complete]
+      properties:
+        name: { type: string }
+        phone: { type: [string, 'null'] }
+        orders: { $ref: '#/components/schemas/OrderTabCounts' }
+        unread_notifications: { type: integer }
+        open_tickets: { type: integer }
+        identity_complete: { type: boolean }
+    Profile:
+      type: object
+      required: [name, phone, identity_complete, identity_verified]
+      properties:
+        name: { type: string }
+        phone: { type: [string, 'null'] }
+        email: { type: [string, 'null'] }
+        national_code: { type: [string, 'null'] }
+        birth_date: { type: [string, 'null'], format: date }
+        type: { type: string, enum: [consumer, partner] }
+        identity_complete: { type: boolean }
+        identity_verified: { type: boolean }
+    OrderTabCounts:
+      type: object
+      required: [current, delivered, cancelled]
+      properties:
+        current: { type: integer }
+        delivered: { type: integer }
+        cancelled: { type: integer }
+    OrderStep:
+      type: object
+      required: [key, label, state]
+      properties:
+        key: { type: string, description: 'paid | preparing | shipped | delivered, or review | refund for a cancelled order' }
+        label: { type: string }
+        state: { type: string, enum: [done, current, upcoming] }
+    OrderSummary:
+      type: object
+      required: [number, tab, status, status_label, total, items_count, item_images, steps, is_legacy]
+      properties:
+        number: { type: string }
+        tab: { type: string, enum: [current, delivered, cancelled] }
+        status: { type: string, description: Raw sales_invoices.status }
+        status_label: { type: string, description: Customer wording («درحال بسته‌بندی کالا»، «لغو شده - واریزی عودت شد») }
+        ordered_at: { type: [string, 'null'], format: date-time }
+        delivery_date: { type: [string, 'null'], format: date }
+        total: { $ref: '#/components/schemas/Money' }
+        items_count: { type: number }
+        item_images: { type: array, items: { $ref: '#/components/schemas/Image' } }
+        steps: { type: array, items: { $ref: '#/components/schemas/OrderStep' } }
+        address_line: { type: [string, 'null'] }
+        is_legacy: { type: boolean, description: Came from WooCommerce }
+    OrderItem:
+      type: object
+      required: [id, name, quantity, unit_price, total, attributes]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        sku: { type: [string, 'null'] }
+        quantity: { type: number }
+        cancelled_quantity: { type: number }
+        unit_price: { $ref: '#/components/schemas/Money' }
+        total: { $ref: '#/components/schemas/Money' }
+        attributes: { type: array, items: { type: object, required: [name, value], properties: { name: { type: string }, value: { type: string } } } }
+        product:
+          type: [object, 'null']
+          properties:
+            slug: { type: string }
+            path: { type: [string, 'null'] }
+            image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+    OrderDetail:
+      allOf:
+        - $ref: '#/components/schemas/OrderSummary'
+        - type: object
+          required: [recipient, items, totals, shipments, can_rate]
+          properties:
+            recipient:
+              type: object
+              properties:
+                name: { type: [string, 'null'] }
+                phone: { type: [string, 'null'] }
+                address: { type: [string, 'null'] }
+                postal_code: { type: [string, 'null'] }
+            items: { type: array, items: { $ref: '#/components/schemas/OrderItem' } }
+            totals:
+              type: object
+              required: [subtotal, discount, shipping, tax, total, paid, balance_due]
+              properties:
+                subtotal: { $ref: '#/components/schemas/Money' }
+                discount: { $ref: '#/components/schemas/Money' }
+                shipping: { $ref: '#/components/schemas/Money' }
+                tax: { $ref: '#/components/schemas/Money' }
+                total: { $ref: '#/components/schemas/Money' }
+                paid: { $ref: '#/components/schemas/Money' }
+                balance_due: { $ref: '#/components/schemas/Money' }
+            payment_method: { type: [string, 'null'] }
+            customer_note: { type: [string, 'null'] }
+            shipments:
+              type: array
+              items:
+                type: object
+                properties:
+                  method: { type: string }
+                  method_label: { type: string }
+                  status: { type: string }
+                  tracking_number: { type: [string, 'null'] }
+                  carrier_name: { type: [string, 'null'] }
+                  carrier_phone: { type: [string, 'null'] }
+                  shipped_at: { type: [string, 'null'], format: date-time }
+            refund:
+              type: [object, 'null']
+              required: [status, amount]
+              properties:
+                status: { type: string, enum: [pending, approved, rejected] }
+                amount: { $ref: '#/components/schemas/Money' }
+                created_at: { type: [string, 'null'], format: date-time }
+            can_rate: { type: boolean }
+    AddressInput:
+      type: object
+      properties:
+        title: { type: [string, 'null'], maxLength: 100 }
+        recipient_name: { type: [string, 'null'], maxLength: 150 }
+        recipient_phone: { type: [string, 'null'], pattern: '^09\d{9}$' }
+        province: { type: string }
+        city: { type: string }
+        address_line: { type: string, minLength: 5, maxLength: 500 }
+        plaque: { type: [string, 'null'] }
+        unit: { type: [string, 'null'] }
+        postal_code: { type: [string, 'null'], pattern: '^\d{10}$' }
+        lat: { type: [number, 'null'] }
+        lng: { type: [number, 'null'] }
+        is_default: { type: boolean }
+    Address:
+      allOf:
+        - $ref: '#/components/schemas/AddressInput'
+        - type: object
+          required: [id, province, city, address_line, is_default, full_line]
+          properties:
+            id: { type: string, description: ULID; checkout accepts it as address_id }
+            full_line: { type: string }
+    MyReview:
+      type: object
+      required: [id, body, status, is_verified_buyer]
+      properties:
+        id: { type: integer }
+        author_name: { type: [string, 'null'] }
+        rating: { type: [integer, 'null'] }
+        body: { type: string }
+        status: { type: string, enum: [pending, approved] }
+        is_verified_buyer: { type: boolean }
+        created_at: { type: [string, 'null'], format: date-time }
+        product:
+          type: [object, 'null']
+          required: [slug, name, path]
+          properties:
+            slug: { type: string }
+            name: { type: string }
+            path: { type: string }
+            image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+            colors: { type: array, items: { type: object } }
+            sizes: { type: [object, 'null'] }
+    Notification:
+      type: object
+      required: [id, category, type, title, is_read]
+      properties:
+        id: { type: string }
+        category: { type: string, enum: [orders, products, support] }
+        type: { type: string }
+        title: { type: string }
+        body: { type: [string, 'null'] }
+        url: { type: [string, 'null'] }
+        image_url: { type: [string, 'null'] }
+        data: { type: object }
+        is_read: { type: boolean }
+        created_at: { type: [string, 'null'], format: date-time }
+    TicketTopic:
+      type: string
+      enum: [orders, payment, shipping, returns, buying, specs, other]
+    TicketSummary:
+      type: object
+      required: [id, number, subject, topic, status, status_label]
+      properties:
+        id: { type: string }
+        number: { type: string, example: SU-21281 }
+        subject: { type: string }
+        topic: { $ref: '#/components/schemas/TicketTopic' }
+        topic_label: { type: string }
+        status: { type: string, enum: [in_review, awaiting_customer, closed] }
+        status_label: { type: string }
+        order_number: { type: [string, 'null'] }
+        last_message_at: { type: [string, 'null'], format: date-time }
+        created_at: { type: [string, 'null'], format: date-time }
+    TicketMessage:
+      type: object
+      required: [id, author, attachments, is_read]
+      properties:
+        id: { type: integer }
+        author: { type: string, enum: [customer, staff] }
+        body: { type: [string, 'null'] }
+        attachments: { type: array, items: { type: object, properties: { name: { type: [string, 'null'] }, mime: { type: [string, 'null'] }, size: { type: [integer, 'null'] }, url: { type: string } } } }
+        is_read: { type: boolean }
+        created_at: { type: [string, 'null'], format: date-time }
+    TicketDetail:
+      allOf:
+        - $ref: '#/components/schemas/TicketSummary'
+        - type: object
+          required: [messages, can_reply]
+          properties:
+            messages: { type: array, items: { $ref: '#/components/schemas/TicketMessage' } }
+            can_reply: { type: boolean }
+    # --- /account ---

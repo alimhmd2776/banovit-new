@@ -23,6 +23,22 @@ export type ApiError = Schemas['Error'];
 export type Customer = Schemas['Customer'];
 export type CustomerSession = Schemas['CustomerSession'];
 export type OtpChallenge = Schemas['OtpChallenge'];
+// «حساب کاربری» (docs/api/account.md)
+export type AccountSummary = Schemas['AccountSummary'];
+export type Profile = Schemas['Profile'];
+export type OrderTabCounts = Schemas['OrderTabCounts'];
+export type OrderStep = Schemas['OrderStep'];
+export type OrderSummary = Schemas['OrderSummary'];
+export type OrderDetail = Schemas['OrderDetail'];
+export type OrderItem = Schemas['OrderItem'];
+export type Address = Schemas['Address'];
+export type AddressInput = Schemas['AddressInput'];
+export type MyReview = Schemas['MyReview'];
+export type CustomerNotification = Schemas['Notification'];
+export type TicketTopic = Schemas['TicketTopic'];
+export type TicketSummary = Schemas['TicketSummary'];
+export type TicketDetail = Schemas['TicketDetail'];
+export type TicketMessage = Schemas['TicketMessage'];
 
 export type ListingParams = NonNullable<operations['listCategoryProducts']['parameters']['query']>;
 
