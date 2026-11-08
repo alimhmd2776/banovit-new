@@ -29,3 +29,19 @@ describe('client', () => {
     await expect(api.getCategory('x')).rejects.toBeInstanceOf(StorefrontApiError);
   });
 });
+
+describe('blog', () => {
+  it('builds the posts query and exposes the moved location of renamed posts', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: [], meta: { page: 2, per_page: 12, total: 0, last_page: 1 }, links: {} }), { status: 200 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ error: { code: 'moved', message: 'x', location: '/blog/new/' } }), { status: 404 }),
+      );
+    const api = createStorefrontClient({ baseUrl: 'http://cms', fetch: fetchMock });
+    await api.listBlogPosts({ page: 2, category: 'toilet/wallhang', q: '' });
+    expect(fetchMock.mock.calls[0]![0]).toBe('http://cms/blog/posts?page=2&category=toilet%2Fwallhang');
+    await expect(api.getBlogPost('شیر')).rejects.toMatchObject({ status: 404, code: 'moved', location: '/blog/new/' });
+    expect(fetchMock.mock.calls[1]![0]).toBe('http://cms/blog/posts/%D8%B4%DB%8C%D8%B1');
+  });
+});

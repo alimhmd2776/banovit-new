@@ -20,6 +20,26 @@ export type Seo = Schemas['Seo'];
 export type Faq = Schemas['Faq'];
 export type SortKey = Schemas['SortKey'];
 export type ApiError = Schemas['Error'];
+export type Crumb = Schemas['Crumb'];
+export type BlogHome = Schemas['BlogHome'];
+export type BlogSection = Schemas['BlogSection'];
+export type BlogPostCard = Schemas['BlogPostCard'];
+export type BlogPost = Schemas['BlogPost'];
+export type BlogBlock = Schemas['BlogBlock'];
+export type BlogProductsBlock = Schemas['BlogProductsBlock'];
+export type BlogNoteBlock = Schemas['BlogNoteBlock'];
+export type BlogAuthor = Schemas['BlogAuthor'];
+export type BlogAuthorPage = Schemas['BlogAuthorPage'];
+export type BlogCategory = Schemas['BlogCategory'];
+export type BlogCategoryRef = Schemas['BlogCategoryRef'];
+export type BlogCategoryTab = Schemas['BlogCategoryTab'];
+export type BlogTerm = Schemas['BlogTerm'];
+export type BlogFaq = Schemas['BlogFaq'];
+export type TocItem = Schemas['TocItem'];
+export type BlogPostListing = Schemas['BlogPostListing'];
+export type SitemapRow = Schemas['SitemapRow'];
+export type BlogListParams = NonNullable<operations['listBlogPosts']['parameters']['query']>;
+export type BlogSitemapType = 'posts' | 'categories' | 'tags' | 'authors';
 export type ContactSettings = Schemas['ContactSettings'];
 export type CallbackRequest = Schemas['CallbackRequest'];
 export type Cart = Schemas['Cart'];
@@ -82,6 +102,8 @@ export class StorefrontApiError extends Error {
     public readonly code: string,
     message: string,
     public readonly fields?: Record<string, string[]>,
+    /** Set when code === 'moved': the entity's current URL (answer with a 301). */
+    public readonly location?: string,
   ) {
     super(message);
     this.name = 'StorefrontApiError';
@@ -125,6 +147,16 @@ export function listingQueryString(params: ListingParams = {}): string {
   return s ? `?${s}` : '';
 }
 
+export function blogQueryString(params: BlogListParams = {}): string {
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === null || value === '') continue;
+    qs.append(key, String(value));
+  }
+  const s = qs.toString();
+  return s ? `?${s}` : '';
+}
+
 function encodePath(path: string): string {
   return path
     .split('/')
@@ -155,15 +187,17 @@ export function createStorefrontClient(opts: ClientOptions) {
       let code = 'http_error';
       let message = res.statusText;
       let fields: Record<string, string[]> | undefined;
+      let location: string | undefined;
       try {
         const body = (await res.json()) as ApiError;
         code = body.error.code;
         message = body.error.message;
         fields = body.error.fields;
+        location = body.error.location;
       } catch {
         /* non-JSON error body */
       }
-      throw new StorefrontApiError(res.status, code, message, fields);
+      throw new StorefrontApiError(res.status, code, message, fields, location);
     }
     return (await res.json()) as T;
   }
@@ -193,6 +227,21 @@ export function createStorefrontClient(opts: ClientOptions) {
     getContactSettings: (init?: RequestOptions) =>
       get<{ data: ContactSettings }>('/settings/contact', init).then((r) => r.data),
 
+    getBlogHome: (init?: RequestOptions) => get<{ data: BlogHome }>('/blog/home', init).then((r) => r.data),
+    listBlogPosts: (params?: BlogListParams, init?: RequestOptions) =>
+      get<BlogPostListing>(`/blog/posts${blogQueryString(params)}`, init),
+    getBlogPost: (slug: string, init?: RequestOptions) =>
+      get<{ data: BlogPost }>(`/blog/posts/${encodePath(slug)}`, init).then((r) => r.data),
+    listBlogCategories: (init?: RequestOptions) =>
+      get<{ data: BlogCategoryTab[] }>('/blog/categories', init).then((r) => r.data),
+    getBlogCategory: (path: string, init?: RequestOptions) =>
+      get<{ data: BlogCategory }>(`/blog/categories/${encodePath(path)}`, init).then((r) => r.data),
+    getBlogTag: (slug: string, init?: RequestOptions) =>
+      get<{ data: BlogTerm }>(`/blog/tags/${encodePath(slug)}`, init).then((r) => r.data),
+    getBlogAuthor: (slug: string, init?: RequestOptions) =>
+      get<{ data: BlogAuthorPage }>(`/blog/authors/${encodePath(slug)}`, init).then((r) => r.data),
+    getBlogSitemap: (type: BlogSitemapType, init?: RequestOptions) =>
+      get<{ data: SitemapRow[] }>(`/blog/sitemap/${type}`, init).then((r) => r.data),
     // cart & checkout (docs/api/cart.md)
     getCart: (s: SessionHeaders) => send<{ data: Cart }>('GET', '/cart', s).then((r) => r.data),
     updateCart: (s: SessionHeaders, body: CartUpdate) => send<{ data: Cart }>('PATCH', '/cart', s, body).then((r) => r.data),
