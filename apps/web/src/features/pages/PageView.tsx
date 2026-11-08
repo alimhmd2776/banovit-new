@@ -17,6 +17,7 @@ export function PageView({ page, jsonLd }: { page: ContentPage; jsonLd: unknown 
   const crumbs = [{ name: 'بانویت', url: '/' }, ...page.breadcrumb.map((c) => ({ name: c.name, url: c.url }))];
   const parent = page.breadcrumb.length > 1 ? page.breadcrumb[page.breadcrumb.length - 2]!.url : '/';
   const isFeature = page.template === 'feature' && blocks[0]?.type === 'hero';
+  const TitleTag = page.template === 'feature' ? 'p' : 'h1';
 
   return (
     <article className="pb-[calc(var(--bottom-nav-height)+32px)] lg:pb-16">
@@ -27,7 +28,9 @@ export function PageView({ page, jsonLd }: { page: ContentPage; jsonLd: unknown 
             <BackButton fallback={parent} />
           </div>
           <Breadcrumb items={crumbs} className="hidden lg:flex" />
-          <h1 className="min-w-0 truncate text-base font-bold text-text lg:whitespace-normal lg:text-2xl">{page.title}</h1>
+          {/* H1 parity with live (docs/05): WordPress prints the title as H1 on plain pages (default/document);
+              the Elementor pages migrated as `feature` have no H1 on live, so the title bar is not a heading there. */}
+          <TitleTag className="min-w-0 truncate text-base font-bold text-text lg:whitespace-normal lg:text-2xl">{page.title}</TitleTag>
         </div>
       </div>
 

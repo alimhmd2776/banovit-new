@@ -28,7 +28,7 @@ export type Block =
   | B<'steps', { items: { icon: IconName | null; title: string; html: Html }[] }>
   | B<'buttons', { items: { label: string; href: string; variant: 'primary' | 'secondary' }[] }>
   | B<'team', { members: { name: string; role: string | null; photo: Image | null }[] }>
-  | B<'brand_logos', { brands: string[]; items?: { name: string; url: string; logo: Image | null }[] }>
+  | B<'brand_logos', { brands?: string[]; logos?: { slug: string; name: string; image: Image | null }[]; items?: { name: string; url: string; logo: Image | null }[] }>
   | B<'testimonials', { items: { quote: string; name: string; label: string | null; avatar: Image | null }[] }>;
 
 export type BlockType = Block['type'];
