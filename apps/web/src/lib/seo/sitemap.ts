@@ -1,5 +1,6 @@
 import 'server-only';
 import type { SitemapRow } from '@banovit/api-client';
+import { env } from '@/lib/env';
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 
@@ -20,4 +21,13 @@ export function xmlResponse(body: string): Response {
   return new Response(body, {
     headers: { 'Content-Type': 'application/xml; charset=UTF-8', 'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400' },
   });
+}
+
+/**
+ * Yoast-named sitemap response. Exposed only on the indexable production deploy
+ * (SITE_INDEXABLE): test deploys answer 404 so nothing points crawlers at them.
+ */
+export async function sitemapResponse(load: () => Promise<SitemapRow[]>): Promise<Response> {
+  if (!env.isProduction) return new Response('Not Found', { status: 404, headers: { 'X-Robots-Tag': 'noindex, nofollow' } });
+  return xmlResponse(urlsetXml(await load()));
 }

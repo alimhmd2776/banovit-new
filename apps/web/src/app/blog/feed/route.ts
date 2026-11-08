@@ -35,5 +35,5 @@ ${items}
 </channel>
 </rss>
 `;
-  return new Response(xml, { headers: { 'Content-Type': 'application/rss+xml; charset=UTF-8', 'Cache-Control': 'public, max-age=300, s-maxage=3600' } });
+  return new Response(xml, { headers: { 'Content-Type': 'application/rss+xml; charset=UTF-8', 'Cache-Control': 'public, max-age=300, s-maxage=3600', ...(env.isProduction ? {} : { 'X-Robots-Tag': 'noindex, nofollow' }) } });
 }
