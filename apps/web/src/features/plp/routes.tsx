@@ -124,6 +124,8 @@ export async function BrandPage({ slug, pageParam, sp }: { slug: string; pagePar
       state={state}
       page={page}
       faqs={page === 1 ? brand.faqs : []}
+      logo={brand.logo ?? null}
+      intro={page === 1 ? (brand.description_html ?? null) : null}
       showBrandRow={false}
     />
   );

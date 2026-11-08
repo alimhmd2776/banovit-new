@@ -21,6 +21,9 @@ export type PlpViewProps = {
   descriptionHtml?: string | null;
   faqs: Faq[];
   showBrandRow?: boolean;
+  /** Brand pages: logo beside the H1 and the intro text under it (like live /brand/{slug}/). */
+  logo?: ImageData | null;
+  intro?: string | null;
 };
 
 /**
@@ -42,6 +45,8 @@ export async function PlpView({
   descriptionHtml,
   faqs,
   showBrandRow = true,
+  logo,
+  intro,
 }: PlpViewProps) {
   const { meta } = listing;
   const filtered = hasActiveFilters(state);
@@ -66,12 +71,19 @@ export async function PlpView({
         ) : null}
 
         <header className="space-y-3">
-          <h1 className="text-lg font-bold text-text lg:text-2xl">
+          <div className="flex items-center gap-3">
+            {logo?.url ? (
+              <Image src={logo.url} alt={logo.alt ?? title} width={logo.width ?? 120} height={logo.height ?? 40} className="h-10 w-auto object-contain" />
+            ) : null}
+            <h1 className="text-lg font-bold text-text lg:text-2xl">
             {title}
             {page > 1 ? <span className="ms-2 text-sm font-normal text-text-muted">صفحه {faDigits(page)}</span> : null}
           </h1>
+          </div>
           <Breadcrumb items={crumbs} />
         </header>
+
+        {intro ? <SeoDescription html={intro} title={title} collapsedOnly /> : null}
 
         <SubcategoryCarousel items={subcategories} />
 

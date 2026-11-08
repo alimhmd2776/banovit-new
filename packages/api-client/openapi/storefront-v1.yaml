@@ -1493,6 +1493,8 @@ components:
         name: { type: string }
         slug: { type: string }
         url: { type: string }
+        logo: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }], description: 'pa_brand brand_logo (live upload)' }
+        description_html: { type: [string, 'null'], description: 'Brand intro (WP pa_brand term description)' }
         breadcrumb: { type: array, items: { $ref: '#/components/schemas/BreadcrumbItem' } }
         seo: { $ref: '#/components/schemas/Seo' }
         faqs: { type: array, items: { $ref: '#/components/schemas/Faq' } }

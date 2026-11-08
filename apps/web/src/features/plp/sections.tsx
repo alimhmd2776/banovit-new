@@ -68,19 +68,22 @@ export function BrandRow({ facet, title }: { facet: Facet | undefined; title: st
  * Category SEO text. Full text is always in the HTML (indexable); it is
  * visually clamped with a CSS-only «بیشتر بخوانید» toggle.
  */
-export function SeoDescription({ html, title }: { html: string | null | undefined; title: string }) {
+export function SeoDescription({ html, title, collapsedOnly = false }: { html: string | null | undefined; title: string; collapsedOnly?: boolean }) {
   if (!html) return null;
+  const id = collapsedOnly ? 'intro-more' : 'seo-more';
   return (
-    <section aria-labelledby="seo-title">
-      <h2 id="seo-title" className="mb-3 text-base font-bold text-text">
-        {title}
-      </h2>
-      <input type="checkbox" id="seo-more" className="peer sr-only" />
+    <section aria-labelledby={collapsedOnly ? undefined : 'seo-title'} aria-label={collapsedOnly ? `معرفی ${title}` : undefined}>
+      {collapsedOnly ? null : (
+        <h2 id="seo-title" className="mb-3 text-base font-bold text-text">
+          {title}
+        </h2>
+      )}
+      <input type="checkbox" id={id} className="peer sr-only" />
       <div
         className="relative max-h-32 overflow-hidden text-[13px] leading-7 text-text-muted after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-12 after:bg-gradient-to-t after:from-surface peer-checked:max-h-none peer-checked:after:hidden [&_a]:text-primary [&_h2]:mb-2 [&_h2]:mt-4 [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-text [&_h3]:mt-3 [&_h3]:font-bold [&_h3]:text-text [&_li]:ms-5 [&_li]:list-disc [&_p]:mb-3"
         dangerouslySetInnerHTML={{ __html: html }}
       />
-      <label htmlFor="seo-more" className="mt-1 inline-block cursor-pointer text-[13px] font-bold text-primary underline underline-offset-4 peer-checked:hidden">
+      <label htmlFor={id} className="mt-1 inline-block cursor-pointer text-[13px] font-bold text-primary underline underline-offset-4 peer-checked:hidden">
         بیشتر بخوانید
       </label>
     </section>

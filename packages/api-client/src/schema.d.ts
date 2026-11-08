@@ -1242,6 +1242,10 @@ export interface components {
             name: string;
             slug: string;
             url: string;
+            /** @description pa_brand brand_logo (live upload) */
+            logo?: components["schemas"]["Image"] | null;
+            /** @description Brand intro (WP pa_brand term description) */
+            description_html?: string | null;
             breadcrumb: components["schemas"]["BreadcrumbItem"][];
             seo: components["schemas"]["Seo"];
             faqs: components["schemas"]["Faq"][];
