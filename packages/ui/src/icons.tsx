@@ -81,5 +81,4 @@ export const IconDots4 = make(<><circle cx="7.5" cy="7.5" r="2.5" /><circle cx="
 // Seller profile (sellers thread)
 export const IconTrend = make(<><path d="M4 18h16" /><path d="M5 14l4-4 3 3 6-6" /><path d="M15 7h3v3" /></>, 'IconTrend');
 export const IconClock = make(<><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></>, 'IconClock');
-export const IconMapPin = make(<><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z" /><circle cx="12" cy="10" r="2.3" /></>, 'IconMapPin');
 export const IconVerified = make(<><path d="M12 3l2.1 1.6 2.6-.2.8 2.5 2.2 1.4-.8 2.5.8 2.5-2.2 1.4-.8 2.5-2.6-.2L12 21l-2.1-1.6-2.6.2-.8-2.5-2.2-1.4.8-2.5-.8-2.5 2.2-1.4.8-2.5 2.6.2z" fill="currentColor" stroke="none" /><path d="M9 12l2 2 4-4" stroke="var(--color-on-primary)" /></>, 'IconVerified');

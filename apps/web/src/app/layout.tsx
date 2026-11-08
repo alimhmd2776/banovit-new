@@ -19,6 +19,14 @@ export const metadata: Metadata = {
   title: { default: 'بانویت', template: '%s - بانویت' },
   // Non-production deploys are never indexed (pages may still set stricter robots).
   robots: env.isProduction ? undefined : { index: false, follow: false },
+  // Original live site icons (WP site_icon), added under public/brand/.
+  icons: {
+    icon: [
+      { url: '/brand/site-icon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/brand/site-icon-192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [{ url: '/brand/site-icon-180x180.png', sizes: '180x180', type: 'image/png' }],
+  },
 };
 
 export const viewport: Viewport = {

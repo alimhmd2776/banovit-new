@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Category, Facet } from '@banovit/api-client';
-import { faDigits, IconBox } from '@banovit/ui';
+import { faDigits } from '@banovit/ui';
 
 /** Horizontal subcategory rail (scroll-snap on mobile, wraps into a row on desktop). */
 export function SubcategoryCarousel({ items }: { items: Category['children'] }) {
@@ -16,11 +16,7 @@ export function SubcategoryCarousel({ items }: { items: Category['children'] }) 
               className="flex w-[88px] flex-col items-center gap-2 rounded-md p-1 text-center hover:bg-surface lg:w-[104px]"
             >
               <span className="relative flex size-[72px] items-center justify-center overflow-hidden rounded-full border border-border bg-surface lg:size-20">
-                {c.image ? (
-                  <Image src={c.image.url} alt="" fill sizes="80px" className="object-contain p-2" />
-                ) : (
-                  <IconBox size={28} className="text-text-subtle" />
-                )}
+                {c.image ? <Image src={c.image.url} alt={c.image.alt ?? ''} fill sizes="80px" className="object-cover" /> : null}
               </span>
               <span className="line-clamp-2 text-xs leading-5 text-text">{c.name}</span>
               <span className="sr-only">{faDigits(c.product_count)} کالا</span>
@@ -88,25 +84,10 @@ export function SeoDescription({ html, title }: { html: string | null | undefine
   );
 }
 
-/** Box-with-magnifier illustration for the empty state (inline, token colors). */
-function EmptyIllustration() {
-  return (
-    <svg width="132" height="112" viewBox="0 0 132 112" aria-hidden="true" className="mb-4">
-      <ellipse cx="62" cy="102" rx="46" ry="6" fill="var(--color-surface-muted)" />
-      <path d="M22 38l40-18 40 18-40 18z" fill="var(--brand-100)" />
-      <path d="M22 38v40l40 18V56z" fill="var(--brand-200)" />
-      <path d="M102 38v40L62 96V56z" fill="var(--brand-300)" />
-      <path d="M22 38l-10 14 40 18 10-14z" fill="var(--brand-50)" stroke="var(--brand-200)" />
-      <circle cx="96" cy="44" r="16" fill="var(--color-surface)" stroke="var(--color-primary)" strokeWidth="5" />
-      <path d="M107 56l12 12" stroke="var(--color-primary)" strokeWidth="7" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 export function EmptyState({ filtered, children }: { filtered: boolean; children?: React.ReactNode }) {
   return (
     <div className="flex flex-col items-center px-6 py-16 text-center">
-      <EmptyIllustration />
+      {/* The 3D «no results» illustration of the design is not exported yet; slot left empty on purpose. */}
       <h2 className="text-base font-bold text-text">{filtered ? 'محصولی با این مشخصات پیدا نکردیم' : 'فعلاً محصولی در این دسته نیست'}</h2>
       <p className="mt-2 max-w-sm text-xs leading-6 text-text-muted">
         {filtered ? 'پیشنهاد می‌کنیم تغییراتی در فیلتر نمایش انجام دهید.' : 'به‌زودی محصولات این دسته اضافه می‌شوند. بقیه محصولات را در فروشگاه ببینید.'}
