@@ -31,6 +31,10 @@ export type PaymentMethod = Schemas['PaymentMethod'];
 export type OrderSummary = Schemas['OrderSummary'];
 export type PaymentStart = Schemas['PaymentStart'];
 export type PlacedOrder = Schemas['PlacedOrder'];
+export type Menu = Schemas['Menu'];
+export type MenuItem = Schemas['MenuItem'];
+export type MenuPromo = Schemas['MenuPromo'];
+export type MenuKey = operations['getMenu']['parameters']['path']['key'];
 
 export type ListingParams = NonNullable<operations['listCategoryProducts']['parameters']['query']>;
 
@@ -170,6 +174,7 @@ export function createStorefrontClient(opts: ClientOptions) {
         authority,
         status,
       }).then((r) => r.data),
+    getMenu: (key: MenuKey, init?: RequestOptions) => get<{ data: Menu }>(`/menus/${key}`, init).then((r) => r.data),
   };
 }
 
