@@ -26,7 +26,7 @@ export default async function SupportTopicPage({ params }: { params: Promise<{ t
           </div>
         ))}
       </dl>
-      <div className="sticky bottom-0 bg-surface py-4 lg:static">
+      <div className="sticky bottom-[calc(var(--bottom-nav-height)+16px)] bg-surface py-4 lg:static">
         <Link href={next} className="flex h-12 w-full items-center justify-center rounded-md bg-primary text-base font-bold text-primary-on hover:bg-primary-hover lg:w-60">
           {topic.needsOrder ? 'انتخاب سفارش' : 'ثبت درخواست'}
         </Link>

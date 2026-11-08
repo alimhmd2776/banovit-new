@@ -23,8 +23,8 @@ const items = [
 /** Floating rounded mobile bottom navigation (hidden from lg). Catalog pages activate «دسته‌کالا», like the live site. */
 export function BottomNav() {
   const pathname = usePathname() ?? '/';
-  // Checkout steps have their own sticky action bar (focus on finishing the order).
-  if (pathname.startsWith('/checkout')) return null;
+  // Checkout steps and the support ticket chat (its reply box sits at the bottom, design account/39).
+  if (pathname.startsWith('/checkout') || pathname.startsWith('/my-account/support/tickets/')) return null;
   return (
     <nav aria-label="منوی پایین" className="fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-sticky lg:hidden">
       <ul className="grid h-bottom-nav grid-cols-5 rounded-lg border border-border bg-surface shadow-lg">
