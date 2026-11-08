@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Address, Cart, CartLine } from '@banovit/api-client';
 import { BottomSheet, cx, faDigits, formatToman, IconBox, IconChevronLeft, IconMapPin, IconTool, Switch } from '@banovit/ui';
-import { lineDetails } from '@/features/cart/CartLineCard';
+import { lineDetailsWithSeller } from '@/features/cart/CartLineCard';
 
 /** «آدرس تحویل» card; red empty state when no address yet. */
 export function AddressCard({ address, onEdit }: { address: Address | null; onEdit: () => void }) {
@@ -202,7 +202,7 @@ export function OrderItems({ cart }: { cart: Cart }) {
               <Thumb line={l} size={52} />
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold text-text">{l.product.name}</p>
-                <p className="mt-1 text-xs text-text-muted">{[...lineDetails(l), `${faDigits(l.quantity)} عدد`].join(' • ')}</p>
+                <p className="mt-1 text-xs text-text-muted">{[...lineDetailsWithSeller(l), `${faDigits(l.quantity)} عدد`].join(' • ')}</p>
               </div>
             </li>
           ))}

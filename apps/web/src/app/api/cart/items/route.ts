@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 const int = (v: unknown) => (typeof v === 'number' && Number.isInteger(v) ? v : typeof v === 'string' && /^\d+$/.test(v) ? Number(v) : undefined);
 
-/** Add to cart. Body: {product_id, variation_id|variant_id, quantity, installation?, addon_ids?} */
+/** Add to cart. Body: {product_id, variation_id|variant_id, quantity, installation?, addon_ids?, seller?} */
 export async function POST(req: NextRequest) {
   const b = await readJson(req);
   const productId = int(b.product_id);
@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
       variation_id: int(b.variation_id) ?? int(b.variant_id) ?? null,
       quantity: int(b.quantity) ?? 1,
       installation: typeof b.installation === 'boolean' ? b.installation : undefined,
+      seller: typeof b.seller === 'string' && b.seller ? b.seller.slice(0, 191) : null,
       addon_ids: Array.isArray(b.addon_ids) ? b.addon_ids.map(int).filter((x): x is number => x !== undefined) : undefined,
     });
     return cartResponse(cart, 201);
