@@ -1078,7 +1078,18 @@ components:
             properties:
               network: { type: string, enum: [whatsapp, telegram, instagram, bale, rubika, eitaa, aparat, linkedin] }
               url: { type: string }
-        seo: { $ref: '#/components/schemas/Seo' }
+              icon: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }], description: Original file from live wp-content/uploads; null = no file on live }
+        logo: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }], description: Brand mark (live upload) for the intro and map pin }
+        seo:
+          allOf:
+            - $ref: '#/components/schemas/Seo'
+            - type: object
+              properties:
+                og_type: { type: string, enum: [article, website] }
+                h1: { type: [string, 'null'], description: Live page has none }
+                json_ld:
+                  description: JSON-LD blocks rendered verbatim (live parity); null = generated
+                  oneOf: [{ type: array, items: { type: object, additionalProperties: true } }, { type: 'null' }]
     CallbackRequest:
       type: object
       required: [phone]

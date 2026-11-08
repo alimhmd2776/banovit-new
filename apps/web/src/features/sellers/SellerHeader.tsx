@@ -18,7 +18,16 @@ function Logo({ seller, className }: { seller: Seller; className: string }) {
   if (!seller.logo) return null;
   return (
     <span className={`relative block shrink-0 overflow-hidden rounded-lg bg-surface-muted ${className}`}>
-      <Image src={seller.logo.url} alt={seller.logo.alt ?? seller.name} fill priority sizes="112px" className="object-cover" />
+      <Image
+        src={seller.logo.url}
+        alt={seller.logo.alt ?? seller.name}
+        fill
+        priority
+        sizes="112px"
+        // SVG logos (the live Banovit logo is one) are served as-is: the optimizer does not rasterize SVG.
+        unoptimized={/\.svg(\?|$)/i.test(seller.logo.url)}
+        className="object-contain"
+      />
     </span>
   );
 }

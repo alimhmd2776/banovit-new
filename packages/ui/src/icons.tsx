@@ -76,14 +76,6 @@ export const IconMail = make(<><rect x="3" y="5" width="18" height="14" rx="2" /
 export const IconNavigation = make(<path d="M12 3l7 18-7-4-7 4z" />, 'IconNavigation');
 export const IconCheckCircle = make(<><circle cx="12" cy="12" r="8.5" /><path d="M8.5 12.5l2.5 2.5 4.5-5" /></>, 'IconCheckCircle');
 
-/* social networks (simplified marks, single color) */
-export const IconWhatsapp = make(
-  <><path d="M4 20l1.2-3.9A8.5 8.5 0 1 1 8 19z" /><path d="M9.2 8.6c.2-.5.6-.5.9-.5.3 0 .5.6.8 1.3.1.3-.4.8-.5 1 .4 1 1.2 1.8 2.2 2.3.2-.2.6-.7.9-.6.6.2 1.3.5 1.3.8 0 .7-.7 1.4-1.4 1.4-2.3 0-5-2.6-4.9-4.8 0-.3.2-.6.7-.9z" fill="currentColor" stroke="none" /></>,
-  'IconWhatsapp',
-);
-export const IconTelegram = make(<><circle cx="12" cy="12" r="9" fill="currentColor" stroke="none" /><path d="M7 11.8l9-3.6-1.5 8-3.2-2.4-1.6 1.6.2-2.6 3.8-3.6-5 3z" fill="var(--color-surface, #fff)" stroke="none" /></>, 'IconTelegram');
-export const IconInstagram = make(<><rect x="4" y="4" width="16" height="16" rx="4.5" /><circle cx="12" cy="12" r="3.6" /><circle cx="16.8" cy="7.2" r="0.9" fill="currentColor" stroke="none" /></>, 'IconInstagram');
-export const IconBale = make(<><circle cx="12" cy="12" r="8.5" /><path d="M8 9.5c1.3-1.4 2.7-1.4 4 0s2.7 1.4 4 0M8 14.5c1.3-1.4 2.7-1.4 4 0s2.7 1.4 4 0" /></>, 'IconBale');
 
 // Header, mega menu and mobile drawer (menu thread)
 export const IconHeart = make(<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />, 'IconHeart');
