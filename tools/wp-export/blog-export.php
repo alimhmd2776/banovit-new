@@ -157,7 +157,7 @@ foreach ($query->posts as $post) {
         'old_slugs' => array_values(array_filter((array) get_post_meta($post->ID, '_wp_old_slug'))),
         'comments' => array_map(fn ($c) => [
             'id' => (int) $c->comment_ID, 'parent' => (int) $c->comment_parent, 'author' => $c->comment_author,
-            'email' => $c->comment_author_email, 'content' => $c->comment_content, 'date_gmt' => $c->comment_date_gmt,
+            'content' => $c->comment_content, 'date_gmt' => $c->comment_date_gmt,
             'approved' => $c->comment_approved,
         ], get_comments(['post_id' => $post->ID, 'status' => 'all', 'type' => 'comment'])),
     ];
