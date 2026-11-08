@@ -775,6 +775,157 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/blog/home": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Everything the /blog/ landing renders */
+        get: operations["getBlogHome"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Visible posts, newest first (category includes child categories, like WordPress) */
+        get: operations["listBlogPosts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/posts/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Single post (/blog/{slug}/). A renamed post answers 404 with error.code=moved and error.location. */
+        get: operations["getBlogPost"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/posts/{slug}/views": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** View counter (one per IP and post per 30 minutes) */
+        post: operations["countBlogPostView"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** All blog categories with visible post counts */
+        get: operations["listBlogCategories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/categories/{path}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Category archive data (/blog/category/{path}/) */
+        get: operations["getBlogCategory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/tags/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBlogTag"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/authors/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getBlogAuthor"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/sitemap/{type}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Rows for post-sitemap.xml, category-sitemap.xml, post_tag-sitemap.xml, author-sitemap.xml (noindex rows excluded) */
+        get: operations["getBlogSitemap"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1325,6 +1476,8 @@ export interface components {
             error: {
                 code: string;
                 message: string;
+                /** @description Only with code=moved: the current URL (answer with a 301) */
+                location?: string;
                 fields?: {
                     [key: string]: string[];
                 };
@@ -1747,6 +1900,178 @@ export interface components {
         TicketDetail: components["schemas"]["TicketSummary"] & {
             messages: components["schemas"]["TicketMessage"][];
             can_reply: boolean;
+        };
+        Crumb: {
+            name: string;
+            url: string;
+        };
+        BlogCategoryRef: {
+            id: number;
+            name: string;
+            slug: string;
+            path: string;
+            url: string;
+        };
+        BlogCategoryTab: components["schemas"]["BlogCategoryRef"] & {
+            parent_id: number | null;
+            post_count: number;
+        };
+        BlogAuthorRef: {
+            name: string;
+            slug: string;
+            url: string;
+            avatar?: components["schemas"]["Image"] | null;
+        };
+        BlogPostCard: {
+            id: number;
+            slug: string;
+            url: string;
+            title: string;
+            excerpt: string;
+            cover: components["schemas"]["Image"] | null;
+            category: components["schemas"]["BlogCategoryRef"] | null;
+            author: components["schemas"]["BlogAuthorRef"] | null;
+            /** Format: date-time */
+            published_at: string | null;
+            /** Format: date-time */
+            updated_at: string | null;
+            reading_minutes: number;
+            views: number;
+        };
+        BlogAuthor: {
+            name: string;
+            slug: string;
+            url: string;
+            job_title: string | null;
+            bio: string | null;
+            avatar: components["schemas"]["Image"] | null;
+            social: {
+                [key: string]: string;
+            };
+        };
+        BlogAuthorPage: components["schemas"]["BlogAuthor"] & {
+            breadcrumb: components["schemas"]["Crumb"][];
+            seo: components["schemas"]["Seo"];
+        };
+        BlogHtmlBlock: {
+            /** @constant */
+            type: "html";
+            /** @description Sanitized HTML; h2/h3 carry the ids used by toc */
+            html: string;
+        };
+        BlogProductsBlock: {
+            /** @constant */
+            type: "products";
+            props: {
+                /** @enum {string} */
+                layout: "card" | "carousel";
+                title?: string | null;
+                subtitle?: string | null;
+                products: components["schemas"]["ProductCard"][];
+            };
+        };
+        BlogNoteBlock: {
+            /** @constant */
+            type: "note";
+            props: {
+                title?: string;
+                variant?: string;
+                html?: string;
+            };
+        };
+        BlogBlock: components["schemas"]["BlogHtmlBlock"] | components["schemas"]["BlogProductsBlock"] | components["schemas"]["BlogNoteBlock"];
+        TocItem: {
+            id: string;
+            text: string;
+            /** @enum {integer} */
+            level: 2 | 3;
+        };
+        BlogFaq: {
+            question: string;
+            answer_html: string;
+        };
+        BlogBanner: {
+            image: components["schemas"]["Image"];
+            url?: string | null;
+        };
+        BlogPost: components["schemas"]["BlogPostCard"] & {
+            summary_html: string | null;
+            blocks: components["schemas"]["BlogBlock"][];
+            toc: components["schemas"]["TocItem"][];
+            categories: components["schemas"]["BlogCategoryRef"][];
+            tags: {
+                name: string;
+                slug: string;
+                url: string;
+            }[];
+            author_profile: components["schemas"]["BlogAuthor"] | null;
+            faqs: components["schemas"]["BlogFaq"][];
+            related_products: components["schemas"]["ProductCard"][];
+            related_posts: components["schemas"]["BlogPostCard"][];
+            breadcrumb: components["schemas"]["Crumb"][];
+            banner: components["schemas"]["BlogBanner"] | null;
+            /** @enum {string} */
+            schema_type: "BlogPosting" | "Article" | "NewsArticle";
+            word_count: number;
+            seo: components["schemas"]["Seo"];
+        };
+        BlogCategory: components["schemas"]["BlogCategoryRef"] & {
+            description_html: string | null;
+            image: components["schemas"]["Image"] | null;
+            children: components["schemas"]["BlogCategoryRef"][];
+            breadcrumb: components["schemas"]["Crumb"][];
+            seo: components["schemas"]["Seo"];
+        };
+        BlogTerm: {
+            name: string;
+            slug: string;
+            url: string;
+            description_html: string | null;
+            breadcrumb: components["schemas"]["Crumb"][];
+            seo: components["schemas"]["Seo"];
+        };
+        BlogPostListing: {
+            data: components["schemas"]["BlogPostCard"][];
+            meta: {
+                page: number;
+                per_page: number;
+                total: number;
+                last_page: number;
+            };
+            links: {
+                next?: number | null;
+                prev?: number | null;
+            };
+        };
+        BlogSection: {
+            key?: string;
+            title: string;
+            subtitle?: string | null;
+            category?: components["schemas"]["BlogCategoryRef"];
+            posts: components["schemas"]["BlogPostCard"][];
+        };
+        BlogHome: {
+            hero: components["schemas"]["BlogPostCard"][];
+            categories: components["schemas"]["BlogCategoryTab"][];
+            popular: components["schemas"]["BlogSection"];
+            latest: components["schemas"]["BlogSection"];
+            sections: components["schemas"]["BlogSection"][];
+            promo: null | {
+                title: string;
+                text?: string | null;
+                cta?: string | null;
+                url: string;
+            };
+            all: components["schemas"]["BlogSection"] & {
+                total: number;
+            };
+            seo: components["schemas"]["Seo"];
+        };
+        SitemapRow: {
+            url: string;
+            /** Format: date-time */
+            lastmod: string | null;
+            images: string[];
         };
     };
     responses: {
@@ -3448,6 +3773,233 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    getBlogHome: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Blog landing */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogHome"];
+                    };
+                };
+            };
+        };
+    };
+    listBlogPosts: {
+        parameters: {
+            query?: {
+                page?: number;
+                per_page?: number;
+                /** @description Category path, e.g. toilet/wallhang */
+                category?: string;
+                tag?: string;
+                author?: string;
+                /** @description Search in title/excerpt */
+                q?: string;
+                sort?: "latest" | "popular";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Posts */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BlogPostListing"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getBlogPost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Post */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogPost"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    countBlogPostView: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Counted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+            /** @description Already counted */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listBlogCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Categories */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogCategoryTab"][];
+                    };
+                };
+            };
+        };
+    };
+    getBlogCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                path: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Category */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogCategory"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getBlogTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tag */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogTerm"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getBlogAuthor: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Author */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogAuthorPage"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getBlogSitemap: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                type: "posts" | "categories" | "tags" | "authors";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Rows */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SitemapRow"][];
+                    };
+                };
             };
         };
     };
