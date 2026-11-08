@@ -1,6 +1,6 @@
 import 'server-only';
 import { cache } from 'react';
-import { createStorefrontClient, StorefrontApiError, type BlogListParams, type BlogSitemapType, type ListingParams } from '@banovit/api-client';
+import { createStorefrontClient, StorefrontApiError, type BlogListParams, type BlogSitemapType, type ListingParams, type Menu, type MenuKey } from '@banovit/api-client';
 import { env } from '@/lib/env';
 
 /**
@@ -67,6 +67,37 @@ export function movedLocation(e: unknown): string | null {
   return e instanceof StorefrontApiError && e.code === 'moved' && e.location ? e.location : null;
 }
 
+export const getProduct = cache(async (slug: string) =>
+  client.getProduct(slug, { next: { tags: ['products', `product-slug:${slug}`], revalidate: REVALIDATE } }),
+);
+
+/** Uncached: used by the BFF route the browser polls after the (CDN-cached) page loads. */
+export const storefront = client;
+/**
+ * CMS-managed navigation (header, mega menu, mobile sheets). Never throws: a
+ * CMS outage renders the header without that menu instead of failing the page.
+ */
+export const getMenu = cache(async (key: MenuKey): Promise<Menu> => {
+  try {
+    return await client.getMenu(key, { next: { tags: ['menu', `menu:${key}`], revalidate: 600 } });
+  } catch (e) {
+    console.error(`menu ${key} unavailable`, e);
+    return { key, name: '', items: [] };
+  }
+});
+
 export function isNotFound(e: unknown): boolean {
   return e instanceof StorefrontApiError && e.status === 404;
 }
+
+export const getSeller = cache(async (slug: string) =>
+  client.getSeller(slug, { next: { tags: ['sellers', `seller:${slug}`], revalidate: REVALIDATE } }),
+);
+
+export const listSellerProducts = cache(async (slug: string, params: ListingParams) =>
+  client.listSellerProducts(slug, params, { next: { tags: ['products', `seller:${slug}`], revalidate: 300 } }),
+);
+
+export const listSellerReviews = cache(async (slug: string, page = 1) =>
+  client.listSellerReviews(slug, page, { next: { tags: ['reviews', `seller:${slug}`], revalidate: REVALIDATE } }),
+);

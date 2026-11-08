@@ -2,7 +2,7 @@
  * Listing URL <-> API params. The storefront keeps the live WordPress filter
  * query format so existing links, ads and GSC history keep working:
  *
- *   ?orderby=date|popularity|rating|price|price-desc
+ *   ?orderby=menu_order|date|popularity|rating|price|price-desc|featured
  *   ?filter_brand=alka,golsar   (cwa_brand accepted as an alias)
  *   ?filter_color=white         -> API facet pa_color
  *   ?min_price=&max_price=      in toman, like the live site (API speaks rial)
@@ -24,6 +24,8 @@ export type ListingState = {
 export const DEFAULT_SORT: SortKey = 'newest';
 
 const ORDERBY_TO_SORT: Record<string, SortKey> = {
+  menu_order: 'relevant',
+  featured: 'featured',
   date: 'newest',
   popularity: 'popular',
   rating: 'rating',
