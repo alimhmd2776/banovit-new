@@ -1626,6 +1626,8 @@ export interface components {
             installation?: boolean;
             /** @description PDP add-on option ids (installation service) */
             addon_ids?: number[];
+            /** @description Storefront seller slug; null/absent = Banovit itself. 422 seller_offer_unavailable when that seller has no live offer */
+            seller?: string | null;
         };
         CartUpdate: {
             packaging?: boolean;
@@ -1642,6 +1644,11 @@ export interface components {
         };
         CartLine: {
             id: number;
+            /** @description Marketplace seller of this line; null = Banovit itself */
+            seller?: {
+                slug: string;
+                name: string;
+            } | null;
             product: {
                 id: number;
                 name: string;
