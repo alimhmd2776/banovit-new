@@ -17,6 +17,7 @@
 - [docs/05-conventions.md](docs/05-conventions.md): قراردادهای API، کامپوننت، ریسپانسیو و روال thread هر صفحه
 - [docs/06-infra-stage2.md](docs/06-infra-stage2.md): ساب‌دامین‌ها و استقرار روی stage2
 - [audit/inventory.md](audit/inventory.md): فهرست کامل سایت فعلی (لایو + stage2)
+- [audit/cms-wordpress-integration.md](audit/cms-wordpress-integration.md): CMS تا امروز چطور از وردپرس داده می‌گیرد و سرنوشت هر کانال
 - `audit/data/url-inventory.csv`: همه ۱۸۷۲ آدرس نقشه سایت لایو (۲۰۲۶-۱۱-۰۸)
 - `audit/data/yoast-redirects.json`: ۱۸۱ ریدایرکت Yoast Premium
 
