@@ -541,8 +541,21 @@ export interface components {
                 /** @enum {string} */
                 network: "whatsapp" | "telegram" | "instagram" | "bale" | "rubika" | "eitaa" | "aparat" | "linkedin";
                 url: string;
+                /** @description Original file from live wp-content/uploads; null = no file on live */
+                icon?: components["schemas"]["Image"] | null;
             }[];
-            seo: components["schemas"]["Seo"];
+            /** @description Brand mark (live upload) for the intro and map pin */
+            logo?: components["schemas"]["Image"] | null;
+            seo: components["schemas"]["Seo"] & {
+                /** @enum {string} */
+                og_type?: "article" | "website";
+                /** @description Live page has none */
+                h1?: string | null;
+                /** @description JSON-LD blocks rendered verbatim (live parity); null = generated */
+                json_ld?: {
+                    [key: string]: unknown;
+                }[] | null;
+            };
         };
         CallbackRequest: {
             /** @description Iranian mobile */

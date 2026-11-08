@@ -21,7 +21,8 @@ const settings: ContactSettings = {
   ],
   map: { lat: 35.7, lng: 51.3, zoom: 16, pin_label: 'بانویت', image: null, neshan_url: null, directions_url: 'https://www.google.com/maps/dir/?api=1&destination=35.7,51.3' },
   form: { title: 'درخواست مشاوره', message_placeholder: null, submit_label: 'ارسال درخواست', success_message: 'ثبت شد' },
-  socials: [{ network: 'instagram', url: 'https://instagram.com/banovit' }],
+  socials: [{ network: 'instagram', url: 'https://instagram.com/banovit', icon: null }],
+  logo: null,
   seo: { title: 'تماس با ما - بانویت', description: null, canonical: 'https://banovit.com/contact-us/', robots: 'index, follow', og_title: null, og_description: null, og_image: null },
 };
 

@@ -6,7 +6,7 @@ import type { ContactSettings } from '@banovit/api-client';
  * enriched with contact points, addresses and social profiles, a LocalBusiness
  * for the primary address (phones, hours, geo) and the breadcrumb.
  */
-export function contactJsonLd(s: ContactSettings, origin: string, logoUrl: string) {
+export function contactJsonLd(s: ContactSettings, origin: string, logoUrl: string | null) {
   const url = `${origin}${s.path}`;
   const orgId = `${origin}/#organization`;
   const address = (l: ContactSettings['locations'][number]) => ({
@@ -41,8 +41,8 @@ export function contactJsonLd(s: ContactSettings, origin: string, logoUrl: strin
         '@id': orgId,
         name: 'بانویت',
         url: `${origin}/`,
-        logo: { '@type': 'ImageObject', '@id': `${origin}/#/schema/logo/image/`, url: logoUrl, contentUrl: logoUrl, caption: 'بانویت' },
-        image: { '@id': `${origin}/#/schema/logo/image/` },
+        logo: logoUrl ? { '@type': 'ImageObject', '@id': `${origin}/#/schema/logo/image/`, url: logoUrl, contentUrl: logoUrl, caption: 'بانویت' } : undefined,
+        image: logoUrl ? { '@id': `${origin}/#/schema/logo/image/` } : undefined,
         email: s.email ?? undefined,
         telephone: telephones[0],
         address: s.locations.map(address),
@@ -61,7 +61,7 @@ export function contactJsonLd(s: ContactSettings, origin: string, logoUrl: strin
         '@id': `${origin}/#localbusiness`,
         name: 'بانویت',
         url: `${origin}/`,
-        image: logoUrl,
+        image: logoUrl ?? undefined,
         parentOrganization: { '@id': orgId },
         telephone: telephones[0],
         email: s.email ?? undefined,
