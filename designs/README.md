@@ -79,3 +79,49 @@ From the project chat uploads (2026-11-08).
 | 08-signup-name-filled-mobile.jpg | same, filled (floating labels) | Design-5.jpg |
 
 From "Banovit interface 3.zip" (2026-11-08). The OTP frames show 6 boxes, but per Ali the code is **4 digits** (same as the live site), so the UI renders 4. No desktop frame was provided — desktop is a centered card with the same content.
+
+## account/ — حساب کاربری مشتری (mobile, 393px)
+
+| File | Screen | Original export |
+|---|---|---|
+| 01-dashboard-home-mobile.jpg | پروفایل — داشبورد حساب: نام/موبایل، کارت‌های سفارشات من و پشتیبانی، منوی خرید و سفارش، خدمات بانویت | Design-25.jpg |
+| 02-profile-info-verified-mobile.jpg | حساب کاربری — اطلاعات کاربری (تایید شده) و اطلاعات تماس، ویرایش | Design-1.jpg |
+| 03-profile-info-identity-incomplete-mobile.jpg | حساب کاربری — بنر «احراز هویت شما تکمیل نیست» + ثبت اطلاعات شناسایی | Design-2.jpg |
+| 04-orders-current-mobile.jpg | سفارش ها — تب جاری ها، کارت سفارش با وضعیت و نوار پیشرفت | Design-3.jpg |
+| 05-orders-delivered-mobile.jpg | سفارش ها — تب تحویلی ها | Design-23.jpg |
+| 06-orders-cancelled-mobile.jpg | سفارش ها — تب لغو ها (درحال بررسی / لغو شده - واریزی عودت شد) | Design-24.jpg |
+| 07-orders-search-mobile.jpg | سفارش ها — جستجو با شماره سفارش | Design-4.jpg |
+| 08-orders-empty-mobile.jpg | سفارش ها — خالی | Design-5.jpg |
+| 09-order-detail-mobile.jpg | جزئیات سفارش — مراحل، اطلاعات تحویل گیرنده، اقلام، امتیازدهی، دریافت فاکتور | Design.jpg |
+| 10-wishlist-empty-mobile.jpg | علاقه‌مندی ها — خالی | Design-26.jpg |
+| 11-wishlist-filled-mobile.jpg | علاقه‌مندی ها — فهرست، سوییچ اطلاع رسانی، افزودن به سبد | Design-27.jpg |
+| 12-recent-views-empty-mobile.jpg | بازدید های اخیر — خالی | Design-28.jpg |
+| 13-recent-views-list-mobile.jpg | بازدید های اخیر — فهرست | Design-32.jpg |
+| 14-recent-views-search-mobile.jpg | بازدید های اخیر — جستجو | Design-33.jpg |
+| 15-reviews-list-mobile.jpg | دیدگاه های من — فهرست | Design-17.jpg |
+| 16-reviews-list-alt-mobile.jpg | دیدگاه های من — فهرست (نسخه تکراری) | Design-18.jpg |
+| 17-reviews-search-mobile.jpg | دیدگاه های من — جستجو | Design-21.jpg |
+| 18-reviews-search-alt-mobile.jpg | دیدگاه های من — جستجو (نسخه تکراری) | Design-22.jpg |
+| 19-reviews-empty-mobile.jpg | دیدگاه های من — خالی | Design-29.jpg |
+| 20-reviews-empty-alt-mobile.jpg | دیدگاه های من — خالی (نسخه تکراری) | Design-30.jpg |
+| 21-addresses-list-mobile.jpg | آدرس ها — فهرست با نقشه آدرس انتخاب‌شده، منوی ... | Design-19.jpg |
+| 22-addresses-empty-mobile.jpg | آدرس ها — خالی | Design-31.jpg |
+| 23-address-edit-mobile.jpg | ویرایش آدرس ها — نقشه، جزئیات، پلاک، واحد، عنوان | Design-20.jpg |
+| 24-address-map-pick-mobile.jpg | انتخاب موقعیت مکانی — پین روی نقشه | Design-37.jpg |
+| 25-address-map-search-mobile.jpg | انتخاب موقعیت مکانی — نتایج جستجو | Design-36.jpg |
+| 26-notifications-empty-mobile.jpg | اعلانات من — خالی | Design-11.jpg |
+| 27-notifications-list-mobile.jpg | اعلانات من — همه پیام (سفارشات، محصولات) | Design-38.jpg |
+| 28-support-home-mobile.jpg | پشتیبانی بانویت — خانه و موضوعات راهنما | Design-6.jpg |
+| 29-support-search-no-result-mobile.jpg | پشتیبانی — جستجو بدون نتیجه | Design-7.jpg |
+| 30-support-topic-orders-mobile.jpg | سفارشات و پیگیری — متن راهنما + انتخاب سفارش | Design-12.jpg |
+| 31-support-select-order-mobile.jpg | انتخاب سفارش | Design-13.jpg |
+| 32-support-report-empty-mobile.jpg | ثبت گزارش — فرم خالی (توضیحات، محتوای عکسی) | Design-15.jpg |
+| 33-support-report-filled-mobile.jpg | ثبت گزارش — فرم پر | Design-14.jpg |
+| 34-support-report-success-mobile.jpg | ثبت گزارش موفق | Design-16.jpg |
+| 35-support-tickets-in-review-mobile.jpg | پشتیبانی — تب درحال بررسی | Design-34.jpg |
+| 36-support-tickets-in-review-empty-mobile.jpg | پشتیبانی — درحال بررسی خالی | Design-35.jpg |
+| 37-support-tickets-resolved-mobile.jpg | پشتیبانی — تب بررسی شده | Design-8.jpg |
+| 38-support-tickets-empty-mobile.jpg | پشتیبانی — بدون تیکت + تماس تلفنی | Design-9.jpg |
+| 39-support-ticket-chat-mobile.jpg | گفتگوی تیکت (تاخیر در زمان ارسال) | Design-10.jpg |
+
+From "Banovit interface 4.zip" (2026-11-08). The zip also had 10 files named `Order Title*.jpg` that are blank white images (likely a broken export); they are not committed. No desktop frames were provided.
