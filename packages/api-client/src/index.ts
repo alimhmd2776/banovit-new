@@ -20,10 +20,40 @@ export type Seo = Schemas['Seo'];
 export type Faq = Schemas['Faq'];
 export type SortKey = Schemas['SortKey'];
 export type ApiError = Schemas['Error'];
+export type Cart = Schemas['Cart'];
+export type CartLine = Schemas['CartLine'];
+export type CartTotals = Schemas['CartTotals'];
+export type CartUpdate = Schemas['CartUpdate'];
+export type CartItemCreate = Schemas['CartItemCreate'];
+export type Address = Schemas['Address'];
+export type DeliverySlot = Schemas['DeliverySlot'];
+export type PaymentMethod = Schemas['PaymentMethod'];
+export type OrderSummary = Schemas['OrderSummary'];
+export type PaymentStart = Schemas['PaymentStart'];
+export type PlacedOrder = Schemas['PlacedOrder'];
+export type ProductDetail = Schemas['ProductDetail'];
+export type ProductOption = Schemas['ProductOption'];
+export type ProductVariant = Schemas['ProductVariant'];
+export type ProductAddon = Schemas['ProductAddon'];
+export type ProductLive = Schemas['ProductLive'];
+export type ProductRating = Schemas['ProductRating'];
+export type Review = Schemas['Review'];
+export type ReviewListing = Schemas['ReviewListing'];
+export type Availability = Schemas['Availability'];
 export type Menu = Schemas['Menu'];
 export type MenuItem = Schemas['MenuItem'];
 export type MenuPromo = Schemas['MenuPromo'];
 export type MenuKey = operations['getMenu']['parameters']['path']['key'];
+export type Customer = Schemas['Customer'];
+export type CustomerSession = Schemas['CustomerSession'];
+export type OtpChallenge = Schemas['OtpChallenge'];
+// --- sellers ---
+export type SellerCard = Schemas['SellerCard'];
+export type Seller = Schemas['Seller'];
+export type SellerStats = Schemas['SellerStats'];
+export type OpeningDay = Schemas['OpeningDay'];
+export type SellerReview = Schemas['SellerReview'];
+export type SellerReviewList = Schemas['SellerReviewList'];
 
 export type ListingParams = NonNullable<operations['listCategoryProducts']['parameters']['query']>;
 
@@ -32,6 +62,7 @@ export class StorefrontApiError extends Error {
     public readonly status: number,
     public readonly code: string,
     message: string,
+    public readonly fields?: Record<string, string[]>,
   ) {
     super(message);
     this.name = 'StorefrontApiError';
@@ -43,6 +74,15 @@ export interface ClientOptions {
   /** Sent as X-Storefront-Token by the Next.js server (exempts SSR from the per-IP limit). Never in the browser. */
   internalToken?: string;
   fetch?: typeof fetch;
+}
+
+/** Per-visitor headers for cart/checkout calls (set server-side by the BFF, never by the browser). */
+export interface SessionHeaders {
+  cartToken?: string | null;
+  orderToken?: string | null;
+  clientIp?: string | null;
+  idempotencyKey?: string;
+  authorization?: string | null;
 }
 
 /** Per-request fetch options (e.g. Next.js `next: { tags, revalidate }`). */
@@ -90,20 +130,34 @@ export function createStorefrontClient(opts: ClientOptions) {
     const headers = new Headers(init?.headers);
     headers.set('Accept', 'application/json');
     if (opts.internalToken) headers.set('X-Storefront-Token', opts.internalToken);
+    if (init?.body !== undefined && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
     const res = await doFetch(`${base}${path}`, { ...init, headers });
     if (!res.ok) {
       let code = 'http_error';
       let message = res.statusText;
+      let fields: Record<string, string[]> | undefined;
       try {
         const body = (await res.json()) as ApiError;
         code = body.error.code;
         message = body.error.message;
+        fields = body.error.fields;
       } catch {
         /* non-JSON error body */
       }
-      throw new StorefrontApiError(res.status, code, message);
+      throw new StorefrontApiError(res.status, code, message, fields);
     }
     return (await res.json()) as T;
+  }
+
+  /** Session-bound call (cart/checkout): never cached, carries the cart/order token and visitor IP. */
+  function send<T>(method: string, path: string, session: SessionHeaders, body?: unknown): Promise<T> {
+    const headers = new Headers();
+    if (session.cartToken) headers.set('X-Cart-Token', session.cartToken);
+    if (session.orderToken) headers.set('X-Order-Token', session.orderToken);
+    if (session.clientIp) headers.set('X-Client-IP', session.clientIp);
+    if (session.idempotencyKey) headers.set('Idempotency-Key', session.idempotencyKey);
+    if (session.authorization) headers.set('Authorization', session.authorization);
+    return get<T>(path, { method, headers, cache: 'no-store', body: body === undefined ? undefined : JSON.stringify(body) });
   }
 
   return {
@@ -117,7 +171,43 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: Brand }>(`/brands/${encodePath(slug)}`, init).then((r) => r.data),
     listBrandProducts: (slug: string, params?: Omit<ListingParams, 'brand'>, init?: RequestOptions) =>
       get<ProductListing>(`/brands/${encodePath(slug)}/products${listingQueryString(params)}`, init),
+
+    // cart & checkout (docs/api/cart.md)
+    getCart: (s: SessionHeaders) => send<{ data: Cart }>('GET', '/cart', s).then((r) => r.data),
+    updateCart: (s: SessionHeaders, body: CartUpdate) => send<{ data: Cart }>('PATCH', '/cart', s, body).then((r) => r.data),
+    addCartItem: (s: SessionHeaders, body: CartItemCreate) => send<{ data: Cart }>('POST', '/cart/items', s, body).then((r) => r.data),
+    updateCartItem: (s: SessionHeaders, id: number, body: { quantity?: number; installation?: boolean }) =>
+      send<{ data: Cart }>('PATCH', `/cart/items/${id}`, s, body).then((r) => r.data),
+    removeCartItem: (s: SessionHeaders, id: number) => send<{ data: Cart }>('DELETE', `/cart/items/${id}`, s).then((r) => r.data),
+    applyCoupon: (s: SessionHeaders, code: string) => send<{ data: Cart }>('POST', '/cart/coupon', s, { code }).then((r) => r.data),
+    removeCoupon: (s: SessionHeaders) => send<{ data: Cart }>('DELETE', '/cart/coupon', s).then((r) => r.data),
+    placeOrder: (s: SessionHeaders) => send<{ data: PlacedOrder }>('POST', '/orders', s).then((r) => r.data),
+    getOrder: (s: SessionHeaders, number: string) =>
+      send<{ data: OrderSummary }>('GET', `/orders/${encodeURIComponent(number)}`, s).then((r) => r.data),
+    payOrder: (s: SessionHeaders, number: string, paymentMethod?: string) =>
+      send<{ data: { order: OrderSummary; payment: PaymentStart } }>('POST', `/orders/${encodeURIComponent(number)}/payments`, s, {
+        payment_method: paymentMethod,
+      }).then((r) => r.data),
+    verifyZarinpal: (s: SessionHeaders, authority: string, status: string) =>
+      send<{ data: { paid: boolean; ref_id: string | null; order: OrderSummary } }>('POST', '/payments/zarinpal/verify', s, {
+        authority,
+        status,
+      }).then((r) => r.data),
+    getProduct: (slug: string, init?: RequestOptions) =>
+      get<{ data: ProductDetail }>(`/products/${encodePath(slug)}`, init).then((r) => r.data),
+    getProductLive: (slug: string, init?: RequestOptions) =>
+      get<{ data: ProductLive }>(`/products/${encodePath(slug)}/live`, init).then((r) => r.data),
+    listProductReviews: (slug: string, page = 1, init?: RequestOptions) =>
+      get<ReviewListing>(`/products/${encodePath(slug)}/reviews${page > 1 ? `?page=${page}` : ''}`, init),
     getMenu: (key: MenuKey, init?: RequestOptions) => get<{ data: Menu }>(`/menus/${key}`, init).then((r) => r.data),
+    // --- sellers ---
+    listSellers: (init?: RequestOptions) => get<{ data: SellerCard[] }>('/sellers', init).then((r) => r.data),
+    getSeller: (slug: string, init?: RequestOptions) =>
+      get<{ data: Seller }>(`/sellers/${encodePath(slug)}`, init).then((r) => r.data),
+    listSellerProducts: (slug: string, params?: ListingParams, init?: RequestOptions) =>
+      get<ProductListing>(`/sellers/${encodePath(slug)}/products${listingQueryString(params)}`, init),
+    listSellerReviews: (slug: string, page = 1, init?: RequestOptions) =>
+      get<SellerReviewList>(`/sellers/${encodePath(slug)}/reviews${page > 1 ? `?page=${page}` : ''}`, init),
   };
 }
 

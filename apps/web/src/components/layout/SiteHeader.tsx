@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { cx, IconCart, IconHeart, IconSearch, IconUser } from '@banovit/ui';
 import { getMenu } from '@/lib/api';
 import { siteConfig } from '@/lib/site-config';
+import { CartBadge } from '@/features/cart/CartBadge';
 import { Logo } from '@/features/menu/Logo';
 import { MegaMenu } from '@/features/menu/MegaMenu';
 import { MobileMenu } from '@/features/menu/MobileMenu';
@@ -83,10 +84,11 @@ export async function SiteHeader() {
           <nav aria-label="حساب و سبد" className="flex items-center gap-1 lg:ms-auto lg:gap-3">
             <Link
               href="/cart/"
-              className="inline-flex size-10 items-center justify-center rounded-full text-text hover:bg-surface-muted lg:size-12 lg:rounded-md lg:border lg:border-border"
+              className="relative inline-flex size-10 items-center justify-center rounded-full text-text hover:bg-surface-muted lg:size-12 lg:rounded-md lg:border lg:border-border"
               aria-label="سبد خرید"
             >
               <IconCart />
+              <CartBadge />
             </Link>
             <Link
               href="/my-account/"
