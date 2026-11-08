@@ -1679,7 +1679,7 @@ export interface components {
         };
         CartLine: {
             id: number;
-            /** @description Marketplace seller of this line; null = Banovit itself */
+            /** @description Seller of this line: the marketplace seller, else the house seller profile (admin «فروشندگان», supplier-less row); null only when no house seller profile exists */
             seller?: {
                 slug: string;
                 name: string;
@@ -1752,6 +1752,8 @@ export interface components {
             packaging: components["schemas"]["Money"];
             shipping: components["schemas"]["Money"];
             service_fee: components["schemas"]["Money"];
+            /** @description Row title for service_fee (admin «تنظیمات فروشگاه › سبد و سفارش») */
+            service_fee_label?: string;
             coupon_discount: components["schemas"]["Money"];
             payable: components["schemas"]["Money"];
             savings: components["schemas"]["Money"];
@@ -1812,6 +1814,8 @@ export interface components {
                     description: string;
                     fee: components["schemas"]["Money"];
                     default_selected?: boolean;
+                    /** @description Totals row title for the packaging fee */
+                    fee_label?: string;
                 } | null;
                 installation: {
                     label: string;
