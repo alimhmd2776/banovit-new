@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { faDate, internalHref, localizeLinks, postPagePath } from './format';
+import { faAgo, faDate, internalHref, localizeLinks, mainHeadings, postPagePath } from './format';
 
 describe('blog format', () => {
   it('formats Jalali dates with Persian digits', () => {
@@ -19,5 +19,28 @@ describe('blog format', () => {
   it('builds WordPress-style pagination paths', () => {
     expect(postPagePath('/blog/category/toilet/', 1)).toBe('/blog/category/toilet/');
     expect(postPagePath('/blog/category/toilet/', 3)).toBe('/blog/category/toilet/page/3/');
+  });
+});
+
+describe('mainHeadings', () => {
+  it('keeps only h2 and appends the FAQ section', () => {
+    const items = [
+      { id: 'a', text: 'A', level: 2 },
+      { id: 'a1', text: 'A1', level: 3 },
+      { id: 'b', text: 'B', level: 2 },
+    ];
+    expect(mainHeadings(items, 'سوالات متداول').map((i) => i.id)).toEqual(['a', 'b', 'post-faq']);
+  });
+  it('falls back to the top level when a post has no h2', () => {
+    expect(mainHeadings([{ id: 'x', text: 'X', level: 3 }]).map((i) => i.id)).toEqual(['x']);
+  });
+});
+
+describe('faAgo', () => {
+  it('reads like the live «… پیش»', () => {
+    const now = Date.parse('2026-11-08T12:00:00Z');
+    expect(faAgo('2026-11-04T11:00:00Z', now)).toBe('۴ روز پیش');
+    expect(faAgo('2026-11-08T11:59:30Z', now)).toBe('لحظاتی پیش');
+    expect(faAgo(null)).toBe('');
   });
 });

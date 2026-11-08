@@ -18,7 +18,9 @@ slug قدیمی (در `slug_history`) پاسخ `404` با `error.code = "moved"`
 
 ## بدنه مقاله
 
-`body_html` پاک‌سازی‌شده (allowlist، iframe فقط aparat/youtube) با idهای ثابت روی h2/h3 برای فهرست مطالب. اجزای داخل متن در ویرایشگر به شکل `<figure data-bv-block="products|note|article|quiz|map" data-*>` ذخیره و در API به `blocks` تایپ‌دار باز می‌شوند: `html`، `products` (`layout: card|carousel`، `badge`، `button`، `button_url`، سند کارت از `storefront_product_index`؛ با `data-category`/`data-tag` پرفروش‌های آن دسته، موجودها اول، هنگام درخواست انتخاب می‌شوند)، `note` (`theme: red|green|orange`)، `article` (کارت «مقاله پیشنهادی»؛ اگر نوشته منتشر نباشد حذف می‌شود)، `quiz` (آزمون چهارگزینه‌ای که در مرورگر تصحیح می‌شود)، `map` (lat/lng/label).
+`body_html` پاک‌سازی‌شده (allowlist، iframe فقط aparat/youtube) با idهای ثابت روی h2/h3 برای فهرست مطالب. اجزای داخل متن در ویرایشگر به شکل `<figure data-bv-block="products|note|article|quiz|map" data-*>` ذخیره و در API به `blocks` تایپ‌دار باز می‌شوند: `html`، `products` (`layout: card|carousel`، `badge`، `button`، `button_url`، سند کارت از `storefront_product_index`؛ با `data-category`/`data-tag` پرفروش‌های آن دسته، موجودها اول، هنگام درخواست انتخاب می‌شوند)، `note` (`theme: red|green|orange`)، `article` (کارت «مقاله پیشنهادی»؛ اگر نوشته منتشر نباشد حذف می‌شود)، `quiz` (آزمون چهارگزینه‌ای که در مرورگر تصحیح می‌شود)، `map` (lat/lng/label)، `stat` (`[post-views]`/`[last_update]`: تعداد بازدید یا تاریخ آخرین بروزرسانی). نویسنده‌ها همان شورت‌کدهای سایت فعلی را در ویرایشگر CMS تایپ می‌کنند و هنگام ذخیره به همین بلاک‌ها تبدیل می‌شوند. `[simple_toc]` حذف می‌شود چون صفحه فهرست مطالب خودش را فقط از h2 می‌سازد (مثل لایو).
+
+`sidebar` نوشته همان ستون کناری قالب «تک پست» لایو است: `banners` (بنرهای مخصوص هر نوشته از `_sb_custom_banners`، اسلایدر محو با ۴ ثانیه)، فهرست مطالب «فهرست مطالب این مقاله» (فقط دسکتاپ، جمع‌شده در ۱۷۰px)، `recent_posts` (۵ نوشته آخر) و `recent_comments` (۴ نظر تأییدشده آخر کل سایت، از نوشته‌ها و محصولات).
 
 ## سئو (هم‌ارز Yoast)
 

@@ -2229,7 +2229,17 @@ export interface components {
                 label?: string | null;
             };
         };
-        BlogBlock: components["schemas"]["BlogHtmlBlock"] | components["schemas"]["BlogProductsBlock"] | components["schemas"]["BlogNoteBlock"] | components["schemas"]["BlogArticleBlock"] | components["schemas"]["BlogQuizBlock"] | components["schemas"]["BlogMapBlock"];
+        /** @description Live value placed by the author ([post-views] / [last_update]); value = view count, or ISO date of the last update */
+        BlogStatBlock: {
+            /** @constant */
+            type: "stat";
+            props: {
+                /** @enum {string} */
+                kind: "views" | "updated";
+                value: string;
+            };
+        };
+        BlogBlock: components["schemas"]["BlogHtmlBlock"] | components["schemas"]["BlogProductsBlock"] | components["schemas"]["BlogNoteBlock"] | components["schemas"]["BlogArticleBlock"] | components["schemas"]["BlogQuizBlock"] | components["schemas"]["BlogMapBlock"] | components["schemas"]["BlogStatBlock"];
         TocItem: {
             id: string;
             text: string;
@@ -2260,10 +2270,28 @@ export interface components {
             related_posts: components["schemas"]["BlogPostCard"][];
             breadcrumb: components["schemas"]["Crumb"][];
             banner: components["schemas"]["BlogBanner"] | null;
+            sidebar: components["schemas"]["BlogPostSidebar"];
             /** @enum {string} */
             schema_type: "BlogPosting" | "Article" | "NewsArticle";
             word_count: number;
             seo: components["schemas"]["Seo"];
+        };
+        /** @description The live single-post sidebar (top to bottom; the TOC comes from `toc`) */
+        BlogPostSidebar: {
+            /** @description The post's own banners (live [sidebar_banner]), usually linking a shop category */
+            banners: {
+                image: components["schemas"]["Image"];
+                url: string | null;
+            }[];
+            /** @description «جدید ترین مقاله ها» (latest 5) */
+            recent_posts: components["schemas"]["BlogPostCard"][];
+            /** @description «جدید ترین نظرات مشتریان» — latest 4 approved comments site-wide (posts and products) */
+            recent_comments: {
+                author: string;
+                text: string;
+                title: string;
+                url: string;
+            }[];
         };
         BlogCategory: components["schemas"]["BlogCategoryRef"] & {
             description_html: string | null;

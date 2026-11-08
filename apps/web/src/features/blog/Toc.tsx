@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import type { TocItem } from '@banovit/api-client';
 import { cx, IconClose, IconPlus } from '@banovit/ui';
+import { SidebarHeading } from './Sidebar';
 
 function useActiveHeading(ids: string[]): string | null {
   const [active, setActive] = useState<string | null>(null);
@@ -51,15 +52,31 @@ function TocList({ items, active, onPick }: { items: TocItem[]; active: string |
  */
 export function Toc({ items }: { items: TocItem[] }) {
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const active = useActiveHeading(items.map((i) => i.id));
   if (items.length < 2) return null;
 
   return (
     <>
-      <nav aria-label="فهرست مطالب" className="hidden lg:block">
+      {/* live sidebar: «فهرست مطالب این مقاله», collapsed at 170px with «مشاهده بیشتر» */}
+      <nav aria-labelledby="sidebar-toc" className="hidden lg:block">
+        <SidebarHeading id="sidebar-toc" accent="فهرست مطالب" rest="این مقاله" />
         <div className="rounded-lg border border-border bg-surface p-3">
-          <p className="mb-2 px-4 pt-1 text-base font-bold text-text">فهرست مطالب</p>
-          <TocList items={items} active={active} />
+          <div id="sidebar-toc-list" className={cx('relative', !expanded && items.length > 4 && 'max-h-[170px] overflow-hidden')}>
+            <TocList items={items} active={active} />
+            {!expanded && items.length > 4 ? <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-surface" /> : null}
+          </div>
+          {items.length > 4 ? (
+            <button
+              type="button"
+              onClick={() => setExpanded((x) => !x)}
+              aria-expanded={expanded}
+              aria-controls="sidebar-toc-list"
+              className="mt-2 h-9 w-full rounded-full text-sm font-medium text-primary hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-focus"
+            >
+              {expanded ? 'مشاهده کمتر' : 'مشاهده بیشتر'}
+            </button>
+          ) : null}
         </div>
       </nav>
 
