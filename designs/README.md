@@ -125,3 +125,23 @@ From "Banovit interface 3.zip" (2026-11-08). The OTP frames show 6 boxes, but pe
 | 39-support-ticket-chat-mobile.jpg | گفتگوی تیکت (تاخیر در زمان ارسال) | Design-10.jpg |
 
 From "Banovit interface 4.zip" (2026-11-08). The zip also had 10 files named `Order Title*.jpg` that are blank white images (likely a broken export); they are not committed. No desktop frames were provided.
+
+## terms/ — «شرایط و قوانین» (mobile, 393px)
+
+| File | Screen | Original export |
+|---|---|---|
+| 01-profile-menu-entry-mobile.png | پروفایل — entry point: «خدمات بانویت» → «قوانین و شرایط» (also پشتیبانی، اعلانات، درباره بانویت، فروشنده بانویت شوید) | Design.png |
+| 02-terms-page-mobile.png | **Primary.** App bar «شرایط و قوانین» (back), logo, H «شرایط و مقررات فروشگاه این مجموعه» + intro, accordion of sections (one open), bottom nav | Design-2.png |
+| 03-terms-sheet-mobile.png | same content as a full-height sheet «شرایط و قوانین بانویت» with close (X), e.g. opened from the login screen | Design-1.png |
+
+From "Banovit interface 5.zip" (2026-11-08). No desktop frame — desktop is the same content in a centered column.
+
+## shipping/ — «روش‌های ارسال» (mobile, 393px)
+
+| File | Screen | Original export |
+|---|---|---|
+| 01-shipping-methods-mobile.png | **Primary.** Hero image + app bar «روش های ارسال», intro, «نحوه دریافت سفارش» (تحویل حضوری درب انبار / بانُویت بار، free-shipping note), «ارسال به شهرستان های کشور» (اتوبوسرانی / باربری rows → sheets), «ارسال رایگان» banner, «مراحل آماده‌سازی تا تحویل» 4-step timeline, «قوانین، تحویل و پیگیری سفارش» + «پیگیری سفارش» / «تماس با پشتیبانی» buttons, bottom nav | Design.png |
+| 02-freight-sheet-mobile.png | sheet «ارسال باربری» — conditions + cost tiers | Design-1.png |
+| 03-bus-sheet-mobile.png | sheet «ارسال اتوبوس رانی» — single/two-leg routes, costs, terminal notes | Design-2.png |
+
+From "Banovit interface 7.zip" (2026-11-08). Info page for live `/shipping-methods/`, not the checkout shipping step. No desktop frame.
