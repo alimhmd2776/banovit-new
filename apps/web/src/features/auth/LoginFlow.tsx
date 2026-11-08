@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { IconChevronRight, IconPhone, cx } from '@banovit/ui';
 import type { Customer } from '@banovit/api-client';
 import { normalizeMobile, toLatinDigits, toPersianDigits } from '@/lib/auth/phone';
+import { Logo } from '@/features/menu/Logo';
 import { AuthAvatar, BrandTile } from './AuthArt';
 import { OtpInput } from './OtpInput';
 import { TERMS_HREF, PRIVACY_HREF } from './links';
@@ -143,9 +144,8 @@ export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: s
   return (
     <div className="flex min-h-full flex-col">
       <div className="relative flex h-16 items-center justify-center">
-        <Link href="/" className="text-2xl font-black text-primary" aria-label="بانویت، صفحه اصلی">
-          بانُویت
-        </Link>
+        {/* Shared wordmark (menu thread) so the live logo file replaces it everywhere at once. */}
+        <Logo compact />
         {step !== 'sending' && (
           <button
             type="button"

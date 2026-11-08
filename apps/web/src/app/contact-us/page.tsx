@@ -13,19 +13,19 @@ import { jsonLdScript, pageMetadata } from '@/lib/seo';
 // data itself is cached 300s via fetch tags (lib/api) and the HTML by the CDN.
 export const dynamic = 'force-dynamic';
 
-/** Same logo Yoast publishes in the Organization node, until media moves to object storage. */
-const LOGO_URL = 'https://banovit.com/wp-content/uploads/2024/07/Logo-2.png';
-
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getContactSettings();
-  return pageMetadata({ seo: s.seo, path: s.path });
+  return pageMetadata({ seo: s.seo, path: s.path, ogType: s.seo.og_type === 'article' ? 'article' : 'website' });
 }
 
 export default async function ContactUsPage() {
   const s = await getContactSettings();
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(contactJsonLd(s, env.canonicalOrigin, LOGO_URL))} />
+      {/* Live parity: the CMS holds the live JSON-LD blocks verbatim; generated only when it has none. */}
+      {(s.seo.json_ld?.length ? s.seo.json_ld : [contactJsonLd(s, env.canonicalOrigin, s.logo?.url ?? null)]).map((block, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(block)} />
+      ))}
       <ContactView s={s} />
     </>
   );

@@ -15,6 +15,65 @@
   .scrollbar-none::-webkit-scrollbar { display: none; }
 }
 
+/*
+ * Article body (CMS HTML, sanitized server-side). No typography plugin: the
+ * rules below follow the blog design (17/30 body, blue table header, zebra rows,
+ * horizontally scrollable tables on mobile).
+ */
+@layer components {
+  .blog-prose { @apply text-[15px] leading-8 text-text lg:text-base lg:leading-9; overflow-wrap: anywhere; }
+  .blog-prose > * + * { margin-top: 1rem; }
+  .blog-prose h2 { @apply mt-8 text-lg font-bold leading-8 text-text lg:text-xl; scroll-margin-top: calc(var(--header-height) + 16px); }
+  .blog-prose h3 { @apply mt-6 border-s-2 border-border ps-3 text-base font-bold text-text; scroll-margin-top: calc(var(--header-height) + 16px); }
+  .blog-prose h4, .blog-prose h5, .blog-prose h6 { @apply mt-5 text-[15px] font-bold; }
+  .blog-prose p { @apply text-text-muted; }
+  .blog-prose strong, .blog-prose b { @apply font-bold text-text; }
+  .blog-prose a { @apply font-medium text-primary underline decoration-border-strong underline-offset-4 hover:decoration-primary; }
+  .blog-prose ul { @apply list-disc space-y-2 ps-5 text-text-muted; }
+  .blog-prose ol { @apply list-decimal space-y-2 ps-5 text-text-muted; }
+  .blog-prose li::marker { @apply text-primary; }
+  .blog-prose blockquote { @apply rounded-md border-s-4 border-primary bg-primary-subtle px-4 py-3 text-text; }
+  .blog-prose img { @apply mx-auto h-auto max-w-full rounded-md; }
+  .blog-prose figure { @apply space-y-2; }
+  .blog-prose figcaption { @apply text-center text-xs text-text-subtle; }
+  .blog-prose iframe, .blog-prose video { @apply aspect-video h-auto w-full rounded-md; }
+  .blog-prose hr { @apply border-border; }
+  .blog-prose table { @apply block w-full lg:table overflow-x-auto rounded-md border border-border text-sm leading-6; border-collapse: separate; border-spacing: 0; }
+  .blog-prose thead th, .blog-prose tr:first-child > th { @apply bg-primary font-medium text-primary-on; }
+  .blog-prose th, .blog-prose td { @apply min-w-[9rem] border-b border-border px-4 py-3 text-start align-top; }
+  .blog-prose td:first-child { @apply text-text-muted; }
+  .blog-prose td:not(:first-child) { @apply font-medium text-text; }
+  .blog-prose tbody tr:nth-child(even) td { @apply bg-surface-muted; }
+  .blog-prose tr > :first-child { @apply sticky start-0 z-[1] border-e bg-surface; }
+  .blog-prose tr:first-child > th:first-child, .blog-prose thead th:first-child { @apply bg-primary; }
+  .blog-prose tbody tr:nth-child(even) td:first-child { @apply bg-surface-muted; }
+}
+
+/*
+ * «حساب کاربری» on phones is a full-screen app view (designs/account/): the
+ * page's own app bar replaces the site banner, header and footer. Desktop keeps
+ * the normal site chrome around the account sidebar layout.
+ */
+@media (max-width: 1023.98px) {
+  body:has([data-account-shell]) > a:not([href='#main']),
+  body:has([data-account-shell]) > header,
+  body:has([data-account-shell]) > footer {
+    display: none;
+  }
+}
+
+/* Invoice print: only the invoice. */
+@media print {
+  body:has([data-account-shell]) > a,
+  body:has([data-account-shell]) > header,
+  body:has([data-account-shell]) > footer,
+  body:has([data-account-shell]) nav[aria-label='منوی پایین'],
+  [data-account-shell] aside {
+    display: none !important;
+  }
+  [data-account-shell] { display: block !important; padding: 0 !important; }
+}
+
 /* Product description HTML from the CMS (migrated WordPress content). */
 @layer components {
   .prose-pdp :where(p, ul, ol, table, figure) { margin-block: 0.75em; }
