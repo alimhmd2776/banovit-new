@@ -1,6 +1,7 @@
 import 'server-only';
 import { cookies, headers } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { stripMiddlewareCookieHeader } from '@/lib/http/cookies';
 import { createStorefrontClient, StorefrontApiError, type Cart, type SessionHeaders } from '@banovit/api-client';
 import { env } from '@/lib/env';
 
@@ -54,15 +55,18 @@ export function cartResponse(cart: Cart, status = 200): NextResponse {
 export function syncCartCookies(res: NextResponse, cart: Pick<Cart, 'token' | 'item_count'>) {
   if (cart.token) res.cookies.set(CART_COOKIE, cart.token, { ...cookieBase, maxAge: MAX_AGE });
   res.cookies.set(CART_COUNT_COOKIE, String(cart.item_count), { ...cookieBase, httpOnly: false, maxAge: MAX_AGE });
+  stripMiddlewareCookieHeader(res); // keep the httpOnly cart token out of response headers
 }
 
 export function clearCartCookies(res: NextResponse) {
   res.cookies.delete(CART_COOKIE);
   res.cookies.set(CART_COUNT_COOKIE, '0', { ...cookieBase, httpOnly: false, maxAge: MAX_AGE });
+  stripMiddlewareCookieHeader(res);
 }
 
 export function setOrderCookie(res: NextResponse, number: string, token: string) {
   res.cookies.set(ORDER_COOKIE, `${number}:${token}`, { ...cookieBase, maxAge: 60 * 60 * 24 * 30 });
+  stripMiddlewareCookieHeader(res); // keep the order access token out of response headers
 }
 
 /** Map an API failure to the same {error} envelope for the browser. */
