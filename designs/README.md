@@ -145,3 +145,11 @@ From "Banovit interface 5.zip" (2026-11-08). No desktop frame — desktop is the
 | 03-bus-sheet-mobile.png | sheet «ارسال اتوبوس رانی» — single/two-leg routes, costs, terminal notes | Design-2.png |
 
 From "Banovit interface 7.zip" (2026-11-08). Info page for live `/shipping-methods/`, not the checkout shipping step. No desktop frame.
+
+## about/ — «درباره شرکت بانُویت» (mobile, 393px)
+
+| File | Screen | Original export |
+|---|---|---|
+| 01-about-mobile.jpg | Dark hero photo + app bar, logo, «به شرکت بانُویت خوش آمدید!»; About Banovit text; Company Values cards (icon/title/text); Team & Story text + group photo + two feature tiles; team-member carousel (photo/name/role); Partnership Brands logo row; Customer Review carousel (quote/avatar/name/rating label); bottom nav | Design 3.jpg |
+
+From the project chat upload (2026-11-08). Live URL `/about-us/`. No desktop frame.
