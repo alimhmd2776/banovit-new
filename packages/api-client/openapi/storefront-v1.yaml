@@ -3,9 +3,9 @@ info:
   title: Banovit Storefront API
   version: 1.0.0
   description: |
-    Public catalog API (read-only) plus customer login, served by banovit-cms under /api/storefront/v1.
+    Public, read-only catalog API served by banovit-cms under /api/storefront/v1.
     Conventions: docs/05-conventions.md (snake_case, money as integer rial, {data,meta,links}, {error}).
-    Implemented in banovit-cms branch feature/storefront-plp (routes/storefront.php); auth/* and me in feature/storefront-auth.
+    Implemented in banovit-cms branch feature/storefront-plp (routes/storefront.php).
 servers:
   - url: https://cms-new.banovit.com/api/storefront/v1
   - url: http://127.0.0.1:8000/api/storefront/v1
@@ -109,6 +109,28 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/ProductListing' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /menus/{key}:
+    get:
+      operationId: getMenu
+      summary: Navigation menu managed in the CMS («منوهای فروشگاه»)
+      description: |
+        categories = desktop mega menu + mobile category sheet (level 1 category, level 2 group, level 3 items);
+        header_nav = desktop nav row; header_top = desktop top bar; mobile_quick = mobile drawer «دسترسی سریع».
+        Inactive items and categories/tags without products are already removed.
+      parameters:
+        - { name: key, in: path, required: true, schema: { type: string, enum: [categories, header_nav, header_top, mobile_quick] } }
+      responses:
+        '200':
+          description: Menu
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Menu' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  # --- auth (feature/web-auth, banovit-cms feature/storefront-auth) ---
   /auth/otp:
     post:
       operationId: requestOtp
@@ -214,6 +236,7 @@ paths:
                   data: { $ref: '#/components/schemas/Customer' }
         '401': { description: Not signed in }
         '422': { $ref: '#/components/responses/ValidationError' }
+  # --- /auth ---
 components:
   securitySchemes:
     customerToken: { type: http, scheme: bearer, description: Sanctum token from /auth/otp/verify (server-side only) }
@@ -466,6 +489,42 @@ components:
           properties:
             prev_page: { type: [integer, 'null'] }
             next_page: { type: [integer, 'null'] }
+    Menu:
+      type: object
+      required: [key, name, items]
+      properties:
+        key: { type: string }
+        name: { type: string }
+        items: { type: array, items: { $ref: '#/components/schemas/MenuItem' } }
+    MenuItem:
+      type: object
+      required: [id, title, url, image, icon, product_count, highlight, promo, children]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        url: { type: string, description: 'Site-relative path (/shop/category/x/) or absolute external URL' }
+        image: { oneOf: [{ $ref: '#/components/schemas/MenuImage' }, { type: 'null' }] }
+        icon: { type: [string, 'null'], description: 'Icon image URL, or a built-in icon name (discount, bestseller, newest, track, phone, article, user)' }
+        product_count: { type: [integer, 'null'], description: 'Published products of the linked category/tag; null for plain links or when hidden' }
+        highlight: { type: boolean }
+        promo: { oneOf: [{ $ref: '#/components/schemas/MenuPromo' }, { type: 'null' }] }
+        children: { type: array, items: { $ref: '#/components/schemas/MenuItem' } }
+    MenuImage:
+      type: object
+      required: [url]
+      properties:
+        url: { type: string }
+        alt: { type: [string, 'null'] }
+        width: { type: [integer, 'null'] }
+        height: { type: [integer, 'null'] }
+    MenuPromo:
+      type: object
+      properties:
+        image_url: { type: string }
+        title: { type: string }
+        badge: { type: string }
+        button_text: { type: string }
+        url: { type: string }
     Error:
       type: object
       required: [error]
@@ -479,6 +538,7 @@ components:
             fields: { type: object, additionalProperties: { type: array, items: { type: string } } }
             retry_after: { type: integer, description: Seconds until the request may be retried (429) }
             attempts_left: { type: integer, description: Wrong OTP tries left for the current code (otp_invalid) }
+    # --- auth ---
     OtpChallenge:
       type: object
       required: [phone, code_length, expires_in, resend_in]
@@ -507,3 +567,4 @@ components:
         expires_at: { type: string, format: date-time }
         is_new: { type: boolean }
         customer: { $ref: '#/components/schemas/Customer' }
+    # --- /auth ---

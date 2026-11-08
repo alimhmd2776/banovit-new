@@ -89,6 +89,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/menus/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Navigation menu managed in the CMS («منوهای فروشگاه»)
+         * @description categories = desktop mega menu + mobile category sheet (level 1 category, level 2 group, level 3 items);
+         *     header_nav = desktop nav row; header_top = desktop top bar; mobile_quick = mobile drawer «دسترسی سریع».
+         *     Inactive items and categories/tags without products are already removed.
+         *
+         */
+        get: operations["getMenu"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/otp": {
         parameters: {
             query?: never;
@@ -326,6 +349,38 @@ export interface components {
                 prev_page: number | null;
                 next_page: number | null;
             };
+        };
+        Menu: {
+            key: string;
+            name: string;
+            items: components["schemas"]["MenuItem"][];
+        };
+        MenuItem: {
+            id: number;
+            title: string;
+            /** @description Site-relative path (/shop/category/x/) or absolute external URL */
+            url: string;
+            image: components["schemas"]["MenuImage"] | null;
+            /** @description Icon image URL, or a built-in icon name (discount, bestseller, newest, track, phone, article, user) */
+            icon: string | null;
+            /** @description Published products of the linked category/tag; null for plain links or when hidden */
+            product_count: number | null;
+            highlight: boolean;
+            promo: components["schemas"]["MenuPromo"] | null;
+            children: components["schemas"]["MenuItem"][];
+        };
+        MenuImage: {
+            url: string;
+            alt?: string | null;
+            width?: number | null;
+            height?: number | null;
+        };
+        MenuPromo: {
+            image_url?: string;
+            title?: string;
+            badge?: string;
+            button_text?: string;
+            url?: string;
         };
         Error: {
             error: {
@@ -585,6 +640,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProductListing"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getMenu: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: "categories" | "header_nav" | "header_top" | "mobile_quick";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Menu */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Menu"];
+                    };
                 };
             };
             404: components["responses"]["NotFound"];
