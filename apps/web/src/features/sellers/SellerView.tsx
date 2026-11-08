@@ -1,8 +1,8 @@
 import type { ProductListing, Seller, SellerReviewList } from '@banovit/api-client';
 import { Breadcrumb, Pagination, ProductCard } from '@banovit/ui';
-import { FilterSidebar, ListingToolbar } from '@/features/plp/ListingControls';
+import { ChangeFilterButton, FilterSidebar, ListingToolbar } from '@/features/plp/ListingControls';
 import { EmptyState } from '@/features/plp/sections';
-import { clearFilters, hasActiveFilters, pagePath, toQueryString, type ListingState } from '@/features/plp/url-state';
+import { hasActiveFilters, pagePath, toQueryString, type ListingState } from '@/features/plp/url-state';
 import { jsonLdScript, sellerJsonLd, type Crumb } from '@/lib/seo';
 import { ReviewCard, ReviewsEmpty } from './ReviewCard';
 import { SellerDetails } from './SellerDetails';
@@ -35,7 +35,7 @@ export function SellerView({ seller, crumbs, listing, reviews, state, page }: Se
           <ListingToolbar key={query} meta={listing.meta} state={state} basePath={basePath} />
         </div>
         {listing.data.length ? (
-          <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 xl:grid-cols-4">
+          <ul className="divide-y divide-border lg:grid lg:grid-cols-3 lg:gap-3 lg:divide-y-0 xl:grid-cols-4">
             {listing.data.map((p, i) => (
               <li key={p.id}>
                 <ProductCard product={p} priority={i < 2} />
@@ -43,7 +43,9 @@ export function SellerView({ seller, crumbs, listing, reviews, state, page }: Se
             ))}
           </ul>
         ) : (
-          <EmptyState filtered={hasActiveFilters(state)} clearHref={`${basePath}${toQueryString(clearFilters(state))}`} />
+          <EmptyState filtered={hasActiveFilters(state)}>
+            <ChangeFilterButton meta={listing.meta} state={state} basePath={basePath} />
+          </EmptyState>
         )}
         <Pagination current={page} last={listing.meta.last_page} hrefFor={(p) => `${pagePath(basePath, p)}${query}`} className="pt-2" />
       </div>

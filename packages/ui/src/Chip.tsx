@@ -14,9 +14,9 @@ export function Chip({
     <button
       type="button"
       className={cx(
-        'inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-[13px] transition-colors duration-150',
+        'relative inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-4 text-[13px] font-medium transition-colors duration-150',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
-        active ? 'border-primary bg-primary-subtle text-primary-on-subtle' : 'border-border bg-surface text-text hover:border-border-strong',
+        active ? 'border-primary bg-primary-subtle text-primary' : 'border-border bg-surface text-text hover:border-border-strong',
         className,
       )}
       {...props}
@@ -34,10 +34,10 @@ export function FilterPill({ label, onRemove, removeLabel }: { label: string; on
       type="button"
       onClick={onRemove}
       aria-label={removeLabel ?? `حذف فیلتر ${label}`}
-      className="inline-flex h-8 shrink-0 items-center gap-1 rounded-full bg-primary-subtle ps-3 pe-2 text-xs text-primary-on-subtle hover:bg-primary hover:text-primary-on focus-visible:outline-2 focus-visible:outline-focus"
+      className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-primary-subtle ps-4 pe-3 text-[13px] font-medium text-primary hover:bg-[var(--brand-100)] focus-visible:outline-2 focus-visible:outline-focus"
     >
       {label}
-      <IconClose size={14} />
+      <IconClose size={16} />
     </button>
   );
 }

@@ -22,21 +22,21 @@ export function Price({
     return <p className={cx('text-sm text-text-muted', className)}>تماس بگیرید</p>;
   }
   return (
-    <div className={cx('flex flex-col items-end gap-0.5', className)}>
+    <div className={cx('flex flex-col items-end gap-1', className)}>
       {regular && discountPercent > 0 ? (
         <div className="flex items-center gap-1.5">
+          <span className="rounded-xs bg-danger px-1.5 text-[11px] font-bold leading-5 text-primary-on">
+            {faDigits(discountPercent)}٪
+          </span>
           <del className="text-xs text-text-subtle" aria-label="قیمت قبل">
             {formatToman(regular.amount)}
           </del>
-          <span className="rounded-full bg-danger px-1.5 text-[11px] font-bold leading-5 text-primary-on">
-            {faDigits(discountPercent)}٪
-          </span>
         </div>
       ) : null}
-      <p className={cx('font-bold text-text', size === 'lg' ? 'text-lg' : 'text-[15px]')}>
+      <p className={cx('font-extrabold text-text', size === 'lg' ? 'text-xl' : 'text-lg lg:text-base')}>
         {priceMax ? <span className="text-xs font-normal text-text-muted">از </span> : null}
         {formatToman(price.amount)}
-        <span className="ms-1 text-[11px] font-normal text-text-muted">تومان</span>
+        <span className="ms-1 text-sm font-bold">تومان</span>
       </p>
     </div>
   );

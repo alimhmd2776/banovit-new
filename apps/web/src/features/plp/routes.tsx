@@ -15,7 +15,7 @@ import { isFilteredOrSorted, pagePath, parseListingState, splitPageSegments, toA
 
 export type SearchParams = Record<string, string | string[] | undefined>;
 
-const HOME: Crumb = { name: 'بانویت', url: '/' };
+const HOME: Crumb = { name: 'خانه', url: '/' };
 const SHOP: Crumb = { name: 'فروشگاه', url: '/shop/' };
 
 function decode(s: string): string {
@@ -74,7 +74,7 @@ export async function CategoryPage({ segments, sp }: { segments: string[]; sp: S
   }
   if (page > listing.meta.last_page && listing.meta.total > 0) notFound();
 
-  const crumbs: Crumb[] = [HOME, ...category.breadcrumb.map((b) => ({ name: b.name, url: b.url }))];
+  const crumbs: Crumb[] = [HOME, SHOP, ...category.breadcrumb.map((b) => ({ name: b.name, url: b.url }))];
 
   return (
     <PlpView
@@ -117,7 +117,7 @@ export async function BrandPage({ slug, pageParam, sp }: { slug: string; pagePar
   return (
     <PlpView
       title={brand.name}
-      crumbs={[HOME, { name: brand.name, url: brand.url }]}
+      crumbs={[HOME, SHOP, { name: brand.name, url: brand.url }]}
       canonicalPath={brand.url}
       basePath={brand.url}
       listing={listing}

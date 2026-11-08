@@ -51,7 +51,7 @@ describe('ProductCard', () => {
     expect(screen.getByText('۸۰۰٬۰۰۰')).toBeInTheDocument();
     expect(screen.getByText('۲۰٪')).toBeInTheDocument();
     expect(screen.getByText('تخفیف شگفت‌انگیز')).toBeInTheDocument();
-    expect(screen.getByText('خدمات نصب')).toBeInTheDocument();
+    expect(screen.getByText('امکان افزودن خدمات نصب')).toBeInTheDocument();
     expect(screen.getByRole('list', { name: 'سایز' })).toHaveTextContent('۶۰۸۰+۱');
     expect(screen.getByAltText('روشویی A')).toBeInTheDocument();
   });
