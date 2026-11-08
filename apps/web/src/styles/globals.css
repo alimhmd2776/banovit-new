@@ -15,6 +15,31 @@
   .scrollbar-none::-webkit-scrollbar { display: none; }
 }
 
+/*
+ * «حساب کاربری» on phones is a full-screen app view (designs/account/): the
+ * page's own app bar replaces the site banner, header and footer. Desktop keeps
+ * the normal site chrome around the account sidebar layout.
+ */
+@media (max-width: 1023.98px) {
+  body:has([data-account-shell]) > a:not([href='#main']),
+  body:has([data-account-shell]) > header,
+  body:has([data-account-shell]) > footer {
+    display: none;
+  }
+}
+
+/* Invoice print: only the invoice. */
+@media print {
+  body:has([data-account-shell]) > a,
+  body:has([data-account-shell]) > header,
+  body:has([data-account-shell]) > footer,
+  body:has([data-account-shell]) nav[aria-label='منوی پایین'],
+  [data-account-shell] aside {
+    display: none !important;
+  }
+  [data-account-shell] { display: block !important; padding: 0 !important; }
+}
+
 /* Product description HTML from the CMS (migrated WordPress content). */
 @layer components {
   .prose-pdp :where(p, ul, ol, table, figure) { margin-block: 0.75em; }

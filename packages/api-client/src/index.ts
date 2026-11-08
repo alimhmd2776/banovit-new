@@ -49,6 +49,23 @@ export type MenuKey = operations['getMenu']['parameters']['path']['key'];
 export type Customer = Schemas['Customer'];
 export type CustomerSession = Schemas['CustomerSession'];
 export type OtpChallenge = Schemas['OtpChallenge'];
+// «حساب کاربری» (docs/api/account.md)
+export type AccountSummary = Schemas['AccountSummary'];
+export type Profile = Schemas['Profile'];
+export type OrderTabCounts = Schemas['OrderTabCounts'];
+export type OrderStep = Schemas['OrderStep'];
+export type AccountOrder = Schemas['AccountOrder'];
+export type AccountOrderDetail = Schemas['AccountOrderDetail'];
+export type OrderItem = Schemas['OrderItem'];
+export type CustomerAddress = Schemas['CustomerAddress'];
+export type CustomerAddressInput = Schemas['CustomerAddressInput'];
+export type MyReview = Schemas['MyReview'];
+export type CustomerNotification = Schemas['Notification'];
+export type TicketTopic = Schemas['TicketTopic'];
+export type TicketSummary = Schemas['TicketSummary'];
+export type TicketDetail = Schemas['TicketDetail'];
+export type TicketMessage = Schemas['TicketMessage'];
+
 // --- sellers ---
 export type SellerCard = Schemas['SellerCard'];
 export type Seller = Schemas['Seller'];
