@@ -23,7 +23,19 @@ export type PurchaseProduct = {
   options: ProductOption[];
   variants: ProductVariant[];
   addons: ProductAddon[];
+  /** No online purchase (WP _sink_products): the buy button becomes the free consultation call. */
+  made_to_order: boolean;
+  consult_phone: string;
 };
+
+type AddonOption = ProductAddon['options'][number];
+
+/** Rial one option adds per unit at `unit` (flat_rate options are counted once per line, see extrasFlat). */
+export function optionUnitAmount(o: AddonOption, unit: number): number {
+  if (o.price_type === 'percentage') return Math.round((unit * (o.percent ?? 0)) / 100);
+  if (o.price_type === 'flat_rate') return 0;
+  return o.price.amount;
+}
 
 type Status = { kind: 'idle' } | { kind: 'adding' } | { kind: 'added' } | { kind: 'error'; message: string };
 
@@ -36,7 +48,12 @@ type Ctx = {
   current: { price: Money | null; regular: Money | null; discount: number; inStock: boolean; fromPrice: boolean };
   addonIds: number[];
   toggleAddon: (addonId: number, optionId: number) => void;
+  /** Per unit: installation options (cart fee) + other add-ons. */
   addonTotal: number;
+  installTotal: number;
+  extrasTotal: number;
+  /** flat_rate add-ons, once per cart line. */
+  extrasFlat: number;
   quantity: number;
   setQuantity: (n: number) => void;
   status: Status;
@@ -138,11 +155,6 @@ export function PurchaseProvider({ product: initial, children }: { product: Purc
     [product.addons],
   );
 
-  const addonTotal = useMemo(
-    () => product.addons.flatMap((a) => a.options).filter((o) => addonIds.includes(o.id)).reduce((s, o) => s + o.price.amount, 0),
-    [product.addons, addonIds],
-  );
-
   const current = useMemo(() => {
     if (product.type === 'variable') {
       if (variant) return { price: variant.price, regular: variant.regular_price, discount: variant.discount_percent, inStock: variant.in_stock, fromPrice: false };
@@ -151,7 +163,19 @@ export function PurchaseProvider({ product: initial, children }: { product: Purc
     return { price: product.price, regular: product.regular_price, discount: product.discount_percent, inStock: product.in_stock, fromPrice: false };
   }, [product, variant]);
 
+  const { installTotal, extrasTotal, extrasFlat } = useMemo(() => {
+    const unit = current.price?.amount ?? 0;
+    const chosen = product.addons.flatMap((a) => a.options).filter((o) => addonIds.includes(o.id));
+    return {
+      installTotal: chosen.filter((o) => o.kind === 'installation').reduce((s, o) => s + o.price.amount, 0),
+      extrasTotal: chosen.filter((o) => o.kind !== 'installation').reduce((s, o) => s + optionUnitAmount(o, unit), 0),
+      extrasFlat: chosen.filter((o) => o.kind !== 'installation' && o.price_type === 'flat_rate').reduce((s, o) => s + o.price.amount, 0),
+    };
+  }, [product.addons, addonIds, current.price]);
+  const addonTotal = installTotal + extrasTotal;
+
   const add = useCallback(async () => {
+    if (product.made_to_order) return;
     if (product.type === 'variable' && !variant) {
       const first = product.options.find((o) => !selection[o.key]);
       setMissing(first?.key ?? product.options[0]?.key ?? null);
@@ -176,15 +200,15 @@ export function PurchaseProvider({ product: initial, children }: { product: Purc
       setStatus({ kind: 'added' });
       trackEcommerce('add_to_cart', {
         currency: 'IRR',
-        value: ((current.price?.amount ?? 0) + addonTotal) * quantity,
+        value: ((current.price?.amount ?? 0) + addonTotal) * quantity + extrasFlat,
         items: [gaItem(product, variant, quantity)],
       });
     } catch (e) {
       setStatus({ kind: 'error', message: (e as CartError).message ?? 'افزودن به سبد انجام نشد. دوباره تلاش کنید.' });
     }
-  }, [product, variant, selection, quantity, addonIds, current.price, addonTotal]);
+  }, [product, variant, selection, quantity, addonIds, current.price, addonTotal, extrasFlat]);
 
-  const value: Ctx = { product, selection, select, variant, current, addonIds, toggleAddon, addonTotal, quantity, setQuantity, status, add, missing };
+  const value: Ctx = { product, selection, select, variant, current, addonIds, toggleAddon, addonTotal, installTotal, extrasTotal, extrasFlat, quantity, setQuantity, status, add, missing };
   return <PurchaseCtx.Provider value={value}>{children}</PurchaseCtx.Provider>;
 }
 

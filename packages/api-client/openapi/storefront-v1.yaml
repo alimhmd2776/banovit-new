@@ -1594,22 +1594,26 @@ components:
         image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
     ProductAddonOption:
       type: object
-      required: [id, label, description, price, kind, default]
+      required: [id, label, description, price, price_type, percent, color, kind, default]
       properties:
         id: { type: integer, description: 'Sent to the cart in addon_ids' }
         label: { type: string }
         description: { type: [string, 'null'] }
         price: { $ref: '#/components/schemas/Money' }
+        price_type: { type: string, enum: [fixed, percentage, flat_rate], description: 'fixed = per unit; percentage = percent of the unit price, per unit; flat_rate = once per cart line' }
+        percent: { type: [number, 'null'], description: 'percentage options only' }
+        color: { type: [string, 'null'], description: 'Swatch for display=color (#rrggbb)' }
         kind: { type: string, description: 'installation | other' }
         default: { type: boolean }
     ProductAddon:
       type: object
-      required: [id, title, description, type, required, options]
+      required: [id, title, description, type, display, required, options]
       properties:
         id: { type: integer }
         title: { type: string }
         description: { type: [string, 'null'] }
         type: { type: string, enum: [checkbox, radio] }
+        display: { type: string, enum: [select, multiselect, button, color], description: 'Rico-wc-addons control type' }
         required: { type: boolean }
         options: { type: array, items: { $ref: '#/components/schemas/ProductAddonOption' } }
     ProductRating:
@@ -1681,10 +1685,29 @@ components:
     Availability:
       type: string
       enum: [in_stock, out_of_stock, backorder, no_price]
+    VanityCalculator:
+      type: object
+      description: 'Public-vanity price form: price = length_cm × (slab_price_per_cm [+ frame_price_per_cm]) + bowls × bowl_price'
+      required: [kind, min_length_cm, max_length_cm, width_cm, min_bowls, max_bowls, slab_price_per_cm, frame_price_per_cm, bowl_price]
+      properties:
+        kind: { type: string, const: vanity }
+        min_length_cm: { type: integer }
+        max_length_cm: { type: integer }
+        width_cm: { type: integer }
+        min_bowls: { type: integer }
+        max_bowls: { type: integer }
+        slab_price_per_cm: { $ref: '#/components/schemas/Money' }
+        frame_price_per_cm: { $ref: '#/components/schemas/Money' }
+        bowl_price: { $ref: '#/components/schemas/Money' }
     ProductDetail:
       type: object
-      required: [id, slug, name, path, type, sku, brand, primary_category, breadcrumb, images, short_description_html, description_html, key_features, specs, price, price_max, regular_price, discount_percent, in_stock, availability, price_valid_until, options, variants, addons, badges, rating, reviews, seller, faqs, related, related_posts, seo, updated_at]
+      required: [id, slug, name, path, type, sku, brand, primary_category, breadcrumb, images, short_description_html, description_html, key_features, specs, price, price_max, regular_price, discount_percent, in_stock, availability, price_valid_until, options, variants, addons, badges, label, availability_note, made_to_order, consult_phone, calculator, rating, reviews, seller, faqs, related, related_posts, seo, updated_at]
       properties:
+        label: { type: [string, 'null'], description: 'e.g. «سفارشی»' }
+        availability_note: { type: [string, 'null'], description: 'Production time / stock text' }
+        made_to_order: { type: boolean, description: 'No online purchase: show the «سفارشی تولید می‌شود + مشاوره رایگان» box' }
+        consult_phone: { type: string }
+        calculator: { oneOf: [{ $ref: '#/components/schemas/VanityCalculator' }, { type: 'null' }] }
         id: { type: integer }
         slug: { type: string }
         name: { type: string }
