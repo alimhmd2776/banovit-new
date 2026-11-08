@@ -1983,6 +1983,9 @@ components:
       properties:
         packaging: { type: boolean }
         delivery_date: { type: [string, 'null'], format: date }
+        shipping_method: { type: [string, 'null'], description: 'Key from delivery.methods; null = first offered. 422 invalid_shipping_method' }
+        installation_date: { type: [string, 'null'], format: date, description: 'From installation_schedule.slots; 422 invalid_installation_date' }
+        installation_slot: { type: [string, 'null'], description: 'times[].key of that day, e.g. 09:00-13:00' }
         address: { oneOf: [{ $ref: '#/components/schemas/Address' }, { type: 'null' }] }
         address_id: { type: [string, 'null'], description: Saved customer address (signed-in) }
         payment_method: { type: [string, 'null'] }
@@ -2088,6 +2091,9 @@ components:
           properties:
             packaging: { type: boolean }
             delivery_date: { type: [string, 'null'], format: date }
+            shipping_method: { type: [string, 'null'] }
+            installation_date: { type: [string, 'null'], format: date }
+            installation_slot: { type: [string, 'null'] }
             address: { oneOf: [{ $ref: '#/components/schemas/Address' }, { type: 'null' }] }
             payment_method: { type: [string, 'null'] }
             customer_note: { type: [string, 'null'] }
@@ -2105,13 +2111,38 @@ components:
             window_label: { type: string }
             requires_slot: { type: boolean }
             slots: { type: array, items: { $ref: '#/components/schemas/DeliverySlot' } }
+            method:
+              oneOf:
+                - { $ref: '#/components/schemas/ShippingMethodRef' }
+                - { type: 'null' }
+            methods:
+              type: array
+              description: Shipping methods offered for this cart (store settings + shipping rules); pick with PATCH cart {shipping_method}
+              items: { $ref: '#/components/schemas/ShippingMethod' }
+            notices: { type: array, items: { type: string } }
+        installation_schedule:
+          type: object
+          description: Installation visit picker; required = an installation is selected and the zone has an installation schedule
+          required: [required, slots]
+          properties:
+            required: { type: boolean }
+            slots:
+              type: array
+              items:
+                type: object
+                required: [date, weekday, day_label, times]
+                properties:
+                  date: { type: string, format: date }
+                  weekday: { type: string }
+                  day_label: { type: string }
+                  times: { type: array, items: { type: object, required: [key, label], properties: { key: { type: string }, label: { type: string } } } }
         addons:
           type: object
           required: [packaging, installation]
           properties:
             packaging:
               oneOf:
-                - { type: object, required: [label, description, fee], properties: { label: { type: string }, description: { type: string }, fee: { $ref: '#/components/schemas/Money' } } }
+                - { type: object, required: [label, description, fee], properties: { label: { type: string }, description: { type: string }, fee: { $ref: '#/components/schemas/Money' }, default_selected: { type: boolean } } }
                 - { type: 'null' }
             installation:
               type: object
@@ -2129,6 +2160,23 @@ components:
           type: array
           items: { type: object, required: [code, message, item_id], properties: { code: { type: string }, message: { type: string }, item_id: { type: [integer, 'null'] } } }
         ready_for_checkout: { type: boolean }
+    ShippingMethodRef:
+      type: object
+      required: [key, title]
+      properties:
+        key: { type: string }
+        title: { type: string }
+        description: { type: [string, 'null'] }
+    ShippingMethod:
+      type: object
+      required: [key, title, fee, selected]
+      properties:
+        key: { type: string }
+        title: { type: string }
+        description: { type: [string, 'null'] }
+        fee: { $ref: '#/components/schemas/Money' }
+        fee_label: { type: [string, 'null'], description: 'Shown instead of a zero fee, e.g. پس‌کرایه / رایگان' }
+        selected: { type: boolean }
     OrderSummary:
       type: object
       required: [number, status, status_label, is_paid, payment_method, payment_method_label, total, item_count, placed_at]

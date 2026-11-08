@@ -44,7 +44,7 @@ export function DeliverySlots({ cart, selected, onSelect, busy }: { cart: Cart; 
       <h2 id="slots-title" className="flex flex-wrap items-center gap-x-1.5 text-sm">
         <span className="font-bold text-text">زمان ارسال مرسوله</span>
         {d.requires_slot ? <span className="text-primary">*</span> : null}
-        <span className="text-xs text-text-muted">{d.requires_slot ? d.window_label : `ارسال با ${d.zone.label}`}</span>
+        <span className="text-xs text-text-muted">{d.requires_slot ? d.window_label : `ارسال با ${d.method?.title ?? d.zone.label}`}</span>
       </h2>
       {d.requires_slot ? (
         <div role="radiogroup" aria-labelledby="slots-title" className="-mx-4 mt-3 flex snap-x gap-3 overflow-x-auto px-4 pb-1 scrollbar-none lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 xl:grid-cols-7">
@@ -66,7 +66,7 @@ export function DeliverySlots({ cart, selected, onSelect, busy }: { cart: Cart; 
                 <span className="text-xs text-text-muted">{s.weekday}</span>
                 <span className="text-base font-bold text-text">{s.day_label}</span>
                 <span className={cx('mt-1 rounded-sm py-1 text-[11px]', on ? 'bg-primary-subtle text-primary-on-subtle' : 'bg-surface-muted text-text-muted')}>
-                  {s.fee.amount > 0 ? `${formatToman(s.fee.amount)} تومان` : 'رایگان'}
+                  {s.fee.amount > 0 ? `${formatToman(s.fee.amount)} تومان` : (d.fee_label ?? 'رایگان')}
                 </span>
               </button>
             );

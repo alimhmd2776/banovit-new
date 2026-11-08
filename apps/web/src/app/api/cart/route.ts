@@ -12,7 +12,7 @@ export async function GET() {
   }
 }
 
-const OPTION_KEYS = ['packaging', 'delivery_date', 'address', 'address_id', 'payment_method', 'customer_note', 'attribution'] as const;
+const OPTION_KEYS = ['packaging', 'delivery_date', 'shipping_method', 'installation_date', 'installation_slot', 'address', 'address_id', 'payment_method', 'customer_note', 'attribution'] as const;
 
 export async function PATCH(req: NextRequest) {
   const body = await readJson(req);

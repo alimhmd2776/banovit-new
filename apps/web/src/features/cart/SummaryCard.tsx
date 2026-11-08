@@ -73,7 +73,7 @@ export function SummaryCard({
               <Money rial={v} unitClassName="text-text-muted" />
             </Row>
           ))}
-        <Row label="هزینه ارسال">
+        <Row label={cart.delivery.method ? `هزینه ارسال (${cart.delivery.method.title})` : 'هزینه ارسال'}>
           {t.shipping.amount > 0 ? (
             <Money rial={t.shipping.amount} unitClassName="text-text-muted" />
           ) : (
