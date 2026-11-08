@@ -9,6 +9,7 @@ import { CategorySheet } from './CategorySheet';
 import { MenuIcon, MenuLink } from './parts';
 import { useModal } from './useModal';
 import { Logo } from './Logo';
+import { useHeaderSession } from './header-session';
 
 /**
  * Mobile navigation: hamburger -> side drawer (designs/menu/07) with the
@@ -19,15 +20,10 @@ export function MobileMenu({
   categories,
   productLinks,
   quickLinks,
-  cartCount,
-  userName,
 }: {
   categories: MenuItem[];
   productLinks: MenuItem[];
   quickLinks: MenuItem[];
-  /** Filled in by the cart/account threads; unknown until then. */
-  cartCount?: number | null;
-  userName?: string | null;
 }) {
   const [drawer, setDrawer] = useState(false);
   const [sheet, setSheet] = useState(false);
@@ -54,8 +50,6 @@ export function MobileMenu({
         }}
         productLinks={productLinks}
         quickLinks={quickLinks}
-        cartCount={cartCount}
-        userName={userName}
       />
       <CategorySheet items={categories} open={sheet} onClose={closeSheet} />
     </>
@@ -78,17 +72,14 @@ function Drawer({
   onOpenCategories,
   productLinks,
   quickLinks,
-  cartCount,
-  userName,
 }: {
   open: boolean;
   onClose: () => void;
   onOpenCategories: () => void;
   productLinks: MenuItem[];
   quickLinks: MenuItem[];
-  cartCount?: number | null;
-  userName?: string | null;
 }) {
+  const { cartCount, name: userName, signedIn } = useHeaderSession();
   const titleId = useId();
   const panel = useRef<HTMLDivElement>(null);
   const pathname = usePathname() ?? '/';
@@ -193,7 +184,7 @@ function Drawer({
           </MenuLink>
         </div>
         <MenuLink
-          href="/my-account/"
+          href={signedIn ? '/my-account/' : '/login/'}
           onNavigate={onClose}
           className="flex items-center gap-3 border-t border-border px-4 py-4 pb-[max(16px,env(safe-area-inset-bottom))] hover:bg-surface-muted"
         >
@@ -201,7 +192,7 @@ function Drawer({
             <IconUser size={20} />
           </span>
           <span className="flex-1">
-            <span className="block text-sm font-bold text-text">{userName || 'ورود یا ثبت‌نام'}</span>
+            <span className="block text-sm font-bold text-text">{signedIn ? userName : 'ورود یا ثبت‌نام'}</span>
             <span className="mt-0.5 block text-xs text-text-subtle">حساب کاربری من</span>
           </span>
           <IconChevronLeft size={18} className="text-text-muted" />

@@ -1208,6 +1208,8 @@ export interface components {
             count: number;
             selected: boolean;
             hex?: string | null;
+            /** @description Brand logo (brand facet only) */
+            image?: components["schemas"]["Image"];
         };
         Facet: {
             /** @description brand or a pa_* attribute slug */
@@ -1586,6 +1588,12 @@ export interface components {
             discount_percent: number;
             line_total: components["schemas"]["Money"];
             line_regular_total: components["schemas"]["Money"];
+            /** @description Selected non-installation add-ons (anti-fog, light colour …), already included in line_total */
+            addons?: {
+                id: number;
+                label: string;
+                total: components["schemas"]["Money"];
+            }[];
             purchasable: boolean;
             issue: {
                 code: string;
