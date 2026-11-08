@@ -56,3 +56,12 @@ flock -w 900 ~/banovit-new/.deploy.lock -c '<مراحل استقرار در docs
 - بعد از جایگزینی `web-app`، پوشه‌های `node_modules/@img/sharp-linuxmusl-x64` و `sharp-libvips-linuxmusl-x64` را از نسخه قبلی کپی کن (build روی ویندوز است).
 - GitHub از این سیستم فقط **بدون** پروکسی 10.10.10.7:7890 در دسترس است: `env -u HTTPS_PROXY -u https_proxy git -c http.proxy= fetch`.
 - داده مرجع لایو: دیتابیس `live_wp_ro` در کانتینر `cms-db` و فایل‌ها در `~/banovit-new/import/`؛ رسانه در `~/banovit-new/media/wp-content/uploads`. برای اجرای اسکریپت‌های `tools/wp-export/*.php` از wp-cli موقت `~/wp-ro` (کد test2 + `wp-config` به `live_wp_ro`) استفاده کن، هرگز روی سرور لایو.
+
+## مالکیت فایل‌ها و اسکریپت‌های استقرار (۲۰۲۶-۱۱-۰۸ ۱۲:۴۰)
+
+- مالک همه فایل‌های `cms-src` و `web-app` کاربر `colleague` است، به‌جز `cms-src/storage`، `cms-src/bootstrap/cache` و `cms-src/vendor` که مالکشان `33:33` (www-data داخل کانتینر) است. اگر جایی root شده بود (مثلاً بعد از `sudo tar` یا `sudo rsync`):
+  `sudo chown -R colleague:colleague cms-src web-app && sudo chown -R 33:33 cms-src/storage cms-src/bootstrap/cache cms-src/vendor`
+- کد CMS را با `git archive <sha> > cms-<sha>.tar` بساز و روی سرور `sudo tar -xf cms-<sha>.tar -C cms-src` و بلافاصله دستور chown بالا. اگر rsync لازم است: `sudo rsync -a --exclude=/vendor/ --exclude=/storage/ --exclude=/bootstrap/cache/` و بعد chown. هرگز rsync بدون sudo (نیمه‌کاره می‌ماند و کد مخلوط می‌شود).
+- وب: `infra/stage2/deploy-web.sh <sha> <thread>` (روی سرور `~/banovit-new/deploy-web.sh`) داخل قفل: `flock -w 600 .deploy.lock bash deploy-web.sh <sha> <thread>`. فایل `web-<sha>.tgz` باید از قبل کنار آن باشد (build محلی طبق «به‌روزرسانی» در docs/06). اسکریپت sharp لینوکسی را منتقل می‌کند، مالکیت را درست می‌کند، smoke test می‌زند و در DEPLOYED.log ثبت می‌کند.
+- بررسی یکدستی CMS: `git archive <sha>` را در `/tmp` باز کن و `md5sum -c` روی `cms-src` (به‌جز storage و bootstrap/cache) بزن؛ نباید FAILED بدهد. آخرین بررسی ۱۲:۳۷Z: cms-src = 6e6da16، هیچ اختلافی.
+- **داده لایو دیگر تازه‌سازی نمی‌شود** (دستور Ali ۱۲:۳۱): فقط با داده فعلی stage2 کار کنید؛ همگام‌سازی نهایی بعد از تکمیل پیاده‌سازی.
