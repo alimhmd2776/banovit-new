@@ -1401,6 +1401,7 @@ export interface components {
         };
         ProductLive: {
             id: number;
+            offers: components["schemas"]["ProductOffers"];
             price: components["schemas"]["Money"] | null;
             price_max: components["schemas"]["Money"] | null;
             regular_price: components["schemas"]["Money"] | null;
@@ -1417,6 +1418,19 @@ export interface components {
         };
         /** @enum {string} */
         Availability: "in_stock" | "out_of_stock" | "backorder" | "no_price";
+        /** @description Every seller's price per sellable unit. The page selects the house offer by default when in stock, else the cheapest in-stock one. */
+        ProductOffers: {
+            sellers: components["schemas"]["SellerCard"][];
+            items: {
+                /** @description SellerCard.slug; sent to the cart as seller (house seller: null) */
+                seller: string;
+                /** @description null = simple product */
+                variant_id: number | null;
+                price: components["schemas"]["Money"];
+                regular_price: components["schemas"]["Money"] | null;
+                in_stock: boolean;
+            }[];
+        };
         /** @description Public-vanity price form: price = length_cm × (slab_price_per_cm [+ frame_price_per_cm]) + bowls × bowl_price */
         VanityCalculator: {
             /** @constant */
@@ -1433,8 +1447,20 @@ export interface components {
         ProductDetail: {
             /** @description e.g. «سفارشی» */
             label: string | null;
-            /** @description Production time / stock text */
+            /** @description Production time / stock text, HTML (ACF text_mojodi on live) */
             availability_note: string | null;
+            /** @description The variation live opens on (WC default attributes), as option key => value. Null: cheapest in-stock. */
+            default_selection: {
+                [key: string]: string;
+            } | null;
+            /** @description Product videos (woodmart): an mp4 URL or a YouTube/Vimeo page URL, with the gallery image as poster */
+            videos: {
+                video_url: string;
+                poster: components["schemas"]["Image"] | null;
+            }[];
+            /** @description Per-product delivery time text (ACF send-product on live), HTML */
+            shipping_html: string | null;
+            offers: components["schemas"]["ProductOffers"];
             /** @description No online purchase: show the «سفارشی تولید می‌شود + مشاوره رایگان» box */
             made_to_order: boolean;
             consult_phone: string;

@@ -22,6 +22,12 @@ describe('variant selection', () => {
     expect(initialSelection(options, variants, { attribute_pa_size: '80' })).toEqual({ pa_color: 'cream', pa_size: '80' });
   });
 
+  it('opens on the WooCommerce default variation unless a link chooses', () => {
+    expect(initialSelection(options, variants, {}, { pa_color: 'white', pa_size: '80' })).toEqual({ pa_color: 'white', pa_size: '80' });
+    expect(initialSelection(options, variants, {}, { pa_color: 'white' })).toEqual({ pa_color: 'white', pa_size: '60' });
+    expect(initialSelection(options, variants, { attribute_pa_color: 'cream' }, { pa_color: 'white' })).toEqual({ pa_color: 'cream', pa_size: '60' });
+  });
+
   it('matches complete selections only, and "any" attributes match everything', () => {
     expect(matchVariant(options, variants, { pa_color: 'white', pa_size: null })).toBeNull();
     expect(matchVariant(options, variants, { pa_color: 'white', pa_size: '80' })?.id).toBe(2);

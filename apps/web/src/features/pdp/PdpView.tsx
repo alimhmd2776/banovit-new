@@ -10,7 +10,6 @@ import {
   IconGift,
   IconShield,
   IconStar,
-  IconStore,
   IconTruck,
   ProductCard,
 } from '@banovit/ui';
@@ -22,6 +21,8 @@ import { Gallery } from './Gallery';
 import { PurchaseProvider, type PurchaseProduct } from './PurchaseContext';
 import { AddonPickers, BuyBox, InstallCard, MobileBuyBar, OptionPickers } from './PurchaseControls';
 import { MadeToOrderBox, VanityCalculator } from './VanityCalculator';
+import { SellerPanel } from './SellerPanel';
+import { VideoStrip } from './VideoStrip';
 import { MoreReviews, WriteReview } from './ReviewActions';
 import { ReviewCard } from './ReviewCard';
 import { SectionTabs, type SectionTab } from './SectionTabs';
@@ -75,6 +76,8 @@ export function PdpView({ product: p }: { product: ProductDetail }) {
     addons: p.addons,
     made_to_order: p.made_to_order,
     consult_phone: p.consult_phone,
+    offers: p.offers,
+    default_selection: p.default_selection,
   };
 
   const tabs: SectionTab[] = [
@@ -97,6 +100,7 @@ export function PdpView({ product: p }: { product: ProductDetail }) {
         <div className="grid grid-cols-[minmax(0,1fr)] gap-4 pt-3 lg:grid-cols-[minmax(0,5fr)_minmax(0,4fr)_300px] lg:items-start lg:gap-8 lg:pt-0">
           <div className="min-w-0 lg:sticky lg:top-[calc(var(--header-height)+56px)]">
             <Gallery images={p.images} name={p.name} />
+            {p.videos.length ? <VideoStrip videos={p.videos} name={p.name} /> : null}
           </div>
 
           <div className="-mx-4 space-y-5 rounded-t-[28px] bg-surface px-4 pt-5 shadow-[0_-8px_24px_rgb(18_22_28/0.06)] lg:mx-0 lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
@@ -144,7 +148,7 @@ export function PdpView({ product: p }: { product: ProductDetail }) {
             {p.made_to_order || p.calculator ? (
               <MadeToOrderBox note={p.availability_note} phone={p.consult_phone} hasCalculator={!!p.calculator} />
             ) : p.availability_note ? (
-              <p className="rounded-md bg-surface-muted p-3 text-xs leading-6 text-text-muted">{p.availability_note}</p>
+              <div className="prose-pdp rounded-md bg-surface-muted p-3 text-xs leading-6 text-text-muted" dangerouslySetInnerHTML={{ __html: p.availability_note }} />
             ) : null}
 
             {p.options.length ? (
@@ -190,7 +194,7 @@ export function PdpView({ product: p }: { product: ProductDetail }) {
             <div className="hidden lg:block">
               <BuyBox />
             </div>
-            <SellerBox seller={p.seller} />
+            <SellerBox seller={p.seller} shippingHtml={p.shipping_html} />
           </aside>
         </div>
 
@@ -346,19 +350,10 @@ function MoreLink({ href }: { href: string }) {
   );
 }
 
-function SellerBox({ seller }: { seller: ProductDetail['seller'] }) {
+function SellerBox({ seller, shippingHtml }: { seller: ProductDetail['seller']; shippingHtml: string | null }) {
   return (
     <section aria-labelledby="seller-title" className="space-y-4 border-t-8 border-bg pt-5 lg:rounded-lg lg:border lg:border-border lg:bg-surface lg:p-5">
-      <h2 id="seller-title" className="text-[15px] font-bold text-text">
-        خرید مطمئن از بانویت
-      </h2>
-      <div className="flex items-center gap-3">
-        <span className="flex size-10 items-center justify-center rounded-full bg-primary-subtle text-primary">
-          <IconStore size={20} />
-        </span>
-        <p className="text-sm font-bold text-text">{seller.name}</p>
-        {seller.badge ? <span className="rounded-full bg-primary-subtle px-2 py-0.5 text-[11px] text-primary-on-subtle">{seller.badge}</span> : null}
-      </div>
+      <SellerPanel />
       <div className="flex items-start gap-3 border-t border-border pt-4">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-muted text-text-muted">
           <IconShield size={20} />
@@ -387,6 +382,9 @@ function SellerBox({ seller }: { seller: ProductDetail['seller'] }) {
               );
             })}
           </ul>
+          {shippingHtml ? (
+            <div className="prose-pdp border-t border-border pt-2 text-xs leading-6 text-text-muted" dangerouslySetInnerHTML={{ __html: shippingHtml }} />
+          ) : null}
         </div>
       </div>
     </section>

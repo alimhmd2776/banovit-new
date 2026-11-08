@@ -1698,9 +1698,10 @@ components:
       properties: { icon: { type: string }, label: { type: string }, text: { type: string } }
     ProductLive:
       type: object
-      required: [id, price, price_max, regular_price, discount_percent, in_stock, availability, variants]
+      required: [id, price, price_max, regular_price, discount_percent, in_stock, availability, variants, offers]
       properties:
         id: { type: integer }
+        offers: { $ref: '#/components/schemas/ProductOffers' }
         price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
         price_max: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
         regular_price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
@@ -1721,6 +1722,23 @@ components:
     Availability:
       type: string
       enum: [in_stock, out_of_stock, backorder, no_price]
+    ProductOffers:
+      type: object
+      description: 'Every seller''s price per sellable unit. The page selects the house offer by default when in stock, else the cheapest in-stock one.'
+      required: [sellers, items]
+      properties:
+        sellers: { type: array, items: { $ref: '#/components/schemas/SellerCard' } }
+        items:
+          type: array
+          items:
+            type: object
+            required: [seller, variant_id, price, regular_price, in_stock]
+            properties:
+              seller: { type: string, description: 'SellerCard.slug; sent to the cart as seller (house seller: null)' }
+              variant_id: { type: [integer, 'null'], description: 'null = simple product' }
+              price: { $ref: '#/components/schemas/Money' }
+              regular_price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+              in_stock: { type: boolean }
     VanityCalculator:
       type: object
       description: 'Public-vanity price form: price = length_cm × (slab_price_per_cm [+ frame_price_per_cm]) + bowls × bowl_price'
@@ -1737,10 +1755,25 @@ components:
         bowl_price: { $ref: '#/components/schemas/Money' }
     ProductDetail:
       type: object
-      required: [id, slug, name, path, type, sku, brand, primary_category, breadcrumb, images, short_description_html, description_html, key_features, specs, price, price_max, regular_price, discount_percent, in_stock, availability, price_valid_until, options, variants, addons, badges, label, availability_note, made_to_order, consult_phone, calculator, rating, reviews, seller, faqs, related, related_posts, seo, updated_at]
+      required: [id, slug, name, path, type, sku, brand, primary_category, breadcrumb, images, short_description_html, description_html, key_features, specs, price, price_max, regular_price, discount_percent, in_stock, availability, price_valid_until, options, variants, addons, offers, badges, label, availability_note, made_to_order, consult_phone, calculator, default_selection, videos, shipping_html, rating, reviews, seller, faqs, related, related_posts, seo, updated_at]
       properties:
         label: { type: [string, 'null'], description: 'e.g. «سفارشی»' }
-        availability_note: { type: [string, 'null'], description: 'Production time / stock text' }
+        availability_note: { type: [string, 'null'], description: 'Production time / stock text, HTML (ACF text_mojodi on live)' }
+        default_selection:
+          type: [object, 'null']
+          description: 'The variation live opens on (WC default attributes), as option key => value. Null: cheapest in-stock.'
+          additionalProperties: { type: string }
+        videos:
+          type: array
+          description: 'Product videos (woodmart): an mp4 URL or a YouTube/Vimeo page URL, with the gallery image as poster'
+          items:
+            type: object
+            required: [video_url, poster]
+            properties:
+              video_url: { type: string }
+              poster: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+        shipping_html: { type: [string, 'null'], description: 'Per-product delivery time text (ACF send-product on live), HTML' }
+        offers: { $ref: '#/components/schemas/ProductOffers' }
         made_to_order: { type: boolean, description: 'No online purchase: show the «سفارشی تولید می‌شود + مشاوره رایگان» box' }
         consult_phone: { type: string }
         calculator: { oneOf: [{ $ref: '#/components/schemas/VanityCalculator' }, { type: 'null' }] }
