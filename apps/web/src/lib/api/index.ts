@@ -37,6 +37,12 @@ export const getContactSettings = cache(async () =>
   client.getContactSettings({ next: { tags: ['settings', 'settings:contact'], revalidate: 300 } }),
 );
 
+export const getProduct = cache(async (slug: string) =>
+  client.getProduct(slug, { next: { tags: ['products', `product-slug:${slug}`], revalidate: REVALIDATE } }),
+);
+
+/** Uncached: used by the BFF route the browser polls after the (CDN-cached) page loads. */
+export const storefront = client;
 /**
  * CMS-managed navigation (header, mega menu, mobile sheets). Never throws: a
  * CMS outage renders the header without that menu instead of failing the page.

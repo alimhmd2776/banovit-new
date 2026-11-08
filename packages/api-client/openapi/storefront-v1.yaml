@@ -109,6 +109,87 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/ProductListing' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /products/{slug}:
+    get:
+      operationId: getProduct
+      summary: Product page data (/shop/{slug}/)
+      parameters:
+        - $ref: '#/components/parameters/productSlug'
+      responses:
+        '200':
+          description: Product
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ProductDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /products/{slug}/live:
+    get:
+      operationId: getProductLive
+      summary: Fresh price and stock (Cache-Control 5 s), refreshed by the browser after the cached page loads
+      parameters:
+        - $ref: '#/components/parameters/productSlug'
+      responses:
+        '200':
+          description: Live price/stock
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ProductLive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /products/{slug}/reviews:
+    get:
+      operationId: listProductReviews
+      summary: Approved reviews, newest first
+      parameters:
+        - $ref: '#/components/parameters/productSlug'
+        - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: Reviews
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReviewListing' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createProductReview
+      summary: Submit a review (held for moderation). Per-IP write limit.
+      parameters:
+        - $ref: '#/components/parameters/productSlug'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [author_name, rating, body]
+              properties:
+                author_name: { type: string, minLength: 2, maxLength: 100 }
+                phone: { type: string, description: 'Optional mobile 09xxxxxxxxx (Persian digits accepted)' }
+                rating: { type: integer, minimum: 1, maximum: 5 }
+                body: { type: string, minLength: 10, maxLength: 3000 }
+                variation_id: { type: [integer, 'null'] }
+      responses:
+        '201':
+          description: Received
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [id, status]
+                    properties: { id: { type: integer }, status: { type: string, const: pending } }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
   /menus/{key}:
     get:
       operationId: getMenu
@@ -130,6 +211,113 @@ paths:
                 properties:
                   data: { $ref: '#/components/schemas/Menu' }
         '404': { $ref: '#/components/responses/NotFound' }
+  # --- auth (feature/web-auth, banovit-cms feature/storefront-auth) ---
+  /auth/otp:
+    post:
+      operationId: requestOtp
+      summary: Send a 4-digit login code by SMS (same answer for known and unknown numbers)
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone: { type: string, description: 'Iranian mobile in any spelling (09…, +98…, Persian digits)' }
+      responses:
+        '202':
+          description: Code issued (delivery happens after the response)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/OtpChallenge' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/otp/verify:
+    post:
+      operationId: verifyOtp
+      summary: Check the code; returns a customer token (kept by the BFF in an httpOnly cookie)
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, code]
+              properties:
+                phone: { type: string }
+                code: { type: string, pattern: '^[0-9۰-۹]{4}$' }
+      responses:
+        '200':
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/CustomerSession' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: Revoke the current customer token
+      tags: [auth]
+      security: [{ customerToken: [] }]
+      responses:
+        '204': { description: Signed out }
+        '401': { description: Not signed in }
+  /me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      security: [{ customerToken: [] }]
+      responses:
+        '200':
+          description: Current customer
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Customer' }
+        '401': { description: Not signed in }
+    patch:
+      operationId: updateMe
+      summary: Signup «نام و نام خانوادگی» step
+      tags: [auth]
+      security: [{ customerToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [first_name, last_name]
+              properties:
+                first_name: { type: string, minLength: 2, maxLength: 50 }
+                last_name: { type: string, minLength: 2, maxLength: 50 }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Customer' }
+        '401': { description: Not signed in }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  # --- /auth ---
   # --- contact ---
   /settings/contact:
     get:
@@ -174,12 +362,20 @@ paths:
           description: Too many requests
   # --- /contact ---
 components:
+  securitySchemes:
+    customerToken: { type: http, scheme: bearer, description: Sanctum token from /auth/otp/verify (server-side only) }
   parameters:
     categoryPath:
       name: path
       in: path
       required: true
       description: Slug path after /shop/category/, e.g. vanity/cabinet-vanity (slashes allowed)
+      schema: { type: string }
+    productSlug:
+      name: slug
+      in: path
+      required: true
+      description: Product slug after /shop/ (decoded or percent-encoded)
       schema: { type: string }
     page: { name: page, in: query, schema: { type: integer, minimum: 1, maximum: 200, default: 1 } }
     per_page: { name: per_page, in: query, schema: { type: integer, enum: [12, 24, 36, 48], default: 24 } }
@@ -202,6 +398,11 @@ components:
     in_stock: { name: in_stock, in: query, schema: { type: boolean } }
     on_sale: { name: on_sale, in: query, schema: { type: boolean } }
   responses:
+    TooManyRequests:
+      description: 'Limit hit: otp_cooldown, too_many_requests or phone_locked (Retry-After header + error.retry_after)'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
     NotFound:
       description: Not found
       content:
@@ -501,6 +702,209 @@ components:
           properties:
             prev_page: { type: [integer, 'null'] }
             next_page: { type: [integer, 'null'] }
+    ProductOptionValue:
+      type: object
+      required: [value, label, hex]
+      properties:
+        value: { type: string, description: 'Term slug (same as WordPress ?attribute_pa_x=) or the label for custom attributes' }
+        label: { type: string }
+        hex: { type: [string, 'null'] }
+    ProductOption:
+      type: object
+      required: [key, label, type, values]
+      properties:
+        key: { type: string, description: 'pa_* facet key, or attr_N for custom attributes' }
+        label: { type: string }
+        type: { type: string, enum: [swatch, button] }
+        values: { type: array, items: { $ref: '#/components/schemas/ProductOptionValue' } }
+    ProductVariant:
+      type: object
+      required: [id, sku, attributes, price, regular_price, discount_percent, in_stock, image]
+      properties:
+        id: { type: integer, description: 'variation_id for the cart' }
+        sku: { type: [string, 'null'] }
+        attributes:
+          type: object
+          description: 'option key -> value; null means any value'
+          additionalProperties: { type: [string, 'null'] }
+        price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        regular_price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        discount_percent: { type: integer }
+        in_stock: { type: boolean }
+        image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+    ProductAddonOption:
+      type: object
+      required: [id, label, description, price, kind, default]
+      properties:
+        id: { type: integer, description: 'Sent to the cart in addon_ids' }
+        label: { type: string }
+        description: { type: [string, 'null'] }
+        price: { $ref: '#/components/schemas/Money' }
+        kind: { type: string, description: 'installation | other' }
+        default: { type: boolean }
+    ProductAddon:
+      type: object
+      required: [id, title, description, type, required, options]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: [string, 'null'] }
+        type: { type: string, enum: [checkbox, radio] }
+        required: { type: boolean }
+        options: { type: array, items: { $ref: '#/components/schemas/ProductAddonOption' } }
+    ProductRating:
+      type: object
+      required: [average, count, distribution]
+      properties:
+        average: { type: number }
+        count: { type: integer }
+        distribution: { type: object, additionalProperties: { type: integer }, description: '"5".."1" -> count' }
+    Review:
+      type: object
+      required: [id, author_name, is_verified_buyer, rating, body, variant_label, likes, dislikes, published_at]
+      properties:
+        id: { type: integer }
+        author_name: { type: string }
+        is_verified_buyer: { type: boolean }
+        rating: { type: [integer, 'null'] }
+        body: { type: string }
+        variant_label: { type: [string, 'null'] }
+        likes: { type: integer }
+        dislikes: { type: integer }
+        published_at: { type: [string, 'null'], format: date-time }
+    ReviewListing:
+      type: object
+      required: [data, meta, links]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/Review' } }
+        meta:
+          type: object
+          required: [page, per_page, total, last_page, rating]
+          properties:
+            page: { type: integer }
+            per_page: { type: integer }
+            total: { type: integer }
+            last_page: { type: integer }
+            rating: { oneOf: [{ $ref: '#/components/schemas/ProductRating' }, { type: 'null' }] }
+        links:
+          type: object
+          required: [prev_page, next_page]
+          properties:
+            prev_page: { type: [integer, 'null'] }
+            next_page: { type: [integer, 'null'] }
+    ShippingLine:
+      type: object
+      required: [icon, label, text]
+      properties: { icon: { type: string }, label: { type: string }, text: { type: string } }
+    ProductLive:
+      type: object
+      required: [id, price, price_max, regular_price, discount_percent, in_stock, availability, variants]
+      properties:
+        id: { type: integer }
+        price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        price_max: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        regular_price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        discount_percent: { type: integer }
+        in_stock: { type: boolean }
+        availability: { $ref: '#/components/schemas/Availability' }
+        variants:
+          type: array
+          items:
+            type: object
+            required: [id, price, regular_price, discount_percent, in_stock]
+            properties:
+              id: { type: integer }
+              price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+              regular_price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+              discount_percent: { type: integer }
+              in_stock: { type: boolean }
+    Availability:
+      type: string
+      enum: [in_stock, out_of_stock, backorder, no_price]
+    ProductDetail:
+      type: object
+      required: [id, slug, name, path, type, sku, brand, primary_category, breadcrumb, images, short_description_html, description_html, key_features, specs, price, price_max, regular_price, discount_percent, in_stock, availability, price_valid_until, options, variants, addons, badges, rating, reviews, seller, faqs, related, related_posts, seo, updated_at]
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        name: { type: string }
+        path: { type: string, description: '/shop/{slug}/ lowercase percent-encoded, like WordPress' }
+        type: { type: string, enum: [simple, variable] }
+        sku: { type: [string, 'null'] }
+        brand:
+          oneOf:
+            - type: object
+              required: [slug, name, url]
+              properties: { slug: { type: string }, name: { type: string }, url: { type: string } }
+            - type: 'null'
+        primary_category:
+          oneOf:
+            - type: object
+              required: [id, name, url]
+              properties: { id: { type: integer }, name: { type: string }, url: { type: string } }
+            - type: 'null'
+        breadcrumb: { type: array, items: { $ref: '#/components/schemas/BreadcrumbItem' }, description: 'Category chain, root first (the product is appended by the page)' }
+        images: { type: array, items: { $ref: '#/components/schemas/Image' } }
+        short_description_html: { type: [string, 'null'] }
+        description_html: { type: [string, 'null'] }
+        key_features: { type: array, items: { type: string } }
+        specs:
+          type: array
+          items:
+            type: object
+            required: [label, value]
+            properties: { label: { type: string }, value: { type: string } }
+        price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        price_max: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        regular_price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        discount_percent: { type: integer }
+        in_stock: { type: boolean }
+        availability: { $ref: '#/components/schemas/Availability' }
+        price_valid_until: { type: [string, 'null'], format: date }
+        options: { type: array, items: { $ref: '#/components/schemas/ProductOption' } }
+        variants: { type: array, items: { $ref: '#/components/schemas/ProductVariant' } }
+        addons: { type: array, items: { $ref: '#/components/schemas/ProductAddon' } }
+        badges:
+          type: object
+          required: [install_service]
+          properties: { install_service: { type: boolean } }
+        rating: { oneOf: [{ $ref: '#/components/schemas/ProductRating' }, { type: 'null' }], description: 'Null unless there are approved rated reviews (no AggregateRating then)' }
+        reviews:
+          type: object
+          required: [total, items]
+          properties:
+            total: { type: integer }
+            items: { type: array, items: { $ref: '#/components/schemas/Review' } }
+        seller:
+          type: object
+          required: [name, badge, logo, warranty, shipping]
+          properties:
+            name: { type: string }
+            badge: { type: [string, 'null'] }
+            logo: { type: [string, 'null'] }
+            warranty: { type: string }
+            shipping:
+              type: object
+              required: [title, lines, url]
+              properties:
+                title: { type: string }
+                lines: { type: array, items: { $ref: '#/components/schemas/ShippingLine' } }
+                url: { type: string }
+        faqs: { type: array, items: { $ref: '#/components/schemas/Faq' } }
+        related: { type: array, items: { $ref: '#/components/schemas/ProductCard' } }
+        related_posts:
+          type: array
+          items:
+            type: object
+            required: [title, url]
+            properties:
+              title: { type: string }
+              url: { type: string }
+              image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+              category: { type: [string, 'null'] }
+              published_at: { type: [string, 'null'] }
+        seo: { $ref: '#/components/schemas/Seo' }
+        updated_at: { type: [string, 'null'], format: date-time }
     Menu:
       type: object
       required: [key, name, items]
@@ -548,3 +952,35 @@ components:
             code: { type: string }
             message: { type: string }
             fields: { type: object, additionalProperties: { type: array, items: { type: string } } }
+            retry_after: { type: integer, description: Seconds until the request may be retried (429) }
+            attempts_left: { type: integer, description: Wrong OTP tries left for the current code (otp_invalid) }
+    # --- auth ---
+    OtpChallenge:
+      type: object
+      required: [phone, code_length, expires_in, resend_in]
+      properties:
+        phone: { type: string, description: Normalized 09XXXXXXXXX }
+        code_length: { type: integer, const: 4 }
+        expires_in: { type: integer, description: Seconds }
+        resend_in: { type: integer, description: Seconds until a new code may be requested }
+    Customer:
+      type: object
+      required: [id, first_name, last_name, name, phone, type, needs_profile]
+      properties:
+        id: { type: string, description: ULID (public id) }
+        first_name: { type: [string, 'null'] }
+        last_name: { type: [string, 'null'] }
+        name: { type: [string, 'null'], description: Full name; null until the profile is completed }
+        phone: { type: string }
+        type: { type: string, enum: [consumer, partner], description: 'partner = B2B (WordPress role shop)' }
+        needs_profile: { type: boolean, description: true → ask first/last name before continuing }
+    CustomerSession:
+      type: object
+      required: [token, token_type, expires_at, is_new, customer]
+      properties:
+        token: { type: string }
+        token_type: { type: string, const: Bearer }
+        expires_at: { type: string, format: date-time }
+        is_new: { type: boolean }
+        customer: { $ref: '#/components/schemas/Customer' }
+    # --- /auth ---
