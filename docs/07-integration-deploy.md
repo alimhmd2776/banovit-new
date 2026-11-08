@@ -7,7 +7,7 @@
 | مخزن | شاخه یکپارچه | پایه |
 |---|---|---|
 | banovit-new | `develop` | `main` + همه `feature/web-*` آماده |
-| banovit-cms | `integration/storefront` | `develop` همان مخزن + همه `feature/storefront-*` آماده |
+| banovit-cms | `integration/storefront` | `develop` همان مخزن + همه `feature/storefront-*` آماده (نسخه اولیه از شاخه محلی `integration/stage2` در `D:\projects\int-cms` push می‌شود) |
 
 - روی stage2 **فقط HEAD شاخه‌های یکپارچه** مستقر می‌شود، هرگز یک شاخه feature به‌تنهایی (وگرنه کار threadهای دیگر از روی سرور پاک می‌شود).
 - شاخه‌های feature همچنان PR جدا به `develop` / `integration/storefront` دارند.
