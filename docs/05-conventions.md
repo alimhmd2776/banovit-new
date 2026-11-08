@@ -79,3 +79,9 @@ src/
 
 - این مخزن: `main` (تولید)، `develop`، `feature/*`. Conventional Commits. پیام commit می‌تواند فارسی باشد.
 - banovit-cms: git-flow و قواعد CLAUDE.md همان مخزن (هیچ commit/push بدون تأیید، هیچ تست روی DB اصلی).
+
+## بارگذاری و حالت مشغول (مشترک، ۲۰۲۶-۱۱-۰۸)
+
+- وب: برای جابه‌جایی برنامه‌ای از `useNavRouter` (به‌جای `useRouter`) استفاده کن تا نوار پیشرفت (`lib/nav-progress.ts`) نمایش داده شود. دکمه‌ای که درخواست می‌فرستد `data-busy` بگیرد تا spinner نشان دهد.
+- پنل‌ها (admin-app، supplier-app): فعالیت شبکه از `src/utils/networkActivity.ts` روی کلاینت axios گرفته می‌شود؛ درخواست‌ها را فقط از همان کلاینت بفرست.
+- هر build پنل از `integration/storefront` باید شامل 906400d یا بعدتر باشد، وگرنه نوار بارگذاری و دکمه‌های مشغول حذف می‌شوند. SPAها را در docker با `-u $(id -u):$(id -g) -e HOME=/tmp` بساز.
