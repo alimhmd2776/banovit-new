@@ -10,3 +10,4 @@ export { Chip, FilterPill } from './Chip';
 export { BottomSheet } from './BottomSheet';
 export { Switch, Checkbox } from './Switch';
 export { RangeSlider } from './RangeSlider';
+export { QuantityStepper } from './QuantityStepper';
