@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { PdpView } from '@/features/pdp/PdpView';
-import { getProduct, isNotFound } from '@/lib/api';
+import { getProduct, isNotFound, movedLocation } from '@/lib/api';
 import { productMetadata } from '@/lib/seo';
 
 /**
@@ -27,6 +27,9 @@ async function load(rawSlug: string) {
   try {
     return await getProduct(decode(rawSlug));
   } catch (e) {
+    // Slug renamed in the CMS product editor: 301 to the new permalink (like WP _wp_old_slug).
+    const moved = movedLocation(e);
+    if (moved) permanentRedirect(moved);
     if (isNotFound(e)) notFound();
     throw e;
   }

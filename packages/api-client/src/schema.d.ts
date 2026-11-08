@@ -1447,8 +1447,19 @@ export interface components {
         ProductDetail: {
             /** @description e.g. «سفارشی» */
             label: string | null;
-            /** @description Production time / stock text */
+            /** @description Production time / stock text, HTML (ACF text_mojodi on live) */
             availability_note: string | null;
+            /** @description The variation live opens on (WC default attributes), as option key => value. Null: cheapest in-stock. */
+            default_selection: {
+                [key: string]: string;
+            } | null;
+            /** @description Product videos (woodmart): an mp4 URL or a YouTube/Vimeo page URL, with the gallery image as poster */
+            videos: {
+                video_url: string;
+                poster: components["schemas"]["Image"] | null;
+            }[];
+            /** @description Per-product delivery time text (ACF send-product on live), HTML */
+            shipping_html: string | null;
             offers: components["schemas"]["ProductOffers"];
             /** @description No online purchase: show the «سفارشی تولید می‌شود + مشاوره رایگان» box */
             made_to_order: boolean;
@@ -1648,6 +1659,15 @@ export interface components {
             packaging?: boolean;
             /** Format: date */
             delivery_date?: string | null;
+            /** @description Key from delivery.methods; null = first offered. 422 invalid_shipping_method */
+            shipping_method?: string | null;
+            /**
+             * Format: date
+             * @description From installation_schedule.slots; 422 invalid_installation_date
+             */
+            installation_date?: string | null;
+            /** @description times[].key of that day, e.g. 09:00-13:00 */
+            installation_slot?: string | null;
             address?: components["schemas"]["Address"] | null;
             /** @description Saved customer address (signed-in) */
             address_id?: string | null;
@@ -1744,6 +1764,10 @@ export interface components {
                 packaging: boolean;
                 /** Format: date */
                 delivery_date: string | null;
+                shipping_method?: string | null;
+                /** Format: date */
+                installation_date?: string | null;
+                installation_slot?: string | null;
                 address: components["schemas"]["Address"] | null;
                 payment_method: string | null;
                 customer_note: string | null;
@@ -1763,12 +1787,31 @@ export interface components {
                 window_label: string;
                 requires_slot: boolean;
                 slots: components["schemas"]["DeliverySlot"][];
+                method?: components["schemas"]["ShippingMethodRef"] | null;
+                /** @description Shipping methods offered for this cart (store settings + shipping rules); pick with PATCH cart {shipping_method} */
+                methods?: components["schemas"]["ShippingMethod"][];
+                notices?: string[];
+            };
+            /** @description Installation visit picker; required = an installation is selected and the zone has an installation schedule */
+            installation_schedule?: {
+                required: boolean;
+                slots: {
+                    /** Format: date */
+                    date: string;
+                    weekday: string;
+                    day_label: string;
+                    times: {
+                        key: string;
+                        label: string;
+                    }[];
+                }[];
             };
             addons: {
                 packaging: {
                     label: string;
                     description: string;
                     fee: components["schemas"]["Money"];
+                    default_selected?: boolean;
                 } | null;
                 installation: {
                     label: string;
@@ -1787,6 +1830,20 @@ export interface components {
                 item_id: number | null;
             }[];
             ready_for_checkout: boolean;
+        };
+        ShippingMethodRef: {
+            key: string;
+            title: string;
+            description?: string | null;
+        };
+        ShippingMethod: {
+            key: string;
+            title: string;
+            description?: string | null;
+            fee: components["schemas"]["Money"];
+            /** @description Shown instead of a zero fee, e.g. پس‌کرایه / رایگان */
+            fee_label?: string | null;
+            selected: boolean;
         };
         OrderSummary: {
             number: string;
