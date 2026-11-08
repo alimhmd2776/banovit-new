@@ -138,7 +138,7 @@ export function InstallCard({ installBadge }: { installBadge: boolean }) {
           </button>
         }
       >
-        <div className="space-y-5">
+        <div className="space-y-5 px-4 pb-4">
           {installAddons.map((a) => (
             <fieldset key={a.id}>
               <legend className="mb-2 text-sm font-bold text-text">
