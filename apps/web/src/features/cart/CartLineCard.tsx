@@ -6,11 +6,22 @@ import type { CartLine } from '@banovit/api-client';
 import { cx, faDigits, formatToman, IconInfo, IconStore, QuantityStepper, Switch } from '@banovit/ui';
 import { Money } from './Money';
 
+export const HOUSE_SELLER_NAME = 'بانویت';
+
+export function sellerName(line: CartLine): string {
+  return line.seller?.name ?? HOUSE_SELLER_NAME;
+}
+
 export function lineDetails(line: CartLine): string[] {
   const out = line.variation?.attributes.map((a) => `${a.name} ${a.value}`) ?? [];
   for (const a of line.addons ?? []) out.push(a.label);
   if (line.installation.selected && line.installation.available) out.push('با خدمات نصب');
   return out;
+}
+
+/** Details plus «فروشنده: …», for summaries without the seller chip (order items, proforma). */
+export function lineDetailsWithSeller(line: CartLine): string[] {
+  return [`فروشنده: ${sellerName(line)}`, ...lineDetails(line)];
 }
 
 /** One cart line: image, brand chip, name, attributes, stepper, price, installation toggle. */
@@ -38,12 +49,11 @@ export function CartLineCard({
           ) : null}
         </Link>
         <div className="min-w-0 flex-1">
-          {line.product.brand ? (
-            <span className="mb-1.5 inline-flex items-center gap-1 rounded-full bg-surface-muted px-2 py-0.5 text-[11px] text-text-muted">
-              <IconStore size={13} />
-              {line.product.brand.name}
-            </span>
-          ) : null}
+          {/* Seller chip (design: store icon + seller name); Banovit itself when no marketplace seller. */}
+          <span className="mb-1.5 inline-flex items-center gap-1 rounded-full bg-surface-muted px-2 py-0.5 text-[11px] text-text-muted" title="فروشنده">
+            <IconStore size={13} />
+            {sellerName(line)}
+          </span>
           <h3 className="text-[15px] font-bold leading-6 text-text">
             <Link href={line.product.path} className="hover:text-primary">
               {line.product.name}

@@ -1944,6 +1944,7 @@ components:
         quantity: { type: integer, minimum: 1, default: 1 }
         installation: { type: boolean }
         addon_ids: { type: array, items: { type: integer }, description: PDP add-on option ids (installation service) }
+        seller: { type: [string, 'null'], description: 'Storefront seller slug; null/absent = Banovit itself. 422 seller_offer_unavailable when that seller has no live offer' }
     CartUpdate:
       type: object
       properties:
@@ -1959,6 +1960,11 @@ components:
       required: [id, product, variation, quantity, max_quantity, unit_price, unit_regular_price, discount_percent, line_total, line_regular_total, purchasable, issue, installation]
       properties:
         id: { type: integer }
+        seller:
+          description: 'Marketplace seller of this line; null = Banovit itself'
+          oneOf:
+            - { type: object, required: [slug, name], properties: { slug: { type: string }, name: { type: string } } }
+            - { type: 'null' }
         product:
           type: object
           required: [id, name, slug, path, image, brand]
