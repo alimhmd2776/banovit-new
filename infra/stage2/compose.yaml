@@ -11,12 +11,12 @@ services:
   web:            # new.banovit.com -> later: Next.js standalone (node:24-alpine)
     <<: *static
     ports: ["127.0.0.1:8110:80"]
-    volumes: ["./placeholder/web:/usr/share/nginx/html:ro"]
+    volumes: ["./placeholder/web:/usr/share/nginx/html:ro", "./noindex.conf:/etc/nginx/conf.d/default.conf:ro"]
   cms:            # cms-new.banovit.com -> later: banovit-cms (php-fpm/Octane) on DB new_cms
     <<: *static
     ports: ["127.0.0.1:8111:80"]
-    volumes: ["./placeholder/cms:/usr/share/nginx/html:ro"]
+    volumes: ["./placeholder/cms:/usr/share/nginx/html:ro", "./noindex.conf:/etc/nginx/conf.d/default.conf:ro"]
   supplier:       # supplier-new.banovit.com -> later: built supplier SPA
     <<: *static
     ports: ["127.0.0.1:8112:80"]
-    volumes: ["./placeholder/supplier:/usr/share/nginx/html:ro"]
+    volumes: ["./placeholder/supplier:/usr/share/nginx/html:ro", "./noindex.conf:/etc/nginx/conf.d/default.conf:ro"]

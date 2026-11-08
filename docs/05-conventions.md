@@ -18,6 +18,10 @@
 5. پذیرش: تایپ‌چک و تست سبز، اسکرین‌شات ۳۷۵ و ۱۴۴۰ پیکسل، Lighthouse موبایل ≥ 90، diff متا با لایو.
 6. شاخه `feature/web-{page}` در این مخزن، PR به `develop`؛ commit/push فقط با تأیید Ali.
 
+## ایندکس‌نشدن محیط آزمایشی (اجباری)
+
+هر کد ویترین باید پرچم `SITE_INDEXABLE` را رعایت کند (پیش‌فرض `false`): `app/robots.ts` و `app/sitemap.ts` و `generateMetadata` همه از `lib/seo` می‌خوانند و تا `true` نشده، `noindex, nofollow` برمی‌گردانند. هیچ صفحه‌ای متای robots را مستقیم ننویسد. جزئیات در [06-infra-stage2.md](06-infra-stage2.md).
+
 ## ساختار کد `apps/web`
 
 ```
