@@ -4,16 +4,6 @@ import { IconBuilding, IconMail, IconMapFold, IconNavigation, IconPhone, IconWar
 import { ContactForm } from './ContactForm';
 import { displayPhone, osmEmbedUrl } from './format';
 
-const SOCIAL_NAMES: Record<string, string> = {
-  whatsapp: 'واتس‌اپ',
-  telegram: 'تلگرام',
-  instagram: 'اینستاگرام',
-  bale: 'بله',
-  rubika: 'روبیکا',
-  eitaa: 'ایتا',
-  aparat: 'آپارات',
-  linkedin: 'لینکدین',
-};
 
 type Logo = ContactSettings['logo'];
 
@@ -30,8 +20,8 @@ export function ContactView({ s }: { s: ContactSettings }) {
       {/* mobile page bar (the site header stays above it) */}
       {/* mobile page bar. The live page has no H1 (SEO parity), so this is only an H1 when the CMS sets one. */}
       <div className="-mx-4 mb-6 border-b border-border px-4 py-3 lg:hidden">
-        <p className="text-lg font-bold text-text">تماس با ما</p>
-        <p className="text-xs text-text-muted">تیم تخصصی و فنی بانویت</p>
+        {s.page_bar.title ? <p className="text-lg font-bold text-text">{s.page_bar.title}</p> : null}
+        {s.page_bar.subtitle ? <p className="text-xs text-text-muted">{s.page_bar.subtitle}</p> : null}
       </div>
       {s.seo.h1 ? <h1 className="sr-only">{s.seo.h1}</h1> : null}
 
@@ -39,12 +29,7 @@ export function ContactView({ s }: { s: ContactSettings }) {
         <Intro s={s} />
 
         <section aria-label={s.form.title} className="rounded-lg border border-border bg-surface p-4 lg:col-start-2 lg:row-start-2 lg:p-6">
-          <ContactForm
-            title={s.form.title}
-            messagePlaceholder={s.form.message_placeholder ?? null}
-            submitLabel={s.form.submit_label}
-            successMessage={s.form.success_message}
-          />
+          <ContactForm texts={s.form} pageTitle={s.page_bar.title ?? s.heading} />
         </section>
 
         <div className="flex flex-col gap-4 lg:col-start-1 lg:row-start-2 lg:gap-5">
@@ -129,7 +114,7 @@ function InfoCards({ s }: { s: ContactSettings }) {
               </span>
             ))}
           </p>
-          <p className="text-xs text-text-muted">تلفن پشتیبانی</p>
+          {s.phones_caption ? <p className="text-xs text-text-muted">{s.phones_caption}</p> : null}
           {s.email ? (
             <a href={`mailto:${s.email}`} className="mt-1 inline-flex items-center gap-1 text-xs text-primary" dir="ltr">
               <IconMail size={14} />
@@ -156,7 +141,7 @@ function MapLink({ s, className }: { s: ContactSettings; className?: string }) {
       )}
     >
       <IconNavigation size={18} className="text-primary" />
-      {neshan ? 'ورود به نشان' : 'مسیریابی'}
+      {neshan ? s.map.neshan_label : s.map.directions_label}
     </a>
   );
 }
@@ -213,7 +198,7 @@ function MapCard({ s }: { s: ContactSettings }) {
         className="pointer-events-none absolute bottom-3 end-3 inline-flex items-center gap-2 rounded-full bg-surface px-5 py-3 text-sm font-bold text-text shadow-md lg:hidden"
       >
         <IconNavigation size={18} className="text-primary" />
-        {s.map.neshan_url ? 'ورود به نشان' : 'مسیریابی'}
+        {s.map.neshan_url ? s.map.neshan_label : s.map.directions_label}
       </span>
     </div>
   );
@@ -223,8 +208,8 @@ function Socials({ s, className }: { s: ContactSettings; className?: string }) {
   if (!s.socials.length) return null;
   return (
     <ul className={cx('flex items-center gap-2', className)} aria-label="بانویت در شبکه‌های اجتماعی">
-      {s.socials.map(({ network, url, icon }) => {
-        const name = SOCIAL_NAMES[network] ?? network;
+      {s.socials.map(({ network, label, url, icon }) => {
+        const name = label ?? network;
         return (
           <li key={url}>
             <a
