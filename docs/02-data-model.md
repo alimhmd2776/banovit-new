@@ -26,6 +26,7 @@
 ### Content
 - `posts` (بلاگ)، `pages`، `landing_pages`: بدنه به‌صورت `blocks` (آرایه JSON با schema نسخه‌دار، مثل `{type:"faq", v:1, props:{...}}`)، به‌اضافه `body_html` برای مقاله‌های منتقل‌شده از Elementor تا وقتی بازنویسی شوند
 - `post_categories`، `tags`، `menus` و `menu_items`، `faqs`، `media` (فایل در object storage)
+- **ساخته‌شده (۲۰۲۶-۱۱-۰۸، برگه‌ها):** `content_pages` (legacy_wp_id یکتا، parent_id، slug، path یکتا و decode‌شده، title، template، status draft/published/private، blocks JSON، body_html، published_at، revision_count، soft delete؛ ایندکس `status, published_at`) و `content_page_revisions` (snapshot کامل هر ذخیره، یکتا `content_page_id, number`). ستون `logo` (JSON) روی `product_attribute_terms` برای لوگوی برندها. قرارداد: [docs/api/pages.md](api/pages.md)
 
 ### Seo
 - `seo_meta` (polymorphic: title، description، canonical، robots، og_*، focus_keywords، schema_overrides JSON)

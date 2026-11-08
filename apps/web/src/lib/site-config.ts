@@ -32,6 +32,7 @@ export const siteConfig = {
       links: [
         { name: 'درباره ما', href: '/about-us/' },
         { name: 'تماس با ما', href: '/contact-us/' },
+        { name: 'شرایط و قوانین', href: '/terms/' },
         { name: 'حریم خصوصی', href: '/privacy-policy/' },
         { name: 'بلاگ', href: '/blog/' },
       ],

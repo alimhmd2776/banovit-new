@@ -20,6 +20,10 @@ export type Seo = Schemas['Seo'];
 export type Faq = Schemas['Faq'];
 export type SortKey = Schemas['SortKey'];
 export type ApiError = Schemas['Error'];
+export type ContentPage = Schemas['ContentPage'];
+export type ContentBlock = Schemas['ContentBlock'];
+export type PageListItem = Schemas['PageListItem'];
+export type PageCrumb = Schemas['PageCrumb'];
 
 export type ListingParams = NonNullable<operations['listCategoryProducts']['parameters']['query']>;
 
@@ -113,6 +117,9 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: Brand }>(`/brands/${encodePath(slug)}`, init).then((r) => r.data),
     listBrandProducts: (slug: string, params?: Omit<ListingParams, 'brand'>, init?: RequestOptions) =>
       get<ProductListing>(`/brands/${encodePath(slug)}/products${listingQueryString(params)}`, init),
+    listPages: (init?: RequestOptions) => get<{ data: PageListItem[] }>('/pages', init).then((r) => r.data),
+    getPage: (path: string, init?: RequestOptions) =>
+      get<{ data: ContentPage }>(`/pages/${encodePath(path)}`, init).then((r) => r.data),
   };
 }
 
