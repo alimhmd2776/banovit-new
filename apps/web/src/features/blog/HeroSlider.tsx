@@ -11,7 +11,7 @@ import { BookmarkButton } from './BookmarkButton';
  * Featured posts slider (scroll-snap, swipeable, works without JS). Dots show
  * the active slide; the first image is the LCP element (priority).
  */
-export function HeroSlider({ posts }: { posts: BlogPostCard[] }) {
+export function HeroSlider({ posts, label }: { posts: BlogPostCard[]; label: string }) {
   const track = useRef<HTMLUListElement>(null);
   const [active, setActive] = useState(0);
 
@@ -36,7 +36,7 @@ export function HeroSlider({ posts }: { posts: BlogPostCard[] }) {
   if (posts.length === 0) return null;
 
   return (
-    <section aria-roledescription="carousel" aria-label="مقالات ویژه" className="relative -mx-4 lg:mx-0">
+    <section aria-roledescription="carousel" aria-label={label} className="relative -mx-4 lg:mx-0">
       <ul ref={track} className="scrollbar-none flex snap-x snap-mandatory overflow-x-auto lg:rounded-lg">
         {posts.map((post, i) => (
             <li

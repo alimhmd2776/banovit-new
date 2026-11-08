@@ -965,6 +965,20 @@ paths:
                 required: [data]
                 properties:
                   data: { $ref: '#/components/schemas/BlogHome' }
+  /blog/ui:
+    get:
+      operationId: getBlogUi
+      summary: Blog texts and page switches set in the CMS panel (labels, single post page, box labels)
+      responses:
+        '200':
+          description: Blog UI settings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/BlogUi' }
   /blog/posts:
     get:
       operationId: listBlogPosts
@@ -2718,22 +2732,30 @@ components:
             seo: { $ref: '#/components/schemas/Seo' }
     BlogPostSidebar:
       type: object
-      description: The live single-post sidebar (top to bottom; the TOC comes from `toc`)
-      required: [banners, recent_posts, recent_comments]
+      description: The single-post sidebar as configured in the CMS panel (ordered sections; the toc section's items come from `toc`)
+      required: [sections]
       properties:
+        sections: { type: array, items: { $ref: '#/components/schemas/BlogSidebarSection' } }
+    BlogSidebarSection:
+      type: object
+      required: [type]
+      properties:
+        type: { type: string, enum: [banners, toc, recent_posts, recent_comments] }
+        accent: { type: [string, 'null'], description: Blue part of the heading («جدید ترین») }
+        title: { type: [string, 'null'], description: Rest of the heading («مقاله ها») }
+        card_title: { type: [string, 'null'] }
+        interval_seconds: { type: integer }
         banners:
           type: array
-          description: The post's own banners (live [sidebar_banner]), usually linking a shop category
           items:
             type: object
             required: [image, url]
             properties:
               image: { $ref: '#/components/schemas/Image' }
               url: { type: [string, 'null'] }
-        recent_posts: { type: array, description: «جدید ترین مقاله ها» (latest 5), items: { $ref: '#/components/schemas/BlogPostCard' } }
-        recent_comments:
+        posts: { type: array, items: { $ref: '#/components/schemas/BlogPostCard' } }
+        comments:
           type: array
-          description: «جدید ترین نظرات مشتریان» — latest 4 approved comments site-wide (posts and products)
           items:
             type: object
             required: [author, text, title, url]
@@ -2742,6 +2764,64 @@ components:
               text: { type: string }
               title: { type: string }
               url: { type: string }
+    BlogUi:
+      type: object
+      required: [labels, post_page, blocks]
+      properties:
+        labels:
+          type: object
+          properties:
+            breadcrumb_root: { type: [string, 'null'] }
+            search_placeholder: { type: [string, 'null'] }
+            categories_title: { type: [string, 'null'] }
+            empty: { type: [string, 'null'] }
+            more: { type: [string, 'null'] }
+            featured_title: { type: [string, 'null'] }
+            feed_description: { type: [string, 'null'] }
+        post_page:
+          type: object
+          properties:
+            show_summary: { type: boolean }
+            summary_title: { type: [string, 'null'] }
+            show_tags: { type: boolean }
+            show_author_box: { type: boolean }
+            faq_title: { type: [string, 'null'] }
+            related_products: { $ref: '#/components/schemas/BlogUiSection' }
+            related_posts: { $ref: '#/components/schemas/BlogUiSection' }
+            share:
+              type: object
+              properties:
+                enabled: { type: boolean }
+                title: { type: [string, 'null'] }
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required: [type]
+                    properties:
+                      type: { type: string, enum: [copy, telegram, whatsapp, instagram, aparat] }
+                      url: { type: [string, 'null'] }
+            toc:
+              type: object
+              properties:
+                title: { type: [string, 'null'] }
+                mobile_floating: { type: boolean }
+                include_faq: { type: boolean }
+                collapse_after_px: { type: integer }
+                more: { type: [string, 'null'] }
+                less: { type: [string, 'null'] }
+        blocks:
+          type: object
+          properties:
+            map: { type: object, properties: { label: { type: [string, 'null'] }, link: { type: [string, 'null'] } } }
+            stat: { type: object, properties: { views: { type: [string, 'null'] }, updated: { type: [string, 'null'] } } }
+    BlogUiSection:
+      type: object
+      properties:
+        enabled: { type: boolean }
+        title: { type: [string, 'null'] }
+        subtitle: { type: [string, 'null'] }
+        limit: { type: integer }
     BlogCategory:
       allOf:
         - $ref: '#/components/schemas/BlogCategoryRef'

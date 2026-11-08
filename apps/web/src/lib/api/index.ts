@@ -42,6 +42,9 @@ export const listPages = cache(async () => client.listPages({ next: { tags: ['pa
 
 export const getBlogHome = cache(async () => client.getBlogHome({ next: { tags: ['blog'], revalidate: REVALIDATE } }));
 
+/** Blog texts and switches from the CMS panel; null (built-in defaults) when the CMS is unreachable. */
+export const getBlogUi = cache(async () => client.getBlogUi({ next: { tags: ['blog'], revalidate: REVALIDATE } }).catch(() => null));
+
 export const listBlogPosts = cache(async (params: BlogListParams) =>
   client.listBlogPosts(params, { next: { tags: ['blog'], revalidate: REVALIDATE } }),
 );
