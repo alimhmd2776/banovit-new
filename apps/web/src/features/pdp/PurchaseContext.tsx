@@ -27,6 +27,8 @@ export type PurchaseProduct = {
   made_to_order: boolean;
   consult_phone: string;
   offers: ProductOffers;
+  /** WC default variation (option key => value); null opens on the cheapest in-stock one. */
+  default_selection: Record<string, string> | null;
 };
 
 export type Offer = ProductOffers['items'][number];
@@ -104,7 +106,7 @@ export function PurchaseProvider({ product: initial, children }: { product: Purc
   const product = useMemo(() => withLive(initial, live), [initial, live]);
   // Server render uses the default (cheapest in-stock) selection so the HTML is cacheable;
   // ?attribute_pa_x= links are applied after hydration.
-  const [selection, setSelection] = useState<Selection>(() => initialSelection(initial.options, initial.variants));
+  const [selection, setSelection] = useState<Selection>(() => initialSelection(initial.options, initial.variants, {}, initial.default_selection));
   const [addonIds, setAddonIds] = useState<number[]>(() =>
     initial.addons.flatMap((a) => a.options.filter((o) => o.default).map((o) => o.id)),
   );
@@ -115,7 +117,7 @@ export function PurchaseProvider({ product: initial, children }: { product: Purc
   useEffect(() => {
     const params = Object.fromEntries(new URLSearchParams(window.location.search));
     if (Object.keys(params).some((k) => k.startsWith('attribute_'))) {
-      setSelection(initialSelection(initial.options, initial.variants, params));
+      setSelection(initialSelection(initial.options, initial.variants, params, initial.default_selection));
     }
     // Cached HTML may be minutes old: refresh price and stock.
     const ctrl = new AbortController();

@@ -1,10 +1,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import type { BlogBlock, BlogNoteBlock, BlogProductsBlock, ProductCard as ProductCardData } from '@banovit/api-client';
-import { faDigits, formatToman, IconAward, IconBulb, IconChevronLeft, ProductCard } from '@banovit/ui';
-import { localizeLinks } from './format';
+import type { BlogArticleBlock, BlogBlock, BlogMapBlock, BlogNoteBlock, BlogProductsBlock, BlogQuizBlock, ProductCard as ProductCardData } from '@banovit/api-client';
+import { cx, faDigits, formatToman, IconArticle, IconAward, IconBulb, IconChevronLeft, IconMapPin, ProductCard } from '@banovit/ui';
+import { MapPreview } from '../account/MapPreview';
+import { internalHref, localizeLinks } from './format';
+import { QuizBlock } from './QuizBlock';
 
-/** Renders the CMS blocks in order: sanitized HTML, product cards/carousels, notes. */
+/** Renders the CMS blocks in order: sanitized HTML, product cards/carousels, notes, suggested posts, quizzes, maps. */
 export function PostBlocks({ blocks }: { blocks: BlogBlock[] }) {
   return (
     <>
@@ -12,18 +14,29 @@ export function PostBlocks({ blocks }: { blocks: BlogBlock[] }) {
         if (b.type === 'html') return <div key={i} className="blog-prose" dangerouslySetInnerHTML={{ __html: localizeLinks(b.html) }} />;
         if (b.type === 'products') return <ProductsBlock key={i} block={b as BlogProductsBlock} />;
         if (b.type === 'note') return <NoteBlock key={i} block={b as BlogNoteBlock} />;
+        if (b.type === 'article') return <ArticleBlock key={i} block={b as BlogArticleBlock} />;
+        if (b.type === 'quiz') return <QuizBlock key={i} block={b as BlogQuizBlock} />;
+        if (b.type === 'map') return <MapBlock key={i} block={b as BlogMapBlock} />;
         return null;
       })}
     </>
   );
 }
 
+const NOTE_THEMES = {
+  blue: { border: 'border-primary', icon: 'bg-primary-subtle text-primary' },
+  red: { border: 'border-danger', icon: 'bg-danger-subtle text-danger' },
+  green: { border: 'border-success', icon: 'bg-success-subtle text-success' },
+  orange: { border: 'border-warning', icon: 'bg-warning-subtle text-warning' },
+} as const;
+
 export function NoteBlock({ block }: { block: BlogNoteBlock }) {
-  const { title = 'نکته مهم!', html = '' } = block.props;
+  const { title = 'نکته مهم!', html = '', theme } = block.props;
+  const t = NOTE_THEMES[theme ?? 'blue'] ?? NOTE_THEMES.blue;
   return (
-    <aside className="my-6 rounded-md border-s-4 border-primary bg-surface p-4 shadow-xs ring-1 ring-border">
+    <aside className={cx('my-6 rounded-md border-s-4 bg-surface p-4 shadow-xs ring-1 ring-border', t.border)}>
       <p className="mb-2 flex items-center gap-2 text-sm font-bold text-text">
-        <span className="flex size-7 items-center justify-center rounded-full bg-primary-subtle text-primary">
+        <span className={cx('flex size-7 items-center justify-center rounded-full', t.icon)}>
           <IconBulb size={16} />
         </span>
         {title}
@@ -51,12 +64,12 @@ function PriceLine({ product }: { product: ProductCardData }) {
 }
 
 /** Inline «محصول پیشنهادی» card (single product inside the article). */
-export function InlineProductCard({ product }: { product: ProductCardData }) {
+export function InlineProductCard({ product, badge, button }: { product: ProductCardData; badge?: string | null; button?: string | null }) {
   return (
     <article className="my-6 rounded-lg border border-border bg-surface p-4 shadow-xs">
       <div className="flex gap-3">
         <div className="min-w-0 flex-1 space-y-2">
-          <span className="inline-block rounded-full bg-primary-subtle px-2 py-0.5 text-[11px] font-medium text-primary-on-subtle">محصول پیشنهادی</span>
+          <span className="inline-block rounded-full bg-primary-subtle px-2 py-0.5 text-[11px] font-medium text-primary-on-subtle">{badge || 'محصول پیشنهادی'}</span>
           <h3 className="line-clamp-2 text-base font-bold leading-7 text-text">{product.name}</h3>
         </div>
         <div className="relative size-20 shrink-0">
@@ -69,7 +82,7 @@ export function InlineProductCard({ product }: { product: ProductCardData }) {
           href={product.path}
           className="inline-flex h-11 items-center gap-1 rounded-full bg-surface-muted px-4 text-sm font-medium text-text hover:bg-primary-subtle hover:text-primary focus-visible:outline-2 focus-visible:outline-focus"
         >
-          اطلاعات بیشتر
+          {button || 'اطلاعات بیشتر'}
           <IconChevronLeft size={16} />
         </Link>
       </div>
@@ -78,17 +91,38 @@ export function InlineProductCard({ product }: { product: ProductCardData }) {
 }
 
 /** «پرفروش‌ترین ...» carousel on the blue panel (several products). */
-export function ProductCarousel({ title, subtitle, products }: { title?: string | null; subtitle?: string | null; products: ProductCardData[] }) {
+export function ProductCarousel({
+  title,
+  subtitle,
+  products,
+  button,
+  buttonUrl,
+}: {
+  title?: string | null;
+  subtitle?: string | null;
+  products: ProductCardData[];
+  button?: string | null;
+  buttonUrl?: string | null;
+}) {
   return (
     <section className="my-8 -mx-4 bg-primary px-4 py-5 sm:mx-0 sm:rounded-lg sm:px-5" aria-label={title ?? 'محصولات پیشنهادی'}>
       <div className="mb-4 flex items-center gap-3 text-primary-on">
         <span className="flex size-10 items-center justify-center rounded-full border border-white/40">
           <IconAward size={20} />
         </span>
-        <div>
+        <div className="min-w-0 flex-1">
           <p className="text-base font-bold">{title ?? 'محصولات پیشنهادی'}</p>
           {subtitle ? <p className="text-xs opacity-80">{subtitle}</p> : null}
         </div>
+        {button && buttonUrl ? (
+          <Link
+            href={internalHref(buttonUrl)}
+            className="inline-flex h-11 shrink-0 items-center gap-1 rounded-full border border-white/40 px-3 text-xs font-medium hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-white"
+          >
+            {button}
+            <IconChevronLeft size={14} />
+          </Link>
+        ) : null}
       </div>
       <ul className="scrollbar-none -mx-4 flex snap-x gap-3 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         {products.map((p) => (
@@ -102,10 +136,63 @@ export function ProductCarousel({ title, subtitle, products }: { title?: string 
 }
 
 function ProductsBlock({ block }: { block: BlogProductsBlock }) {
-  const { products, layout, title, subtitle } = block.props;
+  const { products, layout, title, subtitle, badge, button, button_url } = block.props;
   if (products.length === 0) return null;
-  if (layout === 'card' && products[0]) return <InlineProductCard product={products[0]} />;
-  return <ProductCarousel title={title} subtitle={subtitle} products={products} />;
+  if (layout === 'card' && products[0]) return <InlineProductCard product={products[0]} badge={badge} button={button} />;
+  return <ProductCarousel title={title} subtitle={subtitle} products={products} button={button} buttonUrl={button_url} />;
+}
+
+/** «مقاله پیشنهادی» card linking another post. */
+export function ArticleBlock({ block }: { block: BlogArticleBlock }) {
+  const { label, button, post } = block.props;
+  return (
+    <aside className="my-6 flex gap-3 rounded-lg border border-border bg-surface p-3 shadow-xs sm:p-4">
+      {post.cover ? (
+        <div className="relative aspect-[4/3] w-28 shrink-0 overflow-hidden rounded-md bg-surface-muted sm:w-40">
+          <Image src={post.cover.url} alt={post.cover.alt ?? post.title} fill sizes="(min-width: 640px) 160px, 112px" className="object-cover" />
+        </div>
+      ) : null}
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <span className="inline-flex w-fit items-center gap-1 rounded-full bg-primary-subtle px-2 py-0.5 text-[11px] font-medium text-primary-on-subtle">
+          <IconArticle size={12} />
+          {label}
+        </span>
+        <p className="line-clamp-2 text-sm font-bold leading-6 text-text sm:text-base sm:leading-7">{post.title}</p>
+        {post.excerpt ? <p className="line-clamp-2 hidden text-xs leading-6 text-text-muted sm:block">{post.excerpt}</p> : null}
+        <Link
+          href={post.url}
+          className="mt-auto inline-flex h-11 w-fit items-center gap-1 rounded-full text-sm font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-focus"
+        >
+          {button}
+          <IconChevronLeft size={16} />
+        </Link>
+      </div>
+    </aside>
+  );
+}
+
+/** Location map from the old site's map widget: static tiles + a link to the full map. */
+export function MapBlock({ block }: { block: BlogMapBlock }) {
+  const { lat, lng, label } = block.props;
+  return (
+    <figure className="my-6">
+      <MapPreview lat={lat} lng={lng} className="h-56 w-full sm:h-72" />
+      <figcaption className="mt-2 flex items-center justify-between gap-2 text-sm text-text-muted">
+        <span className="flex items-center gap-1">
+          <IconMapPin size={16} />
+          {label || 'موقعیت روی نقشه'}
+        </span>
+        <a
+          href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=17/${lat}/${lng}`}
+          target="_blank"
+          rel="noopener nofollow"
+          className="inline-flex h-11 items-center text-primary hover:underline"
+        >
+          نمایش نقشه بزرگ‌تر
+        </a>
+      </figcaption>
+    </figure>
+  );
 }
 
 /** «خلاصه مقاله» box under the intro. */

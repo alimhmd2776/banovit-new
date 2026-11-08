@@ -174,7 +174,7 @@ export function MadeToOrderBox({ note, phone, hasCalculator }: { note: string | 
   return (
     <div className="rounded-lg border border-border bg-surface-muted p-4">
       <p className="text-sm font-bold text-text">این محصول سفارشی تولید می‌شود</p>
-      {note ? <p className="mt-1 text-xs leading-6 text-text-muted">{note}</p> : null}
+      {note ? <div className="prose-pdp mt-1 text-xs leading-6 text-text-muted" dangerouslySetInnerHTML={{ __html: note }} /> : null}
       <div className="mt-3 flex flex-wrap gap-2">
         <a href={`tel:${phone}`} className="inline-flex h-10 items-center gap-2 rounded-full bg-primary px-4 text-sm font-bold text-primary-on hover:bg-primary-hover">
           <IconPhone size={16} /> مشاوره رایگان <span dir="ltr">{faDigits(phone)}</span>

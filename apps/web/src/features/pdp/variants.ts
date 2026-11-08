@@ -27,6 +27,7 @@ export function initialSelection(
   options: ProductOption[],
   variants: ProductVariant[],
   params: Record<string, string | string[] | undefined> = {},
+  defaults: Record<string, string> | null = null,
 ): Selection {
   const fromUrl: Selection = {};
   for (const o of options) {
@@ -34,6 +35,10 @@ export function initialSelection(
     const value = Array.isArray(raw) ? raw[0] : raw;
     const decoded = value ? safeDecode(value) : null;
     fromUrl[o.key] = o.values.find((x) => x.value === decoded || x.label === decoded)?.value ?? null;
+  }
+  // No ?attribute_ link: open on the variation live opens on (WC default attributes).
+  if (defaults && options.every((o) => !fromUrl[o.key])) {
+    for (const o of options) fromUrl[o.key] = o.values.find((x) => x.value === defaults[o.key])?.value ?? null;
   }
   const candidates = variants.filter((v) => fits(v, fromUrl));
   const pick = cheapest(candidates.filter((v) => v.in_stock)) ?? cheapest(candidates) ?? cheapest(variants);
