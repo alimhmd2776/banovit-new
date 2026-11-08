@@ -1,0 +1,22 @@
+# banovit-new on stage2 (109.122.247.77). Separate compose project; only loopback ports.
+# Does not touch banovit-clones (stage2/test2), Plane, okr or ai.
+name: banovit-new
+
+x-static: &static
+  image: docker.arvancloud.ir/library/nginx:alpine
+  restart: unless-stopped
+  mem_limit: 64m
+
+services:
+  web:            # new.banovit.com -> later: Next.js standalone (node:24-alpine)
+    <<: *static
+    ports: ["127.0.0.1:8110:80"]
+    volumes: ["./placeholder/web:/usr/share/nginx/html:ro"]
+  cms:            # cms-new.banovit.com -> later: banovit-cms (php-fpm/Octane) on DB new_cms
+    <<: *static
+    ports: ["127.0.0.1:8111:80"]
+    volumes: ["./placeholder/cms:/usr/share/nginx/html:ro"]
+  supplier:       # supplier-new.banovit.com -> later: built supplier SPA
+    <<: *static
+    ports: ["127.0.0.1:8112:80"]
+    volumes: ["./placeholder/supplier:/usr/share/nginx/html:ro"]

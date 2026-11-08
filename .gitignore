@@ -1,0 +1,6 @@
+audit/raw/
+node_modules/
+.env*
+!.env.example
+.next/
+dist/
