@@ -58,3 +58,15 @@ export const IconImage = make(<><rect x="3" y="4" width="18" height="16" rx="2" 
 export const IconThumbUp = make(<path d="M7 11v9H4v-9zM7 11l4-7a2 2 0 0 1 3 2l-1 4h5a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 16.8 20H7" />, 'IconThumbUp');
 export const IconThumbDown = make(<path d="M7 13V4H4v9zM7 13l4 7a2 2 0 0 0 3-2l-1-4h5a2 2 0 0 0 2-2.3l-1.2-6A2 2 0 0 0 16.8 4H7" />, 'IconThumbDown');
 export const IconStore = make(<><path d="M4 9l1.5-5h13L20 9M4 9h16v2a3 3 0 0 1-5.3 2 3 3 0 0 1-5.4 0A3 3 0 0 1 4 11z" /><path d="M5 13v7h14v-7M10 20v-4h4v4" /></>, 'IconStore');
+
+// Header, mega menu and mobile drawer (menu thread)
+export const IconHeart = make(<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />, 'IconHeart');
+export const IconPercent = make(<><path d="M19 5L5 19" /><circle cx="7" cy="7" r="2" /><circle cx="17" cy="17" r="2" /></>, 'IconPercent');
+export const IconChartPie = make(<><circle cx="12" cy="12" r="8" /><path d="M12 4v8l5.7 5.7" /></>, 'IconChartPie');
+export const IconFlame = make(<path d="M12 21c-3.9 0-6-2.6-6-5.6 0-3.6 3-5.4 3.6-8.9 2.1 1.4 3.2 3.2 3.4 5.2.8-.6 1.4-1.6 1.6-2.7 2 1.6 3.4 3.8 3.4 6.4 0 3-2.1 5.6-6 5.6z" />, 'IconFlame');
+export const IconBook = make(<><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 0 4 20.5z" /><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v15h5.5a1.5 1.5 0 0 1 1.5 1.5z" /></>, 'IconBook');
+export const IconOrderSearch = make(<><path d="M14 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5" /><path d="M8 8h6M8 12h3" /><circle cx="16" cy="15" r="3" /><path d="M18.2 17.2L20 19" /></>, 'IconOrderSearch');
+export const IconArticle = make(<><rect x="5" y="3.5" width="14" height="17" rx="2" /><path d="M9 8h6M9 12h6M9 16h3" /></>, 'IconArticle');
+export const IconUserSquare = make(<><rect x="4" y="4" width="16" height="16" rx="3" /><circle cx="12" cy="10" r="2.5" /><path d="M7.5 17c.8-2 2.5-3 4.5-3s3.7 1 4.5 3" /></>, 'IconUserSquare');
+export const IconBag = make(<><path d="M6 8h12l-1 12H7z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></>, 'IconBag');
+export const IconDots4 = make(<><circle cx="7.5" cy="7.5" r="2.5" /><circle cx="16.5" cy="7.5" r="2.5" /><circle cx="7.5" cy="16.5" r="2.5" /><circle cx="16.5" cy="16.5" r="2.5" /></>, 'IconDots4');

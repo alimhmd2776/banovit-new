@@ -29,6 +29,10 @@ export type ProductRating = Schemas['ProductRating'];
 export type Review = Schemas['Review'];
 export type ReviewListing = Schemas['ReviewListing'];
 export type Availability = Schemas['Availability'];
+export type Menu = Schemas['Menu'];
+export type MenuItem = Schemas['MenuItem'];
+export type MenuPromo = Schemas['MenuPromo'];
+export type MenuKey = operations['getMenu']['parameters']['path']['key'];
 
 export type ListingParams = NonNullable<operations['listCategoryProducts']['parameters']['query']>;
 
@@ -128,6 +132,7 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: ProductLive }>(`/products/${encodePath(slug)}/live`, init).then((r) => r.data),
     listProductReviews: (slug: string, page = 1, init?: RequestOptions) =>
       get<ReviewListing>(`/products/${encodePath(slug)}/reviews${page > 1 ? `?page=${page}` : ''}`, init),
+    getMenu: (key: MenuKey, init?: RequestOptions) => get<{ data: Menu }>(`/menus/${key}`, init).then((r) => r.data),
   };
 }
 

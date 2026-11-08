@@ -29,3 +29,10 @@
   .prose-pdp :where(td, th) { border: 1px solid var(--color-border); padding: 0.5rem 0.75rem; }
   .prose-pdp strong { color: var(--color-text); }
 }
+
+/* Side drawer entering from the inline-start edge (right in RTL): mobile menu */
+@keyframes drawerInStart { from { transform: translateX(100%) } to { transform: translateX(0) } }
+@keyframes megaIn { from { opacity: 0; transform: translateY(-4px) } to { opacity: 1; transform: none } }
+@media (prefers-reduced-motion: reduce) {
+  [class*='animate-[drawerInStart'], [class*='animate-[megaIn'] { animation: none !important; }
+}
