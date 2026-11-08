@@ -9,9 +9,10 @@ export interface LogoAsset {
 
 /**
  * Header logo from «تنظیمات هدر» in the CMS. Fallback (CMS unreachable): the
- * live WordPress header file (uploads/2026/07/Frame-1077.svg) in public/brand.
+ * live WordPress header file at its original uploads path, which the new stack
+ * serves itself (one media solution for the whole site, no per-feature copies).
  */
-export const FALLBACK_LOGO: LogoAsset = { image: '/brand/logo.svg', alt: 'بانویت', width: 131, height: 40 };
+export const FALLBACK_LOGO: LogoAsset = { image: '/wp-content/uploads/2026/07/Frame-1077.svg', alt: 'بانویت', width: 131, height: 40 };
 
 export function Logo({ logo = FALLBACK_LOGO, compact = false }: { logo?: LogoAsset; compact?: boolean }) {
   return (
