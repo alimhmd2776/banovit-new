@@ -3,7 +3,8 @@ info:
   title: Banovit Storefront API
   version: 1.0.0
   description: |
-    Public, read-only catalog API served by banovit-cms under /api/storefront/v1.
+    Storefront API served by banovit-cms under /api/storefront/v1: public read-only
+    catalog, plus the session-bound cart/checkout (branch feature/storefront-cart).
     Conventions: docs/05-conventions.md (snake_case, money as integer rial, {data,meta,links}, {error}).
     Implemented in banovit-cms branch feature/storefront-plp (routes/storefront.php).
 servers:
@@ -109,6 +110,271 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/ProductListing' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /products/{slug}:
+    get:
+      operationId: getProduct
+      summary: Product page data (/shop/{slug}/)
+      parameters:
+        - $ref: '#/components/parameters/productSlug'
+      responses:
+        '200':
+          description: Product
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ProductDetail' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /products/{slug}/live:
+    get:
+      operationId: getProductLive
+      summary: Fresh price and stock (Cache-Control 5 s), refreshed by the browser after the cached page loads
+      parameters:
+        - $ref: '#/components/parameters/productSlug'
+      responses:
+        '200':
+          description: Live price/stock
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ProductLive' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /products/{slug}/reviews:
+    get:
+      operationId: listProductReviews
+      summary: Approved reviews, newest first
+      parameters:
+        - $ref: '#/components/parameters/productSlug'
+        - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: Reviews
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReviewListing' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      operationId: createProductReview
+      summary: Submit a review (held for moderation). Per-IP write limit.
+      parameters:
+        - $ref: '#/components/parameters/productSlug'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [author_name, rating, body]
+              properties:
+                author_name: { type: string, minLength: 2, maxLength: 100 }
+                phone: { type: string, description: 'Optional mobile 09xxxxxxxxx (Persian digits accepted)' }
+                rating: { type: integer, minimum: 1, maximum: 5 }
+                body: { type: string, minLength: 10, maxLength: 3000 }
+                variation_id: { type: [integer, 'null'] }
+      responses:
+        '201':
+          description: Received
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [id, status]
+                    properties: { id: { type: integer }, status: { type: string, const: pending } }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  # ── Cart & checkout (docs/api/cart.md). Session-bound: X-Cart-Token header, never cached. ──
+  /cart:
+    get:
+      operationId: getCart
+      summary: The visitor's cart (empty cart with token null when none)
+      parameters: [{ $ref: '#/components/parameters/cartToken' }]
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+    patch:
+      operationId: updateCart
+      summary: Checkout options (address, delivery day, packaging, payment method, note, attribution)
+      parameters: [{ $ref: '#/components/parameters/cartToken' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CartUpdate' }
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /cart/items:
+    post:
+      operationId: addCartItem
+      summary: Add a product (creates the cart when there is no token; response carries data.token)
+      parameters: [{ $ref: '#/components/parameters/cartToken' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CartItemCreate' }
+      responses:
+        '201': { $ref: '#/components/responses/CartResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /cart/items/{item}:
+    patch:
+      operationId: updateCartItem
+      parameters:
+        - $ref: '#/components/parameters/cartToken'
+        - { name: item, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity: { type: integer, minimum: 0, description: 0 removes the line }
+                installation: { type: boolean }
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: removeCartItem
+      parameters:
+        - $ref: '#/components/parameters/cartToken'
+        - { name: item, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+  /cart/coupon:
+    post:
+      operationId: applyCoupon
+      parameters: [{ $ref: '#/components/parameters/cartToken' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [code], properties: { code: { type: string } } }
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      operationId: removeCoupon
+      parameters: [{ $ref: '#/components/parameters/cartToken' }]
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+  /cart/merge:
+    post:
+      operationId: mergeCart
+      summary: After login (Bearer customer token), fold the guest cart into the customer's
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [guest_token], properties: { guest_token: { type: string } } }
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+        '401': { $ref: '#/components/responses/NotFound' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /orders:
+    post:
+      operationId: placeOrder
+      summary: Place the cart as an order (sales_invoices, source=storefront) and start payment
+      parameters:
+        - $ref: '#/components/parameters/cartToken'
+        - { name: Idempotency-Key, in: header, required: true, schema: { type: string, maxLength: 100 } }
+      responses:
+        '201':
+          description: Order placed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/PlacedOrder' }
+        '200':
+          description: Replay of the same Idempotency-Key (payment is null)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/PlacedOrder' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /orders/{number}:
+    get:
+      operationId: getOrder
+      parameters:
+        - { name: number, in: path, required: true, schema: { type: string } }
+        - { name: X-Order-Token, in: header, schema: { type: string } }
+      responses:
+        '200':
+          description: Order summary
+          content:
+            application/json:
+              schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/OrderSummary' } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /orders/{number}/payments:
+    post:
+      operationId: payOrder
+      summary: Retry payment of a pending order
+      parameters:
+        - { name: number, in: path, required: true, schema: { type: string } }
+        - { name: X-Order-Token, in: header, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { payment_method: { type: string } } }
+      responses:
+        '200':
+          description: Payment started
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [order, payment]
+                    properties:
+                      order: { $ref: '#/components/schemas/OrderSummary' }
+                      payment: { $ref: '#/components/schemas/PaymentStart' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /payments/zarinpal/verify:
+    post:
+      operationId: verifyZarinpal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [authority, status], properties: { authority: { type: string }, status: { type: string } } }
+      responses:
+        '200':
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [paid, ref_id, order]
+                    properties:
+                      paid: { type: boolean }
+                      ref_id: { type: [string, 'null'] }
+                      order: { $ref: '#/components/schemas/OrderSummary' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /menus/{key}:
     get:
       operationId: getMenu
@@ -130,13 +396,245 @@ paths:
                 properties:
                   data: { $ref: '#/components/schemas/Menu' }
         '404': { $ref: '#/components/responses/NotFound' }
+  # --- auth (feature/web-auth, banovit-cms feature/storefront-auth) ---
+  /auth/otp:
+    post:
+      operationId: requestOtp
+      summary: Send a 4-digit login code by SMS (same answer for known and unknown numbers)
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone: { type: string, description: 'Iranian mobile in any spelling (09…, +98…, Persian digits)' }
+      responses:
+        '202':
+          description: Code issued (delivery happens after the response)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/OtpChallenge' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/otp/verify:
+    post:
+      operationId: verifyOtp
+      summary: Check the code; returns a customer token (kept by the BFF in an httpOnly cookie)
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, code]
+              properties:
+                phone: { type: string }
+                code: { type: string, pattern: '^[0-9۰-۹]{4}$' }
+      responses:
+        '200':
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/CustomerSession' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: Revoke the current customer token
+      tags: [auth]
+      security: [{ customerToken: [] }]
+      responses:
+        '204': { description: Signed out }
+        '401': { description: Not signed in }
+  /me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      security: [{ customerToken: [] }]
+      responses:
+        '200':
+          description: Current customer
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Customer' }
+        '401': { description: Not signed in }
+    patch:
+      operationId: updateMe
+      summary: Signup «نام و نام خانوادگی» step
+      tags: [auth]
+      security: [{ customerToken: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [first_name, last_name]
+              properties:
+                first_name: { type: string, minLength: 2, maxLength: 50 }
+                last_name: { type: string, minLength: 2, maxLength: 50 }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Customer' }
+        '401': { description: Not signed in }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  # --- /auth ---
+  # --- sellers ---
+  /sellers:
+    get:
+      operationId: listSellers
+      summary: Public sellers (house seller first)
+      responses:
+        '200':
+          description: Sellers
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/SellerCard' } }
+  /sellers/{slug}:
+    get:
+      operationId: getSeller
+      summary: Seller profile page data (/seller/{slug}/)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Seller
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Seller' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /sellers/{slug}/products:
+    get:
+      operationId: listSellerProducts
+      summary: Products this seller sells (seller facet is fixed)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/brand'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/min_price'
+        - $ref: '#/components/parameters/max_price'
+        - $ref: '#/components/parameters/in_stock'
+        - $ref: '#/components/parameters/on_sale'
+      responses:
+        '200':
+          description: Listing
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductListing' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /sellers/{slug}/reviews:
+    get:
+      operationId: listSellerReviews
+      summary: Buyer reviews of a seller (empty until the reviews module ships)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: Reviews
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SellerReviewList' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  # --- contact ---
+  /settings/contact:
+    get:
+      operationId: getContactSettings
+      summary: «تماس با ما» page content (/contact-us/), editable in the CMS admin app
+      responses:
+        '200':
+          description: Contact page settings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ContactSettings' }
+  /callback-requests:
+    post:
+      operationId: createCallbackRequest
+      summary: Visitor asks to be called back (listing callout, contact form) → CMS sales lead signal
+      description: Called only by the Next.js BFF (/api/callback-requests/) with X-Storefront-Token and X-Client-IP. Rate limited per visitor IP.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CallbackRequest' }
+      responses:
+        '201':
+          description: Received
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [status]
+                    properties:
+                      status: { type: string, enum: [received] }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429':
+          description: Too many requests
+  # --- /contact ---
 components:
+  securitySchemes:
+    customerToken: { type: http, scheme: bearer, description: Sanctum token from /auth/otp/verify (server-side only) }
   parameters:
+    cartToken:
+      name: X-Cart-Token
+      in: header
+      description: Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie)
+      schema: { type: string, maxLength: 64 }
     categoryPath:
       name: path
       in: path
       required: true
       description: Slug path after /shop/category/, e.g. vanity/cabinet-vanity (slashes allowed)
+      schema: { type: string }
+    productSlug:
+      name: slug
+      in: path
+      required: true
+      description: Product slug after /shop/ (decoded or percent-encoded)
       schema: { type: string }
     page: { name: page, in: query, schema: { type: integer, minimum: 1, maximum: 200, default: 1 } }
     per_page: { name: per_page, in: query, schema: { type: integer, enum: [12, 24, 36, 48], default: 24 } }
@@ -159,17 +657,119 @@ components:
     in_stock: { name: in_stock, in: query, schema: { type: boolean } }
     on_sale: { name: on_sale, in: query, schema: { type: boolean } }
   responses:
+    TooManyRequests:
+      description: 'Limit hit: otp_cooldown, too_many_requests or phone_locked (Retry-After header + error.retry_after)'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
     NotFound:
       description: Not found
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: Stock/price/state conflict (out_of_stock, cart_changed, ...)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    CartResponse:
+      description: Full cart
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data: { $ref: '#/components/schemas/Cart' }
     ValidationError:
       description: Invalid query
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
   schemas:
+    # --- contact ---
+    ContactSettings:
+      type: object
+      required: [path, heading, phones, locations, map, form, socials, opening_hours, seo]
+      properties:
+        path: { type: string, examples: ['/contact-us/'] }
+        heading: { type: string }
+        intro: { type: [string, 'null'] }
+        hours_title: { type: [string, 'null'] }
+        hours_note: { type: [string, 'null'] }
+        opening_hours:
+          type: array
+          items:
+            type: object
+            required: [days, opens, closes]
+            properties:
+              days: { type: array, items: { type: string, enum: [Saturday, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday] } }
+              opens: { type: string, examples: ['09:00'] }
+              closes: { type: string, examples: ['17:00'] }
+        phones:
+          type: array
+          items:
+            type: object
+            required: [label, number, tel]
+            properties:
+              label: { type: string }
+              number: { type: string, description: Latin digits, e.g. 02191014093 }
+              tel: { type: string, description: 'E.164 for tel: links, e.g. +982191014093' }
+        email: { type: [string, 'null'] }
+        locations:
+          type: array
+          items:
+            type: object
+            required: [label, street_address, locality, icon, is_primary, display]
+            properties:
+              label: { type: string }
+              street_address: { type: string }
+              locality: { type: string }
+              region: { type: [string, 'null'] }
+              postal_code: { type: [string, 'null'] }
+              icon: { type: string, enum: [office, warehouse, store] }
+              is_primary: { type: boolean, description: The LocalBusiness address in JSON-LD }
+              display: { type: string }
+        map:
+          type: object
+          required: [zoom, directions_url]
+          properties:
+            lat: { type: [number, 'null'] }
+            lng: { type: [number, 'null'] }
+            zoom: { type: integer }
+            pin_label: { type: [string, 'null'] }
+            image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+            neshan_url: { type: [string, 'null'] }
+            directions_url: { type: string }
+        form:
+          type: object
+          required: [title, submit_label, success_message]
+          properties:
+            title: { type: string }
+            message_placeholder: { type: [string, 'null'] }
+            submit_label: { type: string }
+            success_message: { type: string }
+        socials:
+          type: array
+          items:
+            type: object
+            required: [network, url]
+            properties:
+              network: { type: string, enum: [whatsapp, telegram, instagram, bale, rubika, eitaa, aparat, linkedin] }
+              url: { type: string }
+        seo: { $ref: '#/components/schemas/Seo' }
+    CallbackRequest:
+      type: object
+      required: [phone]
+      properties:
+        phone: { type: string, description: Iranian mobile, Persian digits allowed }
+        name: { type: [string, 'null'], maxLength: 100 }
+        message: { type: [string, 'null'], maxLength: 1000 }
+        form: { type: string, enum: [callout, contact], default: callout }
+        page_url: { type: [string, 'null'], maxLength: 500 }
+        page_title: { type: [string, 'null'], maxLength: 200 }
+        website: { type: [string, 'null'], description: Honeypot; must be empty }
+    # --- /contact ---
     SortKey:
       type: string
       enum: [relevant, newest, popular, price_asc, price_desc, featured, rating]
@@ -251,6 +851,119 @@ components:
         breadcrumb: { type: array, items: { $ref: '#/components/schemas/BreadcrumbItem' } }
         seo: { $ref: '#/components/schemas/Seo' }
         faqs: { type: array, items: { $ref: '#/components/schemas/Faq' } }
+    # --- sellers ---
+    SellerStats:
+      type: object
+      required: [rating, sales_count, product_count, joined_at, years_on_banovit]
+      properties:
+        rating:
+          oneOf:
+            - type: object
+              required: [average, count]
+              properties:
+                average: { type: number }
+                count: { type: integer }
+            - type: 'null'
+        sales_count: { type: integer }
+        product_count: { type: integer }
+        joined_at: { type: [string, 'null'], format: date }
+        years_on_banovit: { type: [integer, 'null'] }
+    SellerCard:
+      type: object
+      required: [id, slug, name, url, tagline, logo, is_house, stats]
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        name: { type: string }
+        url: { type: string, description: '/seller/{slug}/' }
+        tagline: { type: [string, 'null'] }
+        logo: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+        is_house: { type: boolean, description: 'Banovit itself' }
+        stats: { $ref: '#/components/schemas/SellerStats' }
+    OpeningRange:
+      type: object
+      required: [open, close]
+      properties:
+        open: { type: string, description: 'HH:MM, Asia/Tehran' }
+        close: { type: string }
+    OpeningDay:
+      type: object
+      required: [day, label, ranges]
+      properties:
+        day: { type: string, enum: [sat, sun, mon, tue, wed, thu, fri] }
+        label: { type: string }
+        ranges: { type: array, description: 'Empty = closed that day', items: { $ref: '#/components/schemas/OpeningRange' } }
+    Seller:
+      allOf:
+        - $ref: '#/components/schemas/SellerCard'
+        - type: object
+          required: [about_html, location, opening_hours, breadcrumb, seo]
+          properties:
+            about_html: { type: [string, 'null'] }
+            location:
+              oneOf:
+                - type: object
+                  required: [address, lat, lng]
+                  properties:
+                    address: { type: [string, 'null'] }
+                    lat: { type: [number, 'null'] }
+                    lng: { type: [number, 'null'] }
+                - type: 'null'
+            opening_hours:
+              oneOf:
+                - type: object
+                  required: [timezone, days]
+                  properties:
+                    timezone: { type: string, const: Asia/Tehran }
+                    days: { type: array, items: { $ref: '#/components/schemas/OpeningDay' } }
+                - type: 'null'
+            breadcrumb: { type: array, items: { $ref: '#/components/schemas/BreadcrumbItem' } }
+            seo: { $ref: '#/components/schemas/Seo' }
+    SellerReview:
+      type: object
+      required: [id, author, rating, body, created_at, product]
+      properties:
+        id: { type: integer }
+        author:
+          type: object
+          required: [name, avatar, is_buyer, is_experienced_buyer]
+          properties:
+            name: { type: string }
+            avatar: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+            is_buyer: { type: boolean, description: '«خریدار» badge' }
+            is_experienced_buyer: { type: boolean, description: '«خریدار فعال و باتجربه بانویت»' }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        body: { type: string }
+        created_at: { type: string, format: date-time }
+        product:
+          oneOf:
+            - type: object
+              required: [name, path, image, variant_label]
+              properties:
+                name: { type: string }
+                path: { type: string }
+                image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+                variant_label: { type: [string, 'null'], description: 'e.g. «رنگ طوسی • سایز ۷۵x۹۸»' }
+            - type: 'null'
+    SellerReviewList:
+      type: object
+      required: [data, meta, links]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/SellerReview' } }
+        meta:
+          type: object
+          required: [page, per_page, total, last_page, rating]
+          properties:
+            page: { type: integer }
+            per_page: { type: integer }
+            total: { type: integer }
+            last_page: { type: integer }
+            rating: { $ref: '#/components/schemas/SellerStats/properties/rating' }
+        links:
+          type: object
+          properties:
+            prev_page: { type: [integer, 'null'] }
+            next_page: { type: [integer, 'null'] }
     ProductCard:
       type: object
       required: [id, slug, name, path, price, discount_percent, in_stock, colors, colors_more, badges]
@@ -375,6 +1088,209 @@ components:
           properties:
             prev_page: { type: [integer, 'null'] }
             next_page: { type: [integer, 'null'] }
+    ProductOptionValue:
+      type: object
+      required: [value, label, hex]
+      properties:
+        value: { type: string, description: 'Term slug (same as WordPress ?attribute_pa_x=) or the label for custom attributes' }
+        label: { type: string }
+        hex: { type: [string, 'null'] }
+    ProductOption:
+      type: object
+      required: [key, label, type, values]
+      properties:
+        key: { type: string, description: 'pa_* facet key, or attr_N for custom attributes' }
+        label: { type: string }
+        type: { type: string, enum: [swatch, button] }
+        values: { type: array, items: { $ref: '#/components/schemas/ProductOptionValue' } }
+    ProductVariant:
+      type: object
+      required: [id, sku, attributes, price, regular_price, discount_percent, in_stock, image]
+      properties:
+        id: { type: integer, description: 'variation_id for the cart' }
+        sku: { type: [string, 'null'] }
+        attributes:
+          type: object
+          description: 'option key -> value; null means any value'
+          additionalProperties: { type: [string, 'null'] }
+        price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        regular_price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        discount_percent: { type: integer }
+        in_stock: { type: boolean }
+        image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+    ProductAddonOption:
+      type: object
+      required: [id, label, description, price, kind, default]
+      properties:
+        id: { type: integer, description: 'Sent to the cart in addon_ids' }
+        label: { type: string }
+        description: { type: [string, 'null'] }
+        price: { $ref: '#/components/schemas/Money' }
+        kind: { type: string, description: 'installation | other' }
+        default: { type: boolean }
+    ProductAddon:
+      type: object
+      required: [id, title, description, type, required, options]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: [string, 'null'] }
+        type: { type: string, enum: [checkbox, radio] }
+        required: { type: boolean }
+        options: { type: array, items: { $ref: '#/components/schemas/ProductAddonOption' } }
+    ProductRating:
+      type: object
+      required: [average, count, distribution]
+      properties:
+        average: { type: number }
+        count: { type: integer }
+        distribution: { type: object, additionalProperties: { type: integer }, description: '"5".."1" -> count' }
+    Review:
+      type: object
+      required: [id, author_name, is_verified_buyer, rating, body, variant_label, likes, dislikes, published_at]
+      properties:
+        id: { type: integer }
+        author_name: { type: string }
+        is_verified_buyer: { type: boolean }
+        rating: { type: [integer, 'null'] }
+        body: { type: string }
+        variant_label: { type: [string, 'null'] }
+        likes: { type: integer }
+        dislikes: { type: integer }
+        published_at: { type: [string, 'null'], format: date-time }
+    ReviewListing:
+      type: object
+      required: [data, meta, links]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/Review' } }
+        meta:
+          type: object
+          required: [page, per_page, total, last_page, rating]
+          properties:
+            page: { type: integer }
+            per_page: { type: integer }
+            total: { type: integer }
+            last_page: { type: integer }
+            rating: { oneOf: [{ $ref: '#/components/schemas/ProductRating' }, { type: 'null' }] }
+        links:
+          type: object
+          required: [prev_page, next_page]
+          properties:
+            prev_page: { type: [integer, 'null'] }
+            next_page: { type: [integer, 'null'] }
+    ShippingLine:
+      type: object
+      required: [icon, label, text]
+      properties: { icon: { type: string }, label: { type: string }, text: { type: string } }
+    ProductLive:
+      type: object
+      required: [id, price, price_max, regular_price, discount_percent, in_stock, availability, variants]
+      properties:
+        id: { type: integer }
+        price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        price_max: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        regular_price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        discount_percent: { type: integer }
+        in_stock: { type: boolean }
+        availability: { $ref: '#/components/schemas/Availability' }
+        variants:
+          type: array
+          items:
+            type: object
+            required: [id, price, regular_price, discount_percent, in_stock]
+            properties:
+              id: { type: integer }
+              price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+              regular_price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+              discount_percent: { type: integer }
+              in_stock: { type: boolean }
+    Availability:
+      type: string
+      enum: [in_stock, out_of_stock, backorder, no_price]
+    ProductDetail:
+      type: object
+      required: [id, slug, name, path, type, sku, brand, primary_category, breadcrumb, images, short_description_html, description_html, key_features, specs, price, price_max, regular_price, discount_percent, in_stock, availability, price_valid_until, options, variants, addons, badges, rating, reviews, seller, faqs, related, related_posts, seo, updated_at]
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        name: { type: string }
+        path: { type: string, description: '/shop/{slug}/ lowercase percent-encoded, like WordPress' }
+        type: { type: string, enum: [simple, variable] }
+        sku: { type: [string, 'null'] }
+        brand:
+          oneOf:
+            - type: object
+              required: [slug, name, url]
+              properties: { slug: { type: string }, name: { type: string }, url: { type: string } }
+            - type: 'null'
+        primary_category:
+          oneOf:
+            - type: object
+              required: [id, name, url]
+              properties: { id: { type: integer }, name: { type: string }, url: { type: string } }
+            - type: 'null'
+        breadcrumb: { type: array, items: { $ref: '#/components/schemas/BreadcrumbItem' }, description: 'Category chain, root first (the product is appended by the page)' }
+        images: { type: array, items: { $ref: '#/components/schemas/Image' } }
+        short_description_html: { type: [string, 'null'] }
+        description_html: { type: [string, 'null'] }
+        key_features: { type: array, items: { type: string } }
+        specs:
+          type: array
+          items:
+            type: object
+            required: [label, value]
+            properties: { label: { type: string }, value: { type: string } }
+        price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        price_max: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        regular_price: { oneOf: [{ $ref: '#/components/schemas/Money' }, { type: 'null' }] }
+        discount_percent: { type: integer }
+        in_stock: { type: boolean }
+        availability: { $ref: '#/components/schemas/Availability' }
+        price_valid_until: { type: [string, 'null'], format: date }
+        options: { type: array, items: { $ref: '#/components/schemas/ProductOption' } }
+        variants: { type: array, items: { $ref: '#/components/schemas/ProductVariant' } }
+        addons: { type: array, items: { $ref: '#/components/schemas/ProductAddon' } }
+        badges:
+          type: object
+          required: [install_service]
+          properties: { install_service: { type: boolean } }
+        rating: { oneOf: [{ $ref: '#/components/schemas/ProductRating' }, { type: 'null' }], description: 'Null unless there are approved rated reviews (no AggregateRating then)' }
+        reviews:
+          type: object
+          required: [total, items]
+          properties:
+            total: { type: integer }
+            items: { type: array, items: { $ref: '#/components/schemas/Review' } }
+        seller:
+          type: object
+          required: [name, badge, logo, warranty, shipping]
+          properties:
+            name: { type: string }
+            badge: { type: [string, 'null'] }
+            logo: { type: [string, 'null'] }
+            warranty: { type: string }
+            shipping:
+              type: object
+              required: [title, lines, url]
+              properties:
+                title: { type: string }
+                lines: { type: array, items: { $ref: '#/components/schemas/ShippingLine' } }
+                url: { type: string }
+        faqs: { type: array, items: { $ref: '#/components/schemas/Faq' } }
+        related: { type: array, items: { $ref: '#/components/schemas/ProductCard' } }
+        related_posts:
+          type: array
+          items:
+            type: object
+            required: [title, url]
+            properties:
+              title: { type: string }
+              url: { type: string }
+              image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+              category: { type: [string, 'null'] }
+              published_at: { type: [string, 'null'] }
+        seo: { $ref: '#/components/schemas/Seo' }
+        updated_at: { type: [string, 'null'], format: date-time }
     Menu:
       type: object
       required: [key, name, items]
@@ -422,3 +1338,230 @@ components:
             code: { type: string }
             message: { type: string }
             fields: { type: object, additionalProperties: { type: array, items: { type: string } } }
+            retry_after: { type: integer, description: Seconds until the request may be retried (429) }
+            attempts_left: { type: integer, description: Wrong OTP tries left for the current code (otp_invalid) }
+    # ── cart ──
+    Address:
+      type: object
+      properties:
+        title: { type: string }
+        recipient_name: { type: string }
+        recipient_phone: { type: string }
+        province: { type: string }
+        city: { type: string }
+        address_line: { type: string }
+        plaque: { type: string }
+        unit: { type: string }
+        postal_code: { type: string }
+        lat: { type: number }
+        lng: { type: number }
+    CartItemCreate:
+      type: object
+      required: [product_id]
+      properties:
+        product_id: { type: integer }
+        variation_id: { type: [integer, 'null'] }
+        variant_id: { type: [integer, 'null'], description: Alias of variation_id }
+        quantity: { type: integer, minimum: 1, default: 1 }
+        installation: { type: boolean }
+        addon_ids: { type: array, items: { type: integer }, description: PDP add-on option ids (installation service) }
+    CartUpdate:
+      type: object
+      properties:
+        packaging: { type: boolean }
+        delivery_date: { type: [string, 'null'], format: date }
+        address: { oneOf: [{ $ref: '#/components/schemas/Address' }, { type: 'null' }] }
+        address_id: { type: [string, 'null'], description: Saved customer address (signed-in) }
+        payment_method: { type: [string, 'null'] }
+        customer_note: { type: [string, 'null'] }
+        attribution: { type: object, additionalProperties: { type: string } }
+    CartLine:
+      type: object
+      required: [id, product, variation, quantity, max_quantity, unit_price, unit_regular_price, discount_percent, line_total, line_regular_total, purchasable, issue, installation]
+      properties:
+        id: { type: integer }
+        product:
+          type: object
+          required: [id, name, slug, path, image, brand]
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            slug: { type: string }
+            path: { type: string }
+            image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+            brand:
+              oneOf:
+                - { type: object, required: [slug, name], properties: { slug: { type: string }, name: { type: string } } }
+                - { type: 'null' }
+        variation:
+          oneOf:
+            - type: object
+              required: [id, attributes]
+              properties:
+                id: { type: integer }
+                attributes: { type: array, items: { type: object, required: [name, value], properties: { name: { type: string }, value: { type: string } } } }
+            - { type: 'null' }
+        quantity: { type: integer }
+        max_quantity: { type: integer }
+        unit_price: { $ref: '#/components/schemas/Money' }
+        unit_regular_price: { $ref: '#/components/schemas/Money' }
+        discount_percent: { type: integer }
+        line_total: { $ref: '#/components/schemas/Money' }
+        line_regular_total: { $ref: '#/components/schemas/Money' }
+        purchasable: { type: boolean }
+        issue:
+          oneOf:
+            - { type: object, required: [code, message], properties: { code: { type: string }, message: { type: string } } }
+            - { type: 'null' }
+        installation:
+          type: object
+          required: [available, available_in_zone, selected, addon_ids, unit_fee, total]
+          properties:
+            available: { type: boolean }
+            available_in_zone: { type: boolean }
+            selected: { type: boolean }
+            addon_ids: { type: array, items: { type: integer } }
+            unit_fee: { $ref: '#/components/schemas/Money' }
+            total: { $ref: '#/components/schemas/Money' }
+    DeliverySlot:
+      type: object
+      required: [date, weekday, day_label, fee]
+      properties:
+        date: { type: string, format: date }
+        weekday: { type: string }
+        day_label: { type: string, description: Jalali, e.g. «۲۷ شهریور» }
+        fee: { $ref: '#/components/schemas/Money' }
+    PaymentMethod:
+      type: object
+      required: [key, label, available, description]
+      properties:
+        key: { type: string, enum: [zarinpal, card_to_card, installments] }
+        label: { type: string }
+        available: { type: boolean }
+        description: { type: [string, 'null'] }
+    CartTotals:
+      type: object
+      required: [items_regular, items, product_discount, installation, packaging, shipping, service_fee, coupon_discount, payable, savings]
+      properties:
+        items_regular: { $ref: '#/components/schemas/Money' }
+        items: { $ref: '#/components/schemas/Money' }
+        product_discount: { $ref: '#/components/schemas/Money' }
+        installation: { $ref: '#/components/schemas/Money' }
+        packaging: { $ref: '#/components/schemas/Money' }
+        shipping: { $ref: '#/components/schemas/Money' }
+        service_fee: { $ref: '#/components/schemas/Money' }
+        coupon_discount: { $ref: '#/components/schemas/Money' }
+        payable: { $ref: '#/components/schemas/Money' }
+        savings: { $ref: '#/components/schemas/Money' }
+    Cart:
+      type: object
+      required: [token, item_count, items, options, coupon, delivery, addons, payment_methods, totals, issues, ready_for_checkout]
+      properties:
+        token: { type: [string, 'null'] }
+        item_count: { type: integer }
+        items: { type: array, items: { $ref: '#/components/schemas/CartLine' } }
+        options:
+          type: object
+          required: [packaging, delivery_date, address, payment_method, customer_note]
+          properties:
+            packaging: { type: boolean }
+            delivery_date: { type: [string, 'null'], format: date }
+            address: { oneOf: [{ $ref: '#/components/schemas/Address' }, { type: 'null' }] }
+            payment_method: { type: [string, 'null'] }
+            customer_note: { type: [string, 'null'] }
+        coupon:
+          oneOf:
+            - { type: object, required: [code, label, discount], properties: { code: { type: string }, label: { type: string }, discount: { $ref: '#/components/schemas/Money' } } }
+            - { type: 'null' }
+        delivery:
+          type: object
+          required: [zone, fee, fee_label, window_label, requires_slot, slots]
+          properties:
+            zone: { type: object, required: [key, label], properties: { key: { type: string }, label: { type: string } } }
+            fee: { $ref: '#/components/schemas/Money' }
+            fee_label: { type: [string, 'null'] }
+            window_label: { type: string }
+            requires_slot: { type: boolean }
+            slots: { type: array, items: { $ref: '#/components/schemas/DeliverySlot' } }
+        addons:
+          type: object
+          required: [packaging, installation]
+          properties:
+            packaging:
+              oneOf:
+                - { type: object, required: [label, description, fee], properties: { label: { type: string }, description: { type: string }, fee: { $ref: '#/components/schemas/Money' } } }
+                - { type: 'null' }
+            installation:
+              type: object
+              required: [label, item_label, description, available_in_zone, available_items, selected_items]
+              properties:
+                label: { type: string }
+                item_label: { type: string }
+                description: { type: string }
+                available_in_zone: { type: boolean }
+                available_items: { type: integer }
+                selected_items: { type: integer }
+        payment_methods: { type: array, items: { $ref: '#/components/schemas/PaymentMethod' } }
+        totals: { $ref: '#/components/schemas/CartTotals' }
+        issues:
+          type: array
+          items: { type: object, required: [code, message, item_id], properties: { code: { type: string }, message: { type: string }, item_id: { type: [integer, 'null'] } } }
+        ready_for_checkout: { type: boolean }
+    OrderSummary:
+      type: object
+      required: [number, status, status_label, is_paid, payment_method, payment_method_label, total, item_count, placed_at]
+      properties:
+        number: { type: string }
+        status: { type: string }
+        status_label: { type: string }
+        is_paid: { type: boolean }
+        payment_method: { type: [string, 'null'] }
+        payment_method_label: { type: [string, 'null'] }
+        total: { $ref: '#/components/schemas/Money' }
+        item_count: { type: integer }
+        placed_at: { type: [string, 'null'], format: date-time }
+    PaymentStart:
+      type: object
+      required: [method, status, redirect_url, message]
+      properties:
+        method: { type: string }
+        status: { type: string, enum: [redirect, offline] }
+        redirect_url: { type: [string, 'null'] }
+        message: { type: [string, 'null'] }
+    PlacedOrder:
+      type: object
+      required: [order, access_token, payment]
+      properties:
+        order: { $ref: '#/components/schemas/OrderSummary' }
+        access_token: { type: [string, 'null'], description: Send as X-Order-Token to read/pay this order; null on replay }
+        payment: { oneOf: [{ $ref: '#/components/schemas/PaymentStart' }, { type: 'null' }] }
+    # --- auth ---
+    OtpChallenge:
+      type: object
+      required: [phone, code_length, expires_in, resend_in]
+      properties:
+        phone: { type: string, description: Normalized 09XXXXXXXXX }
+        code_length: { type: integer, const: 4 }
+        expires_in: { type: integer, description: Seconds }
+        resend_in: { type: integer, description: Seconds until a new code may be requested }
+    Customer:
+      type: object
+      required: [id, first_name, last_name, name, phone, type, needs_profile]
+      properties:
+        id: { type: string, description: ULID (public id) }
+        first_name: { type: [string, 'null'] }
+        last_name: { type: [string, 'null'] }
+        name: { type: [string, 'null'], description: Full name; null until the profile is completed }
+        phone: { type: string }
+        type: { type: string, enum: [consumer, partner], description: 'partner = B2B (WordPress role shop)' }
+        needs_profile: { type: boolean, description: true → ask first/last name before continuing }
+    CustomerSession:
+      type: object
+      required: [token, token_type, expires_at, is_new, customer]
+      properties:
+        token: { type: string }
+        token_type: { type: string, const: Bearer }
+        expires_at: { type: string, format: date-time }
+        is_new: { type: boolean }
+        customer: { $ref: '#/components/schemas/Customer' }
+    # --- /auth ---
