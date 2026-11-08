@@ -1408,6 +1408,10 @@ components:
         discount_percent: { type: integer }
         line_total: { $ref: '#/components/schemas/Money' }
         line_regular_total: { $ref: '#/components/schemas/Money' }
+        addons:
+          type: array
+          description: 'Selected non-installation add-ons (anti-fog, light colour …), already included in line_total'
+          items: { type: object, required: [id, label, total], properties: { id: { type: integer }, label: { type: string }, total: { $ref: '#/components/schemas/Money' } } }
         purchasable: { type: boolean }
         issue:
           oneOf:

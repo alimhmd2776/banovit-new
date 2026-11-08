@@ -1097,6 +1097,12 @@ export interface components {
             discount_percent: number;
             line_total: components["schemas"]["Money"];
             line_regular_total: components["schemas"]["Money"];
+            /** @description Selected non-installation add-ons (anti-fog, light colour …), already included in line_total */
+            addons?: {
+                id: number;
+                label: string;
+                total: components["schemas"]["Money"];
+            }[];
             purchasable: boolean;
             issue: {
                 code: string;
