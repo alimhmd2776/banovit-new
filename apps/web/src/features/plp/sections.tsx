@@ -45,8 +45,10 @@ export function BrandRow({ facet, title }: { facet: Facet | undefined; title: st
         {brands.map((b) => (
           <li key={b.value}>
             <Link href={`/brand/${encodeURIComponent(b.value).toLowerCase()}/`} className="group flex flex-col items-center gap-2 text-center">
-              <span className="flex size-[72px] items-center justify-center rounded-md border border-border bg-surface px-1 group-hover:border-primary">
-                {/^[a-z0-9-]+$/.test(b.value) ? (
+              <span className="relative flex size-[72px] items-center justify-center overflow-hidden rounded-md border border-border bg-surface px-1 group-hover:border-primary">
+                {b.image?.url ? (
+                  <Image src={b.image.url} alt={b.label} fill sizes="72px" className="object-contain p-2" />
+                ) : /^[a-z0-9-]+$/.test(b.value) ? (
                   <span className="line-clamp-2 text-[11px] font-extrabold uppercase leading-4 text-primary" dir="ltr">
                     {b.value.replace(/-/g, ' ')}
                   </span>

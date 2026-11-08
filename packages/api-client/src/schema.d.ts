@@ -204,6 +204,8 @@ export interface components {
             count: number;
             selected: boolean;
             hex?: string | null;
+            /** @description Brand logo (brand facet only) */
+            image?: components["schemas"]["Image"];
         };
         Facet: {
             /** @description brand or a pa_* attribute slug */
