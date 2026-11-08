@@ -160,7 +160,7 @@ function Actions({ busy, onCancel, error }: { busy: boolean; onCancel: () => voi
     <>
       {error ? <p role="alert" className="text-xs text-danger">{error}</p> : null}
       <div className="flex gap-2">
-        <button type="submit" disabled={busy} className="h-11 flex-1 rounded-sm bg-primary text-sm font-bold text-primary-on hover:bg-primary-hover disabled:opacity-60">
+        <button type="submit" disabled={busy} data-busy={busy || undefined} className="h-11 flex-1 rounded-sm bg-primary text-sm font-bold text-primary-on hover:bg-primary-hover disabled:opacity-60">
           {busy ? 'در حال ذخیره…' : 'ذخیره'}
         </button>
         <button type="button" onClick={onCancel} className="h-11 rounded-sm border border-border px-5 text-sm text-text">انصراف</button>

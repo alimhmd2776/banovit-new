@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useNavRouter as useRouter } from '@/lib/use-nav-router';
 import { IconChevronRight, IconPhone, cx } from '@banovit/ui';
 import type { Customer } from '@banovit/api-client';
 import { normalizeMobile, toLatinDigits, toPersianDigits } from '@/lib/auth/phone';
@@ -197,7 +197,7 @@ export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: s
             </label>
             <ErrorText error={error} />
             <Terms />
-            <SubmitButton disabled={!normalized || busy}>دریافت کد پیامکی</SubmitButton>
+            <SubmitButton disabled={!normalized || busy} busy={busy}>دریافت کد پیامکی</SubmitButton>
           </form>
         )}
 
@@ -240,7 +240,7 @@ export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: s
             </div>
             <ErrorText error={error} />
             <Terms />
-            <SubmitButton disabled={code.length !== CODE_LENGTH || busy}>{busy ? 'در حال بررسی…' : 'ورود به بانُویت'}</SubmitButton>
+            <SubmitButton disabled={code.length !== CODE_LENGTH || busy} busy={busy}>{busy ? 'در حال بررسی…' : 'ورود به بانُویت'}</SubmitButton>
             <div className="mt-5 text-center text-sm">
               {resendIn > 0 ? (
                 <p className="font-medium text-text-subtle" aria-live="off">
@@ -269,7 +269,7 @@ export function LoginFlow({ redirectTo, initialStep = 'phone' }: { redirectTo: s
             </div>
             {!error?.fields && <ErrorText error={error} />}
             <Terms />
-            <SubmitButton disabled={!profileValid || busy}>ورود به بانُویت</SubmitButton>
+            <SubmitButton disabled={!profileValid || busy} busy={busy}>ورود به بانُویت</SubmitButton>
           </form>
         )}
       </div>
@@ -303,11 +303,12 @@ function Terms() {
   );
 }
 
-function SubmitButton({ disabled, children }: { disabled: boolean; children: React.ReactNode }) {
+function SubmitButton({ disabled, busy, children }: { disabled: boolean; busy?: boolean; children: React.ReactNode }) {
   return (
     <button
       type="submit"
       disabled={disabled}
+      data-busy={busy || undefined}
       className="mt-8 h-14 w-full rounded-lg bg-primary text-base font-bold text-primary-on transition-colors hover:bg-primary-hover disabled:bg-surface-muted disabled:text-text-subtle"
     >
       {children}

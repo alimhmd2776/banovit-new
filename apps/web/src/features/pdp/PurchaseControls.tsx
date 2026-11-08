@@ -314,6 +314,7 @@ function AddButton({ className }: { className?: string }) {
       type="button"
       onClick={add}
       disabled={soldOut || status.kind === 'adding'}
+      data-busy={status.kind === 'adding' || undefined}
       className={cx(
         'h-12 whitespace-nowrap rounded-full px-6 text-[15px] font-bold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
         soldOut ? 'cursor-not-allowed bg-surface-muted text-text-subtle' : 'bg-primary text-primary-on hover:bg-primary-hover disabled:opacity-70',

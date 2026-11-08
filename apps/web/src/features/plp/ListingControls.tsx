@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useNavRouter as useRouter } from '@/lib/use-nav-router';
 import { useCallback, useState, useTransition } from 'react';
 import type { ListingMeta, SortKey } from '@banovit/api-client';
 import { BottomSheet, Chip, cx, faDigits, FilterPill, IconCheck, IconSliders, IconSort } from '@banovit/ui';

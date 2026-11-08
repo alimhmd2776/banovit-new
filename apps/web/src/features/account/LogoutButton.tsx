@@ -10,6 +10,7 @@ export function LogoutButton({ className }: { className?: string }) {
     <button
       type="button"
       disabled={busy}
+      data-busy={busy || undefined}
       className={className}
       onClick={async () => {
         setBusy(true);

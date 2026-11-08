@@ -1,9 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useNavRouter as useRouter } from '@/lib/use-nav-router';
 import { useState } from 'react';
 import type { ProductCard as Card } from '@banovit/api-client';
 import { cx, faDigits, IconHeart, IconSort, Switch } from '@banovit/ui';
+import { withProgress } from '@/lib/nav-progress';
 import { me } from './client';
 import { EmptyState } from './EmptyState';
 
@@ -25,16 +26,18 @@ export function WishlistView({ products, cards, sort, notify: initialNotify }: {
   const [removed, setRemoved] = useState<Set<string>>(new Set());
   const [sortOpen, setSortOpen] = useState(false);
   const [msg, setMsg] = useState('');
+  const [adding, setAdding] = useState<string | null>(null);
   const visible = products.map((p, i) => ({ p, card: cards[i] })).filter(({ p }) => !removed.has(p.slug));
 
   const addToCart = async (p: Card) => {
     setMsg('');
-    const res = await fetch('/api/cart/items/', {
+    setAdding(p.slug);
+    const res = await withProgress(() => fetch('/api/cart/items/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({ product_id: p.id, quantity: 1 }),
       credentials: 'same-origin',
-    }).catch(() => null);
+    }).catch(() => null)).finally(() => setAdding(null));
     if (res?.ok) {
       const j = (await res.json().catch(() => null)) as { data?: { item_count?: number } } | null;
       window.dispatchEvent(new CustomEvent('cart:updated', { detail: { item_count: j?.data?.item_count } }));
@@ -86,7 +89,7 @@ export function WishlistView({ products, cards, sort, notify: initialNotify }: {
             <li key={p.slug} className="pb-4 lg:pb-0">
               {card}
               <div className="flex items-center gap-3 lg:mt-2">
-                <button type="button" onClick={() => addToCart(p)} disabled={!p.in_stock} className="h-11 flex-1 rounded-sm border border-border text-sm font-bold text-primary hover:bg-primary-subtle disabled:text-text-subtle">
+                <button type="button" onClick={() => addToCart(p)} disabled={!p.in_stock || adding !== null} data-busy={adding === p.slug || undefined} className="h-11 flex-1 rounded-sm border border-border text-sm font-bold text-primary hover:bg-primary-subtle disabled:text-text-subtle">
                   {p.in_stock ? 'افزودن به سبد' : 'ناموجود'}
                 </button>
                 <button

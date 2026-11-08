@@ -197,6 +197,7 @@ export function ContactForm({ title, messagePlaceholder, submitLabel, successMes
       <button
         type="submit"
         disabled={status === 'sending'}
+        data-busy={status === 'sending' || undefined}
         className="mt-1 h-12 rounded-full bg-primary text-base font-bold text-primary-on transition-colors hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:opacity-60 lg:h-14"
       >
         {status === 'sending' ? 'در حال ارسال…' : submitLabel}

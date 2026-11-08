@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useNavRouter as useRouter } from '@/lib/use-nav-router';
 import type { CustomerAddress } from '@banovit/api-client';
 import { AddressForm } from './AddressForm';
 

@@ -149,6 +149,7 @@ export function VanityCalculator({ calc, productName, consultPhone }: { calc: Ca
               <button
                 type="submit"
                 disabled={status.kind === 'sending'}
+                data-busy={status.kind === 'sending' || undefined}
                 className="h-12 shrink-0 whitespace-nowrap rounded-md bg-primary px-5 text-sm font-bold text-primary-on hover:bg-primary-hover disabled:opacity-70"
               >
                 {status.kind === 'sending' ? 'در حال ثبت…' : 'ثبت درخواست'}
