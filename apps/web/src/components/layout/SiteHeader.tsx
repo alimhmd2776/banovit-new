@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { IconCart, IconSearch, IconUser } from '@banovit/ui';
+import { CartBadge } from '@/features/cart/CartBadge';
 import { siteConfig } from '@/lib/site-config';
 
 /**
@@ -39,8 +40,9 @@ export function SiteHeader() {
             <Link href="/my-account/" className="hidden size-10 items-center justify-center rounded-full text-text hover:bg-surface-muted lg:inline-flex" aria-label="حساب کاربری">
               <IconUser />
             </Link>
-            <Link href="/cart/" className="inline-flex size-10 items-center justify-center rounded-full text-text hover:bg-surface-muted" aria-label="سبد خرید">
+            <Link href="/cart/" className="relative inline-flex size-10 items-center justify-center rounded-full text-text hover:bg-surface-muted" aria-label="سبد خرید">
               <IconCart />
+              <CartBadge />
             </Link>
           </nav>
         </div>

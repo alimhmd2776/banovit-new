@@ -3,7 +3,8 @@ info:
   title: Banovit Storefront API
   version: 1.0.0
   description: |
-    Public, read-only catalog API served by banovit-cms under /api/storefront/v1.
+    Storefront API served by banovit-cms under /api/storefront/v1: public read-only
+    catalog, plus the session-bound cart/checkout (branch feature/storefront-cart).
     Conventions: docs/05-conventions.md (snake_case, money as integer rial, {data,meta,links}, {error}).
     Implemented in banovit-cms branch feature/storefront-plp (routes/storefront.php).
 servers:
@@ -109,8 +110,197 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/ProductListing' }
         '404': { $ref: '#/components/responses/NotFound' }
+  # ── Cart & checkout (docs/api/cart.md). Session-bound: X-Cart-Token header, never cached. ──
+  /cart:
+    get:
+      operationId: getCart
+      summary: The visitor's cart (empty cart with token null when none)
+      parameters: [{ $ref: '#/components/parameters/cartToken' }]
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+    patch:
+      operationId: updateCart
+      summary: Checkout options (address, delivery day, packaging, payment method, note, attribution)
+      parameters: [{ $ref: '#/components/parameters/cartToken' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CartUpdate' }
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /cart/items:
+    post:
+      operationId: addCartItem
+      summary: Add a product (creates the cart when there is no token; response carries data.token)
+      parameters: [{ $ref: '#/components/parameters/cartToken' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CartItemCreate' }
+      responses:
+        '201': { $ref: '#/components/responses/CartResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /cart/items/{item}:
+    patch:
+      operationId: updateCartItem
+      parameters:
+        - $ref: '#/components/parameters/cartToken'
+        - { name: item, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity: { type: integer, minimum: 0, description: 0 removes the line }
+                installation: { type: boolean }
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: removeCartItem
+      parameters:
+        - $ref: '#/components/parameters/cartToken'
+        - { name: item, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+  /cart/coupon:
+    post:
+      operationId: applyCoupon
+      parameters: [{ $ref: '#/components/parameters/cartToken' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [code], properties: { code: { type: string } } }
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+    delete:
+      operationId: removeCoupon
+      parameters: [{ $ref: '#/components/parameters/cartToken' }]
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+  /cart/merge:
+    post:
+      operationId: mergeCart
+      summary: After login (Bearer customer token), fold the guest cart into the customer's
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [guest_token], properties: { guest_token: { type: string } } }
+      responses:
+        '200': { $ref: '#/components/responses/CartResponse' }
+        '401': { $ref: '#/components/responses/NotFound' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /orders:
+    post:
+      operationId: placeOrder
+      summary: Place the cart as an order (sales_invoices, source=storefront) and start payment
+      parameters:
+        - $ref: '#/components/parameters/cartToken'
+        - { name: Idempotency-Key, in: header, required: true, schema: { type: string, maxLength: 100 } }
+      responses:
+        '201':
+          description: Order placed
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/PlacedOrder' }
+        '200':
+          description: Replay of the same Idempotency-Key (payment is null)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/PlacedOrder' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /orders/{number}:
+    get:
+      operationId: getOrder
+      parameters:
+        - { name: number, in: path, required: true, schema: { type: string } }
+        - { name: X-Order-Token, in: header, schema: { type: string } }
+      responses:
+        '200':
+          description: Order summary
+          content:
+            application/json:
+              schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/OrderSummary' } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /orders/{number}/payments:
+    post:
+      operationId: payOrder
+      summary: Retry payment of a pending order
+      parameters:
+        - { name: number, in: path, required: true, schema: { type: string } }
+        - { name: X-Order-Token, in: header, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { payment_method: { type: string } } }
+      responses:
+        '200':
+          description: Payment started
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [order, payment]
+                    properties:
+                      order: { $ref: '#/components/schemas/OrderSummary' }
+                      payment: { $ref: '#/components/schemas/PaymentStart' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /payments/zarinpal/verify:
+    post:
+      operationId: verifyZarinpal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [authority, status], properties: { authority: { type: string }, status: { type: string } } }
+      responses:
+        '200':
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [paid, ref_id, order]
+                    properties:
+                      paid: { type: boolean }
+                      ref_id: { type: [string, 'null'] }
+                      order: { $ref: '#/components/schemas/OrderSummary' }
+        '404': { $ref: '#/components/responses/NotFound' }
 components:
   parameters:
+    cartToken:
+      name: X-Cart-Token
+      in: header
+      description: Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie)
+      schema: { type: string, maxLength: 64 }
     categoryPath:
       name: path
       in: path
@@ -143,6 +333,20 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Error' }
+    Conflict:
+      description: Stock/price/state conflict (out_of_stock, cart_changed, ...)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    CartResponse:
+      description: Full cart
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [data]
+            properties:
+              data: { $ref: '#/components/schemas/Cart' }
     ValidationError:
       description: Invalid query
       content:
@@ -365,3 +569,198 @@ components:
             code: { type: string }
             message: { type: string }
             fields: { type: object, additionalProperties: { type: array, items: { type: string } } }
+    # ── cart ──
+    Address:
+      type: object
+      properties:
+        title: { type: string }
+        recipient_name: { type: string }
+        recipient_phone: { type: string }
+        province: { type: string }
+        city: { type: string }
+        address_line: { type: string }
+        plaque: { type: string }
+        unit: { type: string }
+        postal_code: { type: string }
+        lat: { type: number }
+        lng: { type: number }
+    CartItemCreate:
+      type: object
+      required: [product_id]
+      properties:
+        product_id: { type: integer }
+        variation_id: { type: [integer, 'null'] }
+        variant_id: { type: [integer, 'null'], description: Alias of variation_id }
+        quantity: { type: integer, minimum: 1, default: 1 }
+        installation: { type: boolean }
+        addon_ids: { type: array, items: { type: integer }, description: PDP add-on option ids (installation service) }
+    CartUpdate:
+      type: object
+      properties:
+        packaging: { type: boolean }
+        delivery_date: { type: [string, 'null'], format: date }
+        address: { oneOf: [{ $ref: '#/components/schemas/Address' }, { type: 'null' }] }
+        address_id: { type: [string, 'null'], description: Saved customer address (signed-in) }
+        payment_method: { type: [string, 'null'] }
+        customer_note: { type: [string, 'null'] }
+        attribution: { type: object, additionalProperties: { type: string } }
+    CartLine:
+      type: object
+      required: [id, product, variation, quantity, max_quantity, unit_price, unit_regular_price, discount_percent, line_total, line_regular_total, purchasable, issue, installation]
+      properties:
+        id: { type: integer }
+        product:
+          type: object
+          required: [id, name, slug, path, image, brand]
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            slug: { type: string }
+            path: { type: string }
+            image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+            brand:
+              oneOf:
+                - { type: object, required: [slug, name], properties: { slug: { type: string }, name: { type: string } } }
+                - { type: 'null' }
+        variation:
+          oneOf:
+            - type: object
+              required: [id, attributes]
+              properties:
+                id: { type: integer }
+                attributes: { type: array, items: { type: object, required: [name, value], properties: { name: { type: string }, value: { type: string } } } }
+            - { type: 'null' }
+        quantity: { type: integer }
+        max_quantity: { type: integer }
+        unit_price: { $ref: '#/components/schemas/Money' }
+        unit_regular_price: { $ref: '#/components/schemas/Money' }
+        discount_percent: { type: integer }
+        line_total: { $ref: '#/components/schemas/Money' }
+        line_regular_total: { $ref: '#/components/schemas/Money' }
+        purchasable: { type: boolean }
+        issue:
+          oneOf:
+            - { type: object, required: [code, message], properties: { code: { type: string }, message: { type: string } } }
+            - { type: 'null' }
+        installation:
+          type: object
+          required: [available, available_in_zone, selected, addon_ids, unit_fee, total]
+          properties:
+            available: { type: boolean }
+            available_in_zone: { type: boolean }
+            selected: { type: boolean }
+            addon_ids: { type: array, items: { type: integer } }
+            unit_fee: { $ref: '#/components/schemas/Money' }
+            total: { $ref: '#/components/schemas/Money' }
+    DeliverySlot:
+      type: object
+      required: [date, weekday, day_label, fee]
+      properties:
+        date: { type: string, format: date }
+        weekday: { type: string }
+        day_label: { type: string, description: Jalali, e.g. «۲۷ شهریور» }
+        fee: { $ref: '#/components/schemas/Money' }
+    PaymentMethod:
+      type: object
+      required: [key, label, available, description]
+      properties:
+        key: { type: string, enum: [zarinpal, card_to_card, installments] }
+        label: { type: string }
+        available: { type: boolean }
+        description: { type: [string, 'null'] }
+    CartTotals:
+      type: object
+      required: [items_regular, items, product_discount, installation, packaging, shipping, service_fee, coupon_discount, payable, savings]
+      properties:
+        items_regular: { $ref: '#/components/schemas/Money' }
+        items: { $ref: '#/components/schemas/Money' }
+        product_discount: { $ref: '#/components/schemas/Money' }
+        installation: { $ref: '#/components/schemas/Money' }
+        packaging: { $ref: '#/components/schemas/Money' }
+        shipping: { $ref: '#/components/schemas/Money' }
+        service_fee: { $ref: '#/components/schemas/Money' }
+        coupon_discount: { $ref: '#/components/schemas/Money' }
+        payable: { $ref: '#/components/schemas/Money' }
+        savings: { $ref: '#/components/schemas/Money' }
+    Cart:
+      type: object
+      required: [token, item_count, items, options, coupon, delivery, addons, payment_methods, totals, issues, ready_for_checkout]
+      properties:
+        token: { type: [string, 'null'] }
+        item_count: { type: integer }
+        items: { type: array, items: { $ref: '#/components/schemas/CartLine' } }
+        options:
+          type: object
+          required: [packaging, delivery_date, address, payment_method, customer_note]
+          properties:
+            packaging: { type: boolean }
+            delivery_date: { type: [string, 'null'], format: date }
+            address: { oneOf: [{ $ref: '#/components/schemas/Address' }, { type: 'null' }] }
+            payment_method: { type: [string, 'null'] }
+            customer_note: { type: [string, 'null'] }
+        coupon:
+          oneOf:
+            - { type: object, required: [code, label, discount], properties: { code: { type: string }, label: { type: string }, discount: { $ref: '#/components/schemas/Money' } } }
+            - { type: 'null' }
+        delivery:
+          type: object
+          required: [zone, fee, fee_label, window_label, requires_slot, slots]
+          properties:
+            zone: { type: object, required: [key, label], properties: { key: { type: string }, label: { type: string } } }
+            fee: { $ref: '#/components/schemas/Money' }
+            fee_label: { type: [string, 'null'] }
+            window_label: { type: string }
+            requires_slot: { type: boolean }
+            slots: { type: array, items: { $ref: '#/components/schemas/DeliverySlot' } }
+        addons:
+          type: object
+          required: [packaging, installation]
+          properties:
+            packaging:
+              oneOf:
+                - { type: object, required: [label, description, fee], properties: { label: { type: string }, description: { type: string }, fee: { $ref: '#/components/schemas/Money' } } }
+                - { type: 'null' }
+            installation:
+              type: object
+              required: [label, item_label, description, available_in_zone, available_items, selected_items]
+              properties:
+                label: { type: string }
+                item_label: { type: string }
+                description: { type: string }
+                available_in_zone: { type: boolean }
+                available_items: { type: integer }
+                selected_items: { type: integer }
+        payment_methods: { type: array, items: { $ref: '#/components/schemas/PaymentMethod' } }
+        totals: { $ref: '#/components/schemas/CartTotals' }
+        issues:
+          type: array
+          items: { type: object, required: [code, message, item_id], properties: { code: { type: string }, message: { type: string }, item_id: { type: [integer, 'null'] } } }
+        ready_for_checkout: { type: boolean }
+    OrderSummary:
+      type: object
+      required: [number, status, status_label, is_paid, payment_method, payment_method_label, total, item_count, placed_at]
+      properties:
+        number: { type: string }
+        status: { type: string }
+        status_label: { type: string }
+        is_paid: { type: boolean }
+        payment_method: { type: [string, 'null'] }
+        payment_method_label: { type: [string, 'null'] }
+        total: { $ref: '#/components/schemas/Money' }
+        item_count: { type: integer }
+        placed_at: { type: [string, 'null'], format: date-time }
+    PaymentStart:
+      type: object
+      required: [method, status, redirect_url, message]
+      properties:
+        method: { type: string }
+        status: { type: string, enum: [redirect, offline] }
+        redirect_url: { type: [string, 'null'] }
+        message: { type: [string, 'null'] }
+    PlacedOrder:
+      type: object
+      required: [order, access_token, payment]
+      properties:
+        order: { $ref: '#/components/schemas/OrderSummary' }
+        access_token: { type: [string, 'null'], description: Send as X-Order-Token to read/pay this order; null on replay }
+        payment: { oneOf: [{ $ref: '#/components/schemas/PaymentStart' }, { type: 'null' }] }

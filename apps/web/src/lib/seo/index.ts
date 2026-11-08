@@ -117,3 +117,15 @@ export function listingJsonLd({
 export function jsonLdScript(data: unknown): { __html: string } {
   return { __html: JSON.stringify(data).replace(/</g, '\\u003c') };
 }
+
+/**
+ * Personal pages (/cart/, /checkout/, /my-account/...): always noindex, like
+ * the live site, with a self canonical. Non-production stays nofollow too.
+ */
+export function privatePageMetadata(title: string, path: string): Metadata {
+  return {
+    title: { absolute: `${title} - ${SITE_NAME}` },
+    alternates: { canonical: `${env.canonicalOrigin}${path}` },
+    robots: { index: false, follow: env.isProduction },
+  };
+}
