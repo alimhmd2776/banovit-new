@@ -20,6 +20,7 @@ export const BLOG_UI_DEFAULTS = {
     search_title: 'نتایج جستجو برای «{q}»',
     tag_title: 'برچسب: {name}',
   },
+  archive: { per_page: 12, feed_limit: 20 },
   post_page: {
     show_summary: true,
     summary_title: 'خلاصه مقاله',
