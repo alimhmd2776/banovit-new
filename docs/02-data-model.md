@@ -21,7 +21,8 @@
 - `product_variants`: SKU (الان یکتا نیست؛ ستون `sku` غیر یکتا + `code` داخلی یکتا)، ابعاد، وزن
 - `attributes` (۷۹ مورد، با `is_filterable`، `is_visible`، `has_archive`)، `attribute_values`، `product_attribute_values` و `variant_attribute_values`
 - `product_category` (چند به چند)، `product_media` (ترتیب، alt)، `product_addons` (جای Rico addons)، `product_relations` (مرتبط/مکمل)
-- **قیمت و موجودی جدا از محصول**: `offers` (variant_id، supplier_id nullable برای بانویت، price، sale_price، stock، lead_time، is_active). این همان مدل افزونه marketplace روی test2 است و چندفروشندگی را پشتیبانی می‌کند. `price_lists` برای قیمت همکار (B2B).
+- **قیمت و موجودی فروشندگان**: جدول `supplier_product_offers` (تصمیم ۲۰۲۶-۱۱-۰۸، از کار stage2 بازنویسی می‌شود روی شاخه `feature/supplier-offers`): supplier_id، product_id، product_variation_id، `unit_key` (`p:<id>`/`v:<id>`، یکتا per supplier)، price ریال، stock، approved_at. هر تغییر فروشنده (فرم یا اکسل) اول در `supplier_offer_submissions` و `..._items` ثبت و با تأیید ادمین روی offers اعمال می‌شود. قیمت/موجودی خود بانویت روی `products`/`product_variations` می‌ماند؛ PDP و facet این دو را ادغام می‌کنند. `price_lists` برای قیمت همکار (B2B).
+- **پروفایل عمومی فروشنده**: `storefront_sellers` (۱:۱ با suppliers از طریق supplier_id یکتا و nullable؛ NULL = خود بانویت)، با slug برای `/seller/{slug}/`.
 
 ### Content
 - `posts` (بلاگ)، `pages`، `landing_pages`: بدنه به‌صورت `blocks` (آرایه JSON با schema نسخه‌دار، مثل `{type:"faq", v:1, props:{...}}`)، به‌اضافه `body_html` برای مقاله‌های منتقل‌شده از Elementor تا وقتی بازنویسی شوند

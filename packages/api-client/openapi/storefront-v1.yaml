@@ -263,7 +263,7 @@ components:
   schemas:
     SortKey:
       type: string
-      enum: [newest, popular, rating, price_asc, price_desc]
+      enum: [relevant, newest, popular, price_asc, price_desc, featured, rating]
     Money:
       type: object
       required: [amount, currency]

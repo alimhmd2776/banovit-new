@@ -9,7 +9,7 @@
 | `/` | | `app/page.tsx` | |
 | `/shop/` | | `app/shop/page.tsx` | آرشیو همه محصولات |
 | `/shop/{product}/` | `/shop/sangsanbatis-washbasin-salvia/` | `app/shop/[slug]/page.tsx` | تداخل با `category` و `tag` نمی‌کند چون آن‌ها پیشوند دارند |
-| `/shop/category/{...path}/` | `/shop/category/vanity/cabinet-vanity/` | `app/shop/category/[...path]/page.tsx` | مسیر کامل والد/فرزند |
+| `/shop/category/{slug}/` | `/shop/category/cabinet-vanity/` | `app/shop/category/[...path]/page.tsx` | URL کانونیکال لایو **تخت** است (فقط slug خود دسته)، حتی برای زیردسته‌ها. مسیر تودرتو (`/shop/category/vanity/cabinet-vanity/`) باید 301 به نسخه تخت بخورد |
 | `/shop/tag/{slug}/` | | `app/shop/tag/[slug]/page.tsx` | |
 | `/brand/{slug}/` | `/brand/alka/` | `app/brand/[slug]/page.tsx` | از `pa_brand` |
 | `/brands/{slug}/` | | 301 به `/brand/{slug}/` | `product_brand` تقریباً خالی است |

@@ -7,7 +7,7 @@ import { env } from '@/lib/env';
 import '@/styles/globals.css';
 
 const vazirmatn = localFont({
-  src: '../../node_modules/vazirmatn/fonts/webfonts/Vazirmatn[wght].woff2',
+  src: './fonts/Vazirmatn-wght.woff2',
   variable: '--font-vazirmatn',
   weight: '100 900',
   display: 'swap',

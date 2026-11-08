@@ -162,7 +162,7 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /** @enum {string} */
-        SortKey: "newest" | "popular" | "rating" | "price_asc" | "price_desc";
+        SortKey: "relevant" | "newest" | "popular" | "price_asc" | "price_desc" | "featured" | "rating";
         Money: {
             /** @description Integer rial */
             amount: number;
