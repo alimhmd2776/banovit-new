@@ -1494,6 +1494,7 @@ components:
         count: { type: integer }
         selected: { type: boolean }
         hex: { type: [string, 'null'] }
+        image: { $ref: '#/components/schemas/Image', description: 'Brand logo (brand facet only)' }
     Facet:
       type: object
       required: [key, label, type, searchable, options]

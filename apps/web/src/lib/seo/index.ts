@@ -29,10 +29,17 @@ export function listingMetadata({
   const canonicalPath = seo.canonical ? safePath(seo.canonical) ?? path : path;
   const cleanCanonical = `${env.canonicalOrigin}${canonicalPath}`;
   const canonical = filtered || page <= 1 ? cleanCanonical : `${cleanCanonical.replace(/\/$/, '')}/page/${page}/`;
-  const title = page > 1 ? `${seo.title} - صفحه ${page.toLocaleString('fa-IR')} از ${lastPage.toLocaleString('fa-IR')}` : seo.title;
+  // Live keeps the same title on /page/N/ (no «صفحه N» suffix).
+  void lastPage;
+  const title = seo.title;
 
-  let robots: Metadata['robots'] = seo.robots;
-  if (filtered) robots = { index: false, follow: true };
+  // Live (Yoast) robots for an indexable page carry the max-* directives too.
+  let robots: Metadata['robots'] = /noindex/i.test(seo.robots)
+    ? seo.robots
+    : { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1, 'max-video-preview': -1 };
+  // Same as live (functions.php wp_robots + banovit-filter-seo): /page/N/ (N≥2) and
+  // filtered/sorted URLs are noindex, follow.
+  if (filtered || page > 1) robots = { index: false, follow: true };
   if (!env.isProduction) robots = { index: false, follow: false };
 
   return {
