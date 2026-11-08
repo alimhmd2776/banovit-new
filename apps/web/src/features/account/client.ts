@@ -18,18 +18,18 @@ export class AccountError extends Error {
 }
 
 export async function me<T = unknown>(method: string, path: string, body?: unknown): Promise<T> {
-  const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
   // Saves/deletes show the top progress bar (reads may be background polls).
   const visible = method.toUpperCase() !== 'GET';
   if (visible) startNavProgress();
   try {
-    return await call<T>(method, path, body, isForm);
+    return await call<T>(method, path, body);
   } finally {
     if (visible) doneNavProgress();
   }
 }
 
-async function call<T>(method: string, path: string, body: unknown, isForm: boolean): Promise<T> {
+async function call<T>(method: string, path: string, body: unknown): Promise<T> {
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
   let res: Response;
   try {
     res = await fetch(`/api/me/${path.replace(/^\/|\/$/g, '')}/`, {
