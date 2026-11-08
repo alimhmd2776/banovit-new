@@ -16,8 +16,9 @@ API ادمین: `GET|PUT /api/admin/storefront/contact-settings` (کل سند ج
 
 ## سئو
 
-- عنوان/توضیح/canonical/og از بخش «سئو» همان صفحه ادمین. خالی = الگوی پیش‌فرض Yoast برای برگه‌ها: «تماس با ما - بانویت»، بدون meta description.
-- **قبل از cutover**: مقادیر واقعی head صفحه لایو `https://banovit.com/contact-us/` (title، description، og:*) در ادمین وارد و با diff متا مقایسه شود. از محیط ابری دسترسی به banovit.com نبود، پس این مقایسه هنوز انجام نشده.
+- عنوان/توضیح/canonical/og از بخش «سئو» همان صفحه ادمین. پیش‌فرض‌ها از head لایو (اسنپ‌شات ۲۰۲۶-۱۱-۰۸، `D:\LFA\Stage2\wp-pages-export\contact-us.html`): title و og:title «تماس با ما در بانویت»، description «صفحه تماس با ما در بانویت»، canonical خودارجاع، robots index, follow. تنها تفاوت عمدی og:image است (لایو آیکن ۳۲ پیکسلی روبیکا بود؛ اینجا لوگو).
+- ساعت کاری پیش‌فرض از LocalBusiness افزونه Schema Pro لایو: شنبه تا چهارشنبه ۸ تا ۱۸، پنجشنبه ۸ تا ۱۵. لایو مختصات (geo) و نقشه ندارد.
+- لایو H1 ندارد؛ اینجا H1 «تماس با ما» اضافه شده.
 - JSON-LD: `ContactPage` + `Organization` با همان `@id` یوست (`https://banovit.com/#organization`) به‌اضافه contactPoint، آدرس‌ها و sameAs + `HomeGoodsStore` (LocalBusiness) با آدرس اصلی، تلفن، ساعت کاری و geo (اگر مختصات ثبت شده) + `BreadcrumbList`.
 - یک H1 («تماس با ما»): در موبایل نوار عنوان صفحه، در دسکتاپ فقط برای صفحه‌خوان و موتور جستجو (طرح دسکتاپ عنوان صفحه ندارد).
 
