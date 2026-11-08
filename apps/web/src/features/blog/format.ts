@@ -31,3 +31,25 @@ export function mainHeadings(items: { id: string; text: string; level: number }[
   const main = items.filter((i) => i.level === top).map(({ id, text }) => ({ id, text, level: 2 as const }));
   return faqTitle ? [...main, { id: 'post-faq', text: faqTitle, level: 2 as const }] : main;
 }
+
+const ago = new Intl.RelativeTimeFormat('fa', { numeric: 'always' });
+const AGO_STEPS: [Intl.RelativeTimeFormatUnit, number][] = [
+  ['year', 31536000],
+  ['month', 2592000],
+  ['week', 604800],
+  ['day', 86400],
+  ['hour', 3600],
+  ['minute', 60],
+];
+
+/** "۴ روز پیش" (like WordPress human_time_diff() + « پیش» on the live blog). */
+export function faAgo(iso: string | null | undefined, now: number = Date.now()): string {
+  if (!iso) return '';
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return '';
+  const secs = Math.max(0, Math.round((now - t) / 1000));
+  for (const [unit, size] of AGO_STEPS) {
+    if (secs >= size) return ago.format(-Math.floor(secs / size), unit);
+  }
+  return 'لحظاتی پیش';
+}

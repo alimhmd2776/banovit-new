@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { faDate, internalHref, localizeLinks, mainHeadings, postPagePath } from './format';
+import { faAgo, faDate, internalHref, localizeLinks, mainHeadings, postPagePath } from './format';
 
 describe('blog format', () => {
   it('formats Jalali dates with Persian digits', () => {
@@ -33,5 +33,14 @@ describe('mainHeadings', () => {
   });
   it('falls back to the top level when a post has no h2', () => {
     expect(mainHeadings([{ id: 'x', text: 'X', level: 3 }]).map((i) => i.id)).toEqual(['x']);
+  });
+});
+
+describe('faAgo', () => {
+  it('reads like the live «… پیش»', () => {
+    const now = Date.parse('2026-11-08T12:00:00Z');
+    expect(faAgo('2026-11-04T11:00:00Z', now)).toBe('۴ روز پیش');
+    expect(faAgo('2026-11-08T11:59:30Z', now)).toBe('لحظاتی پیش');
+    expect(faAgo(null)).toBe('');
   });
 });

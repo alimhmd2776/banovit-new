@@ -1,9 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import type { BlogArticleBlock, BlogBlock, BlogMapBlock, BlogNoteBlock, BlogProductsBlock, BlogQuizBlock, ProductCard as ProductCardData } from '@banovit/api-client';
-import { cx, faDigits, formatToman, IconArticle, IconAward, IconBulb, IconChevronLeft, IconMapPin, ProductCard } from '@banovit/ui';
+import type { BlogArticleBlock, BlogBlock, BlogMapBlock, BlogNoteBlock, BlogProductsBlock, BlogQuizBlock, BlogStatBlock, ProductCard as ProductCardData } from '@banovit/api-client';
+import { cx, faDigits, formatToman, IconArticle, IconAward, IconBulb, IconChevronLeft, IconEye, IconHistory, IconMapPin, ProductCard } from '@banovit/ui';
 import { MapPreview } from '../account/MapPreview';
-import { internalHref, localizeLinks } from './format';
+import { faAgo, internalHref, localizeLinks } from './format';
 import { QuizBlock } from './QuizBlock';
 
 /** Renders the CMS blocks in order: sanitized HTML, product cards/carousels, notes, suggested posts, quizzes, maps. */
@@ -17,6 +17,7 @@ export function PostBlocks({ blocks }: { blocks: BlogBlock[] }) {
         if (b.type === 'article') return <ArticleBlock key={i} block={b as BlogArticleBlock} />;
         if (b.type === 'quiz') return <QuizBlock key={i} block={b as BlogQuizBlock} />;
         if (b.type === 'map') return <MapBlock key={i} block={b as BlogMapBlock} />;
+        if (b.type === 'stat') return <StatBlock key={i} block={b as BlogStatBlock} />;
         return null;
       })}
     </>
@@ -204,5 +205,22 @@ export function SummaryBox({ html }: { html: string }) {
       </h2>
       <div className="blog-prose text-sm leading-7 [&_p]:text-text" dangerouslySetInnerHTML={{ __html: localizeLinks(html) }} />
     </section>
+  );
+}
+
+/** [post-views] / [last_update] placed by the author: live view count or «… پیش». */
+export function StatBlock({ block }: { block: BlogStatBlock }) {
+  const { kind, value } = block.props;
+  return (
+    <p className="my-2 inline-flex items-center gap-1 rounded-full bg-surface-muted px-3 py-1 text-xs text-text-muted">
+      {kind === 'views' ? <IconEye size={14} /> : <IconHistory size={14} />}
+      {kind === 'views' ? (
+        <>تعداد بازدید: {faDigits(Number(value) || 0)}</>
+      ) : (
+        <>
+          آخرین بروزرسانی: <time dateTime={value}>{faAgo(value)}</time>
+        </>
+      )}
+    </p>
   );
 }

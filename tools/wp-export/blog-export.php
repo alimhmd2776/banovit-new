@@ -155,6 +155,7 @@ foreach ($query->posts as $post) {
         'faq_meta' => $faqMeta,
         'views' => function_exists('pvc_get_post_views') ? (int) pvc_get_post_views($post->ID) : (int) $m('views'),
         'old_slugs' => array_values(array_filter((array) get_post_meta($post->ID, '_wp_old_slug'))),
+        'sidebar_banners' => array_values(array_filter((array) maybe_unserialize(get_post_meta($post->ID, '_sb_custom_banners', true)), fn ($b) => is_array($b) && !empty($b['image']))), // [sidebar_banner]
         'comments' => array_map(fn ($c) => [
             'id' => (int) $c->comment_ID, 'parent' => (int) $c->comment_parent, 'author' => $c->comment_author,
             'content' => $c->comment_content, 'date_gmt' => $c->comment_date_gmt,

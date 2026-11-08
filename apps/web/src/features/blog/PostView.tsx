@@ -10,6 +10,7 @@ import { PostRail, SectionHeader } from './cards';
 import { BlogTitleBar } from './chrome';
 import { faDate, internalHref, mainHeadings } from './format';
 import { ShareBar, ShareButton } from './ShareButtons';
+import { RecentComments, RecentPosts, SidebarBanners } from './Sidebar';
 import { Toc } from './Toc';
 import { ViewPing } from './ViewPing';
 
@@ -175,8 +176,12 @@ export function PostView({ post }: { post: BlogPost }) {
             </div>
           </article>
 
-          <aside className="lg:sticky lg:top-[calc(var(--header-height)+24px)]">
+          {/* live «تک پست» sidebar: banner, TOC (desktop), latest posts, latest comments */}
+          <aside className="mt-10 space-y-8 lg:mt-0" aria-label="ستون کناری">
+            <SidebarBanners banners={post.sidebar.banners} />
             <Toc items={mainHeadings(post.toc, post.faqs.length > 0 ? 'سوالات متداول' : null)} />
+            <RecentPosts posts={post.sidebar.recent_posts} />
+            <RecentComments comments={post.sidebar.recent_comments} />
           </aside>
         </div>
 

@@ -2533,6 +2533,18 @@ components:
             lat: { type: number }
             lng: { type: number }
             label: { type: [string, 'null'] }
+    BlogStatBlock:
+      type: object
+      required: [type, props]
+      description: Live value placed by the author ([post-views] / [last_update]); value = view count, or ISO date of the last update
+      properties:
+        type: { type: string, const: stat }
+        props:
+          type: object
+          required: [kind, value]
+          properties:
+            kind: { type: string, enum: [views, updated] }
+            value: { type: string }
     BlogBlock:
       oneOf:
         - $ref: '#/components/schemas/BlogHtmlBlock'
@@ -2541,6 +2553,7 @@ components:
         - $ref: '#/components/schemas/BlogArticleBlock'
         - $ref: '#/components/schemas/BlogQuizBlock'
         - $ref: '#/components/schemas/BlogMapBlock'
+        - $ref: '#/components/schemas/BlogStatBlock'
     TocItem:
       type: object
       required: [id, text, level]
@@ -2564,7 +2577,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/BlogPostCard'
         - type: object
-          required: [summary_html, blocks, toc, categories, tags, author_profile, faqs, related_products, related_posts, breadcrumb, banner, schema_type, word_count, seo]
+          required: [summary_html, blocks, toc, categories, tags, author_profile, faqs, related_products, related_posts, breadcrumb, banner, sidebar, schema_type, word_count, seo]
           properties:
             summary_html: { type: [string, 'null'] }
             blocks: { type: array, items: { $ref: '#/components/schemas/BlogBlock' } }
@@ -2577,9 +2590,36 @@ components:
             related_posts: { type: array, items: { $ref: '#/components/schemas/BlogPostCard' } }
             breadcrumb: { type: array, items: { $ref: '#/components/schemas/Crumb' } }
             banner: { oneOf: [{ $ref: '#/components/schemas/BlogBanner' }, { type: 'null' }] }
+            sidebar: { $ref: '#/components/schemas/BlogPostSidebar' }
             schema_type: { type: string, enum: [BlogPosting, Article, NewsArticle] }
             word_count: { type: integer }
             seo: { $ref: '#/components/schemas/Seo' }
+    BlogPostSidebar:
+      type: object
+      description: The live single-post sidebar (top to bottom; the TOC comes from `toc`)
+      required: [banners, recent_posts, recent_comments]
+      properties:
+        banners:
+          type: array
+          description: The post's own banners (live [sidebar_banner]), usually linking a shop category
+          items:
+            type: object
+            required: [image, url]
+            properties:
+              image: { $ref: '#/components/schemas/Image' }
+              url: { type: [string, 'null'] }
+        recent_posts: { type: array, description: «جدید ترین مقاله ها» (latest 5), items: { $ref: '#/components/schemas/BlogPostCard' } }
+        recent_comments:
+          type: array
+          description: «جدید ترین نظرات مشتریان» — latest 4 approved comments site-wide (posts and products)
+          items:
+            type: object
+            required: [author, text, title, url]
+            properties:
+              author: { type: string }
+              text: { type: string }
+              title: { type: string }
+              url: { type: string }
     BlogCategory:
       allOf:
         - $ref: '#/components/schemas/BlogCategoryRef'
