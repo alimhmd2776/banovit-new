@@ -49,3 +49,10 @@ flock -w 900 ~/banovit-new/.deploy.lock -c '<مراحل استقرار در docs
 | `routes/storefront.php` (CMS) | هر feature گروه route خودش را دارد؛ به گروه دیگران دست نزن. بعد از merge `php -l` و `php artisan route:list` |
 | `config/storefront.php` | هر feature کلید سطح اول خودش را دارد |
 | `app/Providers/StorefrontServiceProvider.php`، `routes/console.php` | فقط افزودنی، بلوک feature با کامنت |
+
+## نکات استقرار وب (۲۰۲۶-۱۱-۰۸)
+
+- `web-app` به‌صورت **read-write** mount می‌شود (`./web-app:/app`). Next.js در ISR فایل‌های `.next/server/app/**/*.html` و `.next/cache` را بازنویسی می‌کند؛ با mount فقط‌خواندنی صفحه‌ها کش نمی‌شدند (EROFS). volume جدای `web_next_cache` حذف شد، پس پوشه mountpoint لازم نیست.
+- بعد از جایگزینی `web-app`، پوشه‌های `node_modules/@img/sharp-linuxmusl-x64` و `sharp-libvips-linuxmusl-x64` را از نسخه قبلی کپی کن (build روی ویندوز است).
+- GitHub از این سیستم فقط **بدون** پروکسی 10.10.10.7:7890 در دسترس است: `env -u HTTPS_PROXY -u https_proxy git -c http.proxy= fetch`.
+- داده مرجع لایو: دیتابیس `live_wp_ro` در کانتینر `cms-db` و فایل‌ها در `~/banovit-new/import/`؛ رسانه در `~/banovit-new/media/wp-content/uploads`. برای اجرای اسکریپت‌های `tools/wp-export/*.php` از wp-cli موقت `~/wp-ro` (کد test2 + `wp-config` به `live_wp_ro`) استفاده کن، هرگز روی سرور لایو.
