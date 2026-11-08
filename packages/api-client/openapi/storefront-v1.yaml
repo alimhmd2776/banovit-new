@@ -1836,6 +1836,15 @@ components:
         likes: { type: integer }
         dislikes: { type: integer }
         published_at: { type: [string, 'null'], format: date-time }
+        reply: { oneOf: [{ $ref: '#/components/schemas/ReviewReply' }, { type: 'null' }] }
+    ReviewReply:
+      description: Shop answer written in the CMS panel («نظرات محصولات»).
+      type: object
+      required: [body, label]
+      properties:
+        body: { type: string }
+        label: { type: string, description: 'Heading shown above the answer, e.g. «پاسخ بانویت» (panel setting).' }
+        replied_at: { type: [string, 'null'], format: date-time }
     ReviewListing:
       type: object
       required: [data, meta, links]
@@ -2641,6 +2650,7 @@ components:
         status: { type: string, enum: [pending, approved] }
         is_verified_buyer: { type: boolean }
         created_at: { type: [string, 'null'], format: date-time }
+        reply: { oneOf: [{ $ref: '#/components/schemas/ReviewReply' }, { type: 'null' }] }
         product:
           type: [object, 'null']
           required: [slug, name, path]

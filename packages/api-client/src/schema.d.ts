@@ -1545,6 +1545,15 @@ export interface components {
             dislikes: number;
             /** Format: date-time */
             published_at: string | null;
+            reply?: components["schemas"]["ReviewReply"] | null;
+        };
+        /** @description Shop answer written in the CMS panel («نظرات محصولات»). */
+        ReviewReply: {
+            body: string;
+            /** @description Heading shown above the answer, e.g. «پاسخ بانویت» (panel setting). */
+            label: string;
+            /** Format: date-time */
+            replied_at?: string | null;
         };
         ReviewListing: {
             data: components["schemas"]["Review"][];
@@ -2285,6 +2294,7 @@ export interface components {
             is_verified_buyer: boolean;
             /** Format: date-time */
             created_at?: string | null;
+            reply?: components["schemas"]["ReviewReply"] | null;
             product?: {
                 slug: string;
                 name: string;

@@ -42,6 +42,12 @@ export function ReviewCard({ review: r, name }: { review: MyReview; name: string
       ) : (
         <p className="mt-2 text-xs text-text-subtle">{jalaliLong(r.created_at)}</p>
       )}
+      {r.reply ? (
+        <div className="mt-2 rounded-md border-s-4 border-primary bg-surface-muted p-2.5">
+          <p className="text-[11px] font-bold text-primary">{r.reply.label}</p>
+          <p className="mt-1 whitespace-pre-line text-xs leading-6 text-text">{r.reply.body}</p>
+        </div>
+      ) : null}
       {r.product ? (
         <Link href={r.product.path} className="mt-3 flex items-center gap-3 border-t border-border pt-3">
           <span className="relative size-11 overflow-hidden rounded-sm bg-surface-muted">

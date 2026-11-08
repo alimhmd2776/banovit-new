@@ -52,6 +52,13 @@ export function ReviewCard({ review }: { review: Review }) {
 
       <p className="whitespace-pre-line text-sm leading-7 text-text-muted">{review.body}</p>
 
+      {review.reply ? (
+        <div className="rounded-md border-s-4 border-primary bg-surface-muted p-3">
+          <p className="text-xs font-bold text-primary-on-subtle">{review.reply.label}</p>
+          <p className="mt-1 whitespace-pre-line text-sm leading-7 text-text">{review.reply.body}</p>
+        </div>
+      ) : null}
+
       <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-xs text-text-subtle">
         <span>{review.variant_label ?? ''}</span>
         <span className="flex items-center gap-3">
