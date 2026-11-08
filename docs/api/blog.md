@@ -28,6 +28,8 @@ slug قدیمی (در `slug_history`) پاسخ `404` با `error.code = "moved"`
 
 posts (CRUD، trash/untrash، revisions و restore، preview، analyze)، categories، tags، authors (با سئو؛ تغییر نام مسیرهای قدیمی زیرشاخه را نگه می‌دارد)، media (upload، alt)، settings.
 
+صفحه‌های admin-app (منوی «وبلاگ»، مدیر کل و مارکتینگ): `/panel/blog/posts` (فهرست با فیلتر وضعیت و دسته)، `/panel/blog/posts/{id}` (ویرایشگر متن غنی با تصویر از کتابخانه، جدول، بلاک محصول و نکته، حالت HTML؛ تب سئو با پیش‌نمایش گوگل؛ FAQ؛ زمان‌بندی؛ نسخه‌ها و بازگردانی)، `/panel/blog/taxonomy` (دسته/برچسب/نویسنده با سئو)، `/panel/blog/settings` (کتابخانه رسانه، بخش‌های لندینگ، بنر نوشته‌ها، قالب‌های Yoast). زمان‌ها از پنل به‌صورت UTC (`…Z`) فرستاده و در CMS به timezone برنامه تبدیل می‌شوند.
+
 ## کش و باطل‌سازی
 
 پاسخ‌ها `Cache-Control` و `Surrogate-Key` دارند؛ home با کلید `blog:version` کش می‌شود. هر ذخیره در CMS بعد از commit نسخه را بالا می‌برد و `POST /api/revalidate` امضاشده (HMAC) با تگ‌های `blog` و `blog-post:{slug}` به Next.js می‌فرستد (`STOREFRONT_REVALIDATE_URL`/`_SECRET`).
@@ -35,6 +37,6 @@ posts (CRUD، trash/untrash، revisions و restore، preview، analyze)، catego
 ## ورود از وردپرس
 
 1. روی سرور وردپرس: `wp eval-file tools/wp-export/blog-export.php > blog-export.json` (فقط خواندنی؛ محتوای رندرشده Elementor، Yoast، FAQ، بازدید، old_slugs، دیدگاه‌ها، رسانه).
-2. در CMS: `php artisan blog:import-wp blog-export.json --live-urls=audit/data/url-inventory.csv --download-media`. HTML المنتور با `LegacyHtmlConverter` تمیز می‌شود (accordion → FAQ، ویجت محصول → بلاک products، alert → note، تصاویر lazy → واقعی). در پایان همه URLهای وبلاگ لایو با مسیرهای جدید مقایسه و گزارش می‌شوند.
+2. در CMS: `php artisan blog:import-wp blog-export.json --live-urls=audit/data/url-inventory.csv --media-dir=~/banovit-new/media/wp-content/uploads` (منبع: نسخه فقط‌خواندنی لایو `live_wp_ro` روی stage2، نه test2؛ رسانه همان فایل‌های اصلی لایو از کپی محلی، بدون درخواست به سرور لایو. بدون `--media-dir` تصاویر با همان آدرس اصلی banovit.com می‌مانند). HTML المنتور با `LegacyHtmlConverter` تمیز می‌شود (accordion → FAQ، ویجت محصول → بلاک products، alert → note، تصاویر lazy → واقعی). در پایان همه URLهای وبلاگ لایو با مسیرهای جدید مقایسه و گزارش می‌شوند.
 
 دیدگاه‌ها وارد می‌شوند ولی چون در طراحی بخش دیدگاه نیست، فعلاً نمایش داده نمی‌شوند.
