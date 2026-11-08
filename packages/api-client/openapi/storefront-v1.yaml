@@ -1188,9 +1188,17 @@ components:
     # --- contact ---
     ContactSettings:
       type: object
-      required: [path, heading, phones, locations, map, form, socials, opening_hours, seo]
+      description: Every visible text and image of /contact-us/ is edited in the CMS (صفحه تماس با ما); the page hardcodes none.
+      required: [path, page_bar, heading, phones, phones_caption, locations, map, form, socials, opening_hours, seo]
       properties:
         path: { type: string, examples: ['/contact-us/'] }
+        page_bar:
+          type: object
+          description: Mobile bar above the intro (not an H1)
+          required: [title, subtitle]
+          properties:
+            title: { type: [string, 'null'] }
+            subtitle: { type: [string, 'null'] }
         heading: { type: string }
         intro: { type: [string, 'null'] }
         hours_title: { type: [string, 'null'] }
@@ -1213,6 +1221,7 @@ components:
               label: { type: string }
               number: { type: string, description: Latin digits, e.g. 02191014093 }
               tel: { type: string, description: 'E.164 for tel: links, e.g. +982191014093' }
+        phones_caption: { type: [string, 'null'], description: Caption under the phone numbers }
         email: { type: [string, 'null'] }
         locations:
           type: array
@@ -1230,7 +1239,7 @@ components:
               display: { type: string }
         map:
           type: object
-          required: [zoom, directions_url]
+          required: [zoom, directions_url, neshan_label, directions_label]
           properties:
             lat: { type: [number, 'null'] }
             lng: { type: [number, 'null'] }
@@ -1239,21 +1248,38 @@ components:
             image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
             neshan_url: { type: [string, 'null'] }
             directions_url: { type: string }
+            neshan_label: { type: string, description: Button text when neshan_url is set }
+            directions_label: { type: string, description: Button text otherwise }
         form:
           type: object
-          required: [title, submit_label, success_message]
+          required: [title, submit_label, success_message, success_title, again_label, sending_label, name_label, phone_label, message_label, error_name, error_phone, error_message, error_rate_limit, error_generic, error_network]
           properties:
             title: { type: string }
             message_placeholder: { type: [string, 'null'] }
             submit_label: { type: string }
             success_message: { type: string }
+            success_title: { type: string }
+            again_label: { type: string }
+            sending_label: { type: string }
+            name_label: { type: string }
+            name_placeholder: { type: [string, 'null'] }
+            phone_label: { type: string }
+            phone_placeholder: { type: [string, 'null'] }
+            message_label: { type: string }
+            error_name: { type: string }
+            error_phone: { type: string }
+            error_message: { type: string }
+            error_rate_limit: { type: string }
+            error_generic: { type: string }
+            error_network: { type: string }
         socials:
           type: array
           items:
             type: object
-            required: [network, url]
+            required: [network, label, url]
             properties:
               network: { type: string, enum: [whatsapp, telegram, instagram, bale, rubika, eitaa, aparat, linkedin] }
+              label: { type: string, description: Display name (link text when there is no icon) }
               url: { type: string }
               icon: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }], description: Original file from live wp-content/uploads; null = no file on live }
         logo: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }], description: Brand mark (live upload) for the intro and map pin }

@@ -964,8 +964,14 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description Every visible text and image of /contact-us/ is edited in the CMS (صفحه تماس با ما); the page hardcodes none. */
         ContactSettings: {
             path: string;
+            /** @description Mobile bar above the intro (not an H1) */
+            page_bar: {
+                title: string | null;
+                subtitle: string | null;
+            };
             heading: string;
             intro?: string | null;
             hours_title?: string | null;
@@ -982,6 +988,8 @@ export interface components {
                 /** @description E.164 for tel: links, e.g. +982191014093 */
                 tel: string;
             }[];
+            /** @description Caption under the phone numbers */
+            phones_caption: string | null;
             email?: string | null;
             locations: {
                 label: string;
@@ -1003,16 +1011,36 @@ export interface components {
                 image?: components["schemas"]["Image"] | null;
                 neshan_url?: string | null;
                 directions_url: string;
+                /** @description Button text when neshan_url is set */
+                neshan_label: string;
+                /** @description Button text otherwise */
+                directions_label: string;
             };
             form: {
                 title: string;
                 message_placeholder?: string | null;
                 submit_label: string;
                 success_message: string;
+                success_title: string;
+                again_label: string;
+                sending_label: string;
+                name_label: string;
+                name_placeholder?: string | null;
+                phone_label: string;
+                phone_placeholder?: string | null;
+                message_label: string;
+                error_name: string;
+                error_phone: string;
+                error_message: string;
+                error_rate_limit: string;
+                error_generic: string;
+                error_network: string;
             };
             socials: {
                 /** @enum {string} */
                 network: "whatsapp" | "telegram" | "instagram" | "bale" | "rubika" | "eitaa" | "aparat" | "linkedin";
+                /** @description Display name (link text when there is no icon) */
+                label: string;
                 url: string;
                 /** @description Original file from live wp-content/uploads; null = no file on live */
                 icon?: components["schemas"]["Image"] | null;

@@ -2,13 +2,13 @@
 
 import { useId, useRef, useState } from 'react';
 import { IconCheckCircle, cx } from '@banovit/ui';
+import type { ContactSettings } from '@banovit/api-client';
 import { isIranMobile, latinDigits } from './format';
 
 type Props = {
-  title: string;
-  messagePlaceholder: string | null;
-  submitLabel: string;
-  successMessage: string;
+  /** Every text of the form, edited in the CMS (صفحه تماس با ما → فرم). */
+  texts: ContactSettings['form'];
+  pageTitle: string;
 };
 
 type Errors = Partial<Record<'name' | 'phone' | 'message' | 'form', string>>;
@@ -18,7 +18,7 @@ type Status = 'idle' | 'sending' | 'done';
  * «درخواست مشاوره»: name + mobile (+ optional message) → BFF /api/callback-requests/
  * → CMS sales lead (signal «درخواست تماس از سایت», form=contact).
  */
-export function ContactForm({ title, messagePlaceholder, submitLabel, successMessage }: Props) {
+export function ContactForm({ texts: t, pageTitle }: Props) {
   const id = useId();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -31,9 +31,9 @@ export function ContactForm({ title, messagePlaceholder, submitLabel, successMes
 
   function validate(): Errors {
     const e: Errors = {};
-    if (name.trim().length < 2) e.name = 'نام و نام خانوادگی را وارد کنید.';
-    if (!isIranMobile(phone)) e.phone = 'شماره موبایل را درست وارد کنید (مثل ۰۹۱۲۳۴۵۶۷۸۹).';
-    if (message.length > 1000) e.message = 'پیام حداکثر ۱۰۰۰ نویسه باشد.';
+    if (name.trim().length < 2) e.name = t.error_name;
+    if (!isIranMobile(phone)) e.phone = t.error_phone;
+    if (message.length > 1000) e.message = t.error_message;
     return e;
   }
 
@@ -56,7 +56,7 @@ export function ContactForm({ title, messagePlaceholder, submitLabel, successMes
           phone: latinDigits(phone),
           message: message.trim() || undefined,
           page_url: window.location.pathname,
-          page_title: 'تماس با ما',
+          page_title: pageTitle,
           website: honeypotRef.current?.value || undefined,
         }),
       });
@@ -67,10 +67,10 @@ export function ContactForm({ title, messagePlaceholder, submitLabel, successMes
       }
       const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
       setErrors({
-        form: res.status === 429 ? 'درخواست‌های زیادی ثبت شد؛ کمی بعد دوباره امتحان کنید.' : body?.error?.message ?? 'ثبت نشد. دوباره تلاش کنید.',
+        form: res.status === 429 ? t.error_rate_limit : body?.error?.message ?? t.error_generic,
       });
     } catch {
-      setErrors({ form: 'ارتباط برقرار نشد. اتصال اینترنت را بررسی و دوباره تلاش کنید.' });
+      setErrors({ form: t.error_network });
     }
     setStatus('idle');
   }
@@ -79,8 +79,8 @@ export function ContactForm({ title, messagePlaceholder, submitLabel, successMes
     return (
       <div role="status" className="flex flex-col items-center gap-3 py-8 text-center">
         <IconCheckCircle size={48} className="text-success" />
-        <p className="text-base font-bold text-text">درخواست شما ثبت شد</p>
-        <p className="max-w-sm text-sm leading-7 text-text-muted">{successMessage}</p>
+        <p className="text-base font-bold text-text">{t.success_title}</p>
+        <p className="max-w-sm text-sm leading-7 text-text-muted">{t.success_message}</p>
         <button
           type="button"
           onClick={() => {
@@ -89,7 +89,7 @@ export function ContactForm({ title, messagePlaceholder, submitLabel, successMes
           }}
           className="mt-2 text-sm font-medium text-primary hover:underline"
         >
-          ارسال درخواست دیگر
+          {t.again_label}
         </button>
       </div>
     );
@@ -104,13 +104,13 @@ export function ContactForm({ title, messagePlaceholder, submitLabel, successMes
   return (
     <form onSubmit={submit} noValidate aria-labelledby={`${id}-title`} className="flex flex-col gap-3">
       <h2 id={`${id}-title`} className="mb-1 text-lg font-bold text-text lg:text-xl">
-        {title}
+        {t.title}
       </h2>
 
       <div>
         <label htmlFor={`${id}-name`} className={fieldBox(!!errors.name)}>
           <span className="block text-xs text-text-muted">
-            نام و نام خانوادگی <span className="text-danger" aria-hidden="true">*</span>
+            {t.name_label} <span className="text-danger" aria-hidden="true">*</span>
           </span>
           <input
             ref={nameRef}
@@ -124,7 +124,7 @@ export function ContactForm({ title, messagePlaceholder, submitLabel, successMes
             aria-invalid={!!errors.name}
             aria-describedby={errors.name ? `${id}-name-err` : undefined}
             className="mt-1 w-full bg-transparent text-base font-bold text-text placeholder:font-normal placeholder:text-text-subtle focus:outline-none"
-            placeholder="مثلاً مریم احمدی"
+            placeholder={t.name_placeholder ?? undefined}
           />
         </label>
         {errors.name ? (
@@ -137,7 +137,7 @@ export function ContactForm({ title, messagePlaceholder, submitLabel, successMes
       <div>
         <label htmlFor={`${id}-phone`} className={fieldBox(!!errors.phone)}>
           <span className="block text-xs text-text-muted">
-            شماره تماس <span className="text-danger" aria-hidden="true">*</span>
+            {t.phone_label} <span className="text-danger" aria-hidden="true">*</span>
           </span>
           <input
             ref={phoneRef}
@@ -154,7 +154,7 @@ export function ContactForm({ title, messagePlaceholder, submitLabel, successMes
             aria-invalid={!!errors.phone}
             aria-describedby={errors.phone ? `${id}-phone-err` : undefined}
             className="mt-1 w-full bg-transparent text-end text-base font-bold tracking-wider text-text placeholder:font-normal placeholder:text-text-subtle focus:outline-none"
-            placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+            placeholder={t.phone_placeholder ?? undefined}
           />
         </label>
         {errors.phone ? (
@@ -166,7 +166,7 @@ export function ContactForm({ title, messagePlaceholder, submitLabel, successMes
 
       <div>
         <label htmlFor={`${id}-message`} className="sr-only">
-          پیام (اختیاری)
+          {t.message_label}
         </label>
         <textarea
           id={`${id}-message`}
@@ -175,7 +175,7 @@ export function ContactForm({ title, messagePlaceholder, submitLabel, successMes
           maxLength={1000}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder={messagePlaceholder ?? 'پیام خود را بنویسید (اختیاری)'}
+          placeholder={t.message_placeholder ?? undefined}
           aria-invalid={!!errors.message}
           className="block min-h-24 w-full resize-none rounded-md border border-transparent bg-surface px-1 py-2 text-center text-sm leading-7 text-text placeholder:text-text-muted focus:border-primary focus:px-4 focus:text-start focus:outline-none [&:not(:placeholder-shown)]:border-border [&:not(:placeholder-shown)]:px-4 [&:not(:placeholder-shown)]:text-start"
         />
@@ -200,7 +200,7 @@ export function ContactForm({ title, messagePlaceholder, submitLabel, successMes
         data-busy={status === 'sending' || undefined}
         className="mt-1 h-12 rounded-full bg-primary text-base font-bold text-primary-on transition-colors hover:bg-primary-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:opacity-60 lg:h-14"
       >
-        {status === 'sending' ? 'در حال ارسال…' : submitLabel}
+        {status === 'sending' ? t.sending_label : t.submit_label}
       </button>
     </form>
   );
