@@ -8,6 +8,7 @@ import { Money } from './Money';
 
 export function lineDetails(line: CartLine): string[] {
   const out = line.variation?.attributes.map((a) => `${a.name} ${a.value}`) ?? [];
+  for (const a of line.addons ?? []) out.push(a.label);
   if (line.installation.selected && line.installation.available) out.push('با خدمات نصب');
   return out;
 }
