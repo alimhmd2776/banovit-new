@@ -4,6 +4,8 @@ import { vanityEstimate } from './VanityCalculator';
 const rial = (amount: number) => ({ amount, currency: 'IRR' as const });
 const calc = {
   kind: 'vanity' as const,
+  title: 'محاسبه قیمت',
+  frame_label: 'پایه و کلاف فلزی و پیشانی',
   min_length_cm: 100,
   max_length_cm: 400,
   width_cm: 55,
