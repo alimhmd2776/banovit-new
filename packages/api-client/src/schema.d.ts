@@ -792,6 +792,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/settings/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Panel-edited wording/options of the customer account area (support topics, menu, empty states, map, limits) */
+        get: operations["getAccountSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/blog/home": {
         parameters: {
             query?: never;
@@ -2165,6 +2182,67 @@ export interface components {
         TicketDetail: components["schemas"]["TicketSummary"] & {
             messages: components["schemas"]["TicketMessage"][];
             can_reply: boolean;
+        };
+        AccountSettings: {
+            support: {
+                phone: string | null;
+                heading: string | null;
+                success_title: string | null;
+                success_text: string | null;
+                form_hint: string | null;
+                max_images: number;
+                max_image_mb: number;
+                /** @description Enabled topics only, in panel order */
+                topics: {
+                    key: string;
+                    title: string;
+                    subtitle: string | null;
+                    needs_order: boolean;
+                    enabled: boolean;
+                    faq: {
+                        q: string;
+                        a: string;
+                    }[];
+                }[];
+            };
+            orders: {
+                status_labels: {
+                    [key: string]: string;
+                };
+                step_labels: {
+                    [key: string]: string;
+                };
+            };
+            notifications: {
+                [key: string]: unknown;
+            };
+            menu: {
+                key: string;
+                /** @enum {string} */
+                group: "shopping" | "services";
+                label: string;
+                href: string;
+                enabled: boolean;
+            }[];
+            empty_states: {
+                [key: string]: {
+                    title: string | null;
+                    text: string | null;
+                    image_url: string | null;
+                };
+            };
+            limits: {
+                max_addresses: number;
+                recently_viewed: number;
+            };
+            map: {
+                tile_url: string;
+                attribution: string | null;
+                geocoder_url: string | null;
+                default_lat: number;
+                default_lng: number;
+                default_zoom: number;
+            };
         };
         Crumb: {
             name: string;
@@ -4198,6 +4276,28 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    getAccountSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Account settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountSettings"];
+                    };
+                };
             };
         };
     };

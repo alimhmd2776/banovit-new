@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { IconChevronLeft, IconSearch } from '@banovit/ui';
 import { EmptyState } from './EmptyState';
-import { SUPPORT_TOPICS } from './supportTopics';
+import type { SupportTopic } from './supportTopics';
 
 /** Help home (designs 28, 29): greeting, client-side search across topics and their FAQ. */
-export function SupportHelp() {
+export function SupportHelp({ topics: all, heading }: { topics: SupportTopic[]; heading: string | null }) {
   const [q, setQ] = useState('');
   const t = q.trim();
-  const topics = t ? SUPPORT_TOPICS.filter((s) => [s.title, s.subtitle, ...s.faq.flatMap((f) => [f.q, f.a])].some((x) => x.includes(t))) : SUPPORT_TOPICS;
+  const topics = t ? all.filter((s) => [s.title, s.subtitle ?? '', ...s.faq.flatMap((f) => [f.q, f.a])].some((x) => x.includes(t))) : all;
   // Time of day only in the browser: the server clock (UTC) would mismatch hydration.
   const [greet, setGreet] = useState('وقت بخیر');
   useEffect(() => {
@@ -21,8 +21,12 @@ export function SupportHelp() {
     <div className="pt-5">
       <h2 className="text-xl font-extrabold leading-9 text-text">
         سلام {greet}،
-        <br />
-        چطور همراهیتان کنیم؟
+        {heading ? (
+          <>
+            <br />
+            {heading}
+          </>
+        ) : null}
       </h2>
       <label className="relative mt-4 block">
         <span className="sr-only">جستجو در راهنما</span>
@@ -42,7 +46,7 @@ export function SupportHelp() {
               <Link href={`/my-account/support/topics/${s.key}/`} className="flex items-center gap-3 py-4 hover:bg-surface-muted">
                 <span className="min-w-0 flex-1">
                   <span className="block font-bold text-text">{s.title}</span>
-                  <span className="mt-1 block text-xs text-text-muted">{s.subtitle}</span>
+                  {s.subtitle ? <span className="mt-1 block text-xs text-text-muted">{s.subtitle}</span> : null}
                 </span>
                 <IconChevronLeft size={18} className="text-text-muted" />
               </Link>

@@ -4,12 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cx, faDigits } from '@banovit/ui';
 import { LogoutButton } from './LogoutButton';
-import { servicesNav, shoppingNav, type NavItem } from './nav';
+import { buildNav, type NavItem } from './nav';
+import { useAccountSettings } from './settings';
 import { phoneDisplay } from './format';
 
 /** Desktop account menu (lg+). On phones the dashboard page itself is the menu. */
 export function AccountSidebar({ name, phone, unread }: { name: string; phone: string | null; unread: number }) {
   const path = usePathname() ?? '';
+  const { shopping, services } = buildNav(useAccountSettings()?.menu);
   const item = (n: NavItem) => {
     const on = path.startsWith(n.href) && n.href.startsWith('/my-account/');
     return (
@@ -30,9 +32,9 @@ export function AccountSidebar({ name, phone, unread }: { name: string; phone: s
           <span className="mt-1 block text-xs text-text-muted" dir="ltr">{phoneDisplay(phone)}</span>
         </Link>
         <p className="px-3 pb-1 pt-2 text-xs text-text-subtle">خرید و سفارش</p>
-        <ul>{shoppingNav.map(item)}</ul>
+        <ul>{shopping.map(item)}</ul>
         <p className="px-3 pb-1 pt-4 text-xs text-text-subtle">خدمات بانویت</p>
-        <ul>{servicesNav.slice(0, 2).map(item)}</ul>
+        <ul>{services.map(item)}</ul>
         <div className="mt-2 border-t border-border pt-2">
           <LogoutButton className="flex h-11 w-full items-center gap-3 rounded-sm px-3 text-sm text-danger hover:bg-danger-subtle" />
         </div>

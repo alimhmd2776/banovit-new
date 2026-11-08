@@ -949,6 +949,13 @@ paths:
       responses:
         '201': { description: Sent, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/TicketMessage' } } } } } }
         '409': { description: Ticket closed }
+  /settings/account:
+    get:
+      operationId: getAccountSettings
+      summary: Panel-edited wording/options of the customer account area (support topics, menu, empty states, map, limits)
+      tags: [account]
+      responses:
+        '200': { description: Account settings, content: { application/json: { schema: { type: object, required: [data], properties: { data: { $ref: '#/components/schemas/AccountSettings' } } } } } }
   # --- /account ---
   # --- blog (feature/web-blog, banovit-cms feature/storefront-blog) ---
   /blog/home:
@@ -2520,6 +2527,69 @@ components:
           properties:
             messages: { type: array, items: { $ref: '#/components/schemas/TicketMessage' } }
             can_reply: { type: boolean }
+    AccountSettings:
+      type: object
+      required: [support, orders, notifications, menu, empty_states, limits, map]
+      properties:
+        support:
+          type: object
+          required: [phone, heading, success_title, success_text, form_hint, max_images, max_image_mb, topics]
+          properties:
+            phone: { type: [string, 'null'] }
+            heading: { type: [string, 'null'] }
+            success_title: { type: [string, 'null'] }
+            success_text: { type: [string, 'null'] }
+            form_hint: { type: [string, 'null'] }
+            max_images: { type: integer }
+            max_image_mb: { type: integer }
+            topics:
+              type: array
+              description: Enabled topics only, in panel order
+              items:
+                type: object
+                required: [key, title, subtitle, needs_order, enabled, faq]
+                properties:
+                  key: { type: string }
+                  title: { type: string }
+                  subtitle: { type: [string, 'null'] }
+                  needs_order: { type: boolean }
+                  enabled: { type: boolean }
+                  faq: { type: array, items: { type: object, required: [q, a], properties: { q: { type: string }, a: { type: string } } } }
+        orders:
+          type: object
+          required: [status_labels, step_labels]
+          properties:
+            status_labels: { type: object, additionalProperties: { type: string } }
+            step_labels: { type: object, additionalProperties: { type: string } }
+        notifications: { type: object, additionalProperties: true }
+        menu:
+          type: array
+          items: { type: object, required: [key, group, label, href, enabled], properties: { key: { type: string }, group: { type: string, enum: [shopping, services] }, label: { type: string }, href: { type: string }, enabled: { type: boolean } } }
+        empty_states:
+          type: object
+          additionalProperties:
+            type: object
+            required: [title, text, image_url]
+            properties:
+              title: { type: [string, 'null'] }
+              text: { type: [string, 'null'] }
+              image_url: { type: [string, 'null'] }
+        limits:
+          type: object
+          required: [max_addresses, recently_viewed]
+          properties:
+            max_addresses: { type: integer }
+            recently_viewed: { type: integer }
+        map:
+          type: object
+          required: [tile_url, attribution, geocoder_url, default_lat, default_lng, default_zoom]
+          properties:
+            tile_url: { type: string }
+            attribution: { type: [string, 'null'] }
+            geocoder_url: { type: [string, 'null'] }
+            default_lat: { type: number }
+            default_lng: { type: number }
+            default_zoom: { type: integer }
     # --- /account ---
     # --- blog ---
     Crumb:

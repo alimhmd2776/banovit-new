@@ -99,6 +99,7 @@ export type TicketTopic = Schemas['TicketTopic'];
 export type TicketSummary = Schemas['TicketSummary'];
 export type TicketDetail = Schemas['TicketDetail'];
 export type TicketMessage = Schemas['TicketMessage'];
+export type AccountSettings = Schemas['AccountSettings'];
 
 // --- sellers ---
 export type SellerCard = Schemas['SellerCard'];
@@ -243,6 +244,8 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: ContentPage }>(`/pages/${encodePath(path)}`, init).then((r) => r.data),
     getContactSettings: (init?: RequestOptions) =>
       get<{ data: ContactSettings }>('/settings/contact', init).then((r) => r.data),
+    getAccountSettings: (init?: RequestOptions) =>
+      get<{ data: AccountSettings }>('/settings/account', init).then((r) => r.data),
 
     getBlogHome: (init?: RequestOptions) => get<{ data: BlogHome }>('/blog/home', init).then((r) => r.data),
     getBlogUi: (init?: RequestOptions) => get<{ data: BlogUi }>('/blog/ui', init).then((r) => r.data),

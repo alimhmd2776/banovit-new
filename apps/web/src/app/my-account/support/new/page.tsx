@@ -12,13 +12,13 @@ export const metadata = { title: 'ثبت گزارش' };
 /** Report form (designs 32–34). */
 export default async function NewTicketPage({ searchParams }: { searchParams: Promise<{ topic?: string; order?: string }> }) {
   const sp = await searchParams;
-  const topic = supportTopic(sp.topic);
+  const topic = await supportTopic(sp.topic);
   if (!topic) redirect('/my-account/support/');
   const orderNumber = sp.order?.trim() || null;
   const self = `/my-account/support/new/${qs({ topic: topic.key, order: orderNumber ?? undefined })}`;
   await requireCustomer(self);
   const order = orderNumber ? (await accountGet<{ data: AccountOrderDetail }>(`/orders/${encodeURIComponent(orderNumber)}`, self)).data : null;
-  const back = topic.needsOrder ? `/my-account/support/select-order/?topic=${topic.key}` : `/my-account/support/topics/${topic.key}/`;
+  const back = topic.needs_order ? `/my-account/support/select-order/?topic=${topic.key}` : `/my-account/support/topics/${topic.key}/`;
   return (
     <>
       <AppBar title={topic.title} backHref={back} />

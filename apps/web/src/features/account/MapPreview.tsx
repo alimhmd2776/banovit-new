@@ -1,11 +1,15 @@
+'use client';
+
 import { cx } from '@banovit/ui';
 import { tilesAround } from './map';
+import { useMapConfig } from './settings';
 
 /** Static one-tile map with a pin (address card / form header). Decorative; the address text is the content. */
 export function MapPreview({ lat, lng, className, children }: { lat: number; lng: number; className?: string; children?: React.ReactNode }) {
+  const { tile_url } = useMapConfig();
   return (
     <div className={cx('relative overflow-hidden rounded-md bg-surface-muted', className)} dir="ltr">
-      {tilesAround(lat, lng).map((t) => (
+      {tilesAround(tile_url, lat, lng).map((t) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img key={t.url} src={t.url} alt="" aria-hidden="true" loading="lazy" className="absolute size-[256px] max-w-none" style={{ left: `calc(50% + ${t.dx}px)`, top: `calc(50% + ${t.dy}px)` }} />
       ))}
