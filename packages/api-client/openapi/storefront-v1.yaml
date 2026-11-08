@@ -318,6 +318,75 @@ paths:
         '401': { description: Not signed in }
         '422': { $ref: '#/components/responses/ValidationError' }
   # --- /auth ---
+  # --- sellers ---
+  /sellers:
+    get:
+      operationId: listSellers
+      summary: Public sellers (house seller first)
+      responses:
+        '200':
+          description: Sellers
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/SellerCard' } }
+  /sellers/{slug}:
+    get:
+      operationId: getSeller
+      summary: Seller profile page data (/seller/{slug}/)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Seller
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/Seller' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /sellers/{slug}/products:
+    get:
+      operationId: listSellerProducts
+      summary: Products this seller sells (seller facet is fixed)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/brand'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/min_price'
+        - $ref: '#/components/parameters/max_price'
+        - $ref: '#/components/parameters/in_stock'
+        - $ref: '#/components/parameters/on_sale'
+      responses:
+        '200':
+          description: Listing
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductListing' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+  /sellers/{slug}/reviews:
+    get:
+      operationId: listSellerReviews
+      summary: Buyer reviews of a seller (empty until the reviews module ships)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - $ref: '#/components/parameters/page'
+      responses:
+        '200':
+          description: Reviews
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SellerReviewList' }
+        '404': { $ref: '#/components/responses/NotFound' }
 components:
   securitySchemes:
     customerToken: { type: http, scheme: bearer, description: Sanctum token from /auth/otp/verify (server-side only) }
@@ -452,6 +521,119 @@ components:
         breadcrumb: { type: array, items: { $ref: '#/components/schemas/BreadcrumbItem' } }
         seo: { $ref: '#/components/schemas/Seo' }
         faqs: { type: array, items: { $ref: '#/components/schemas/Faq' } }
+    # --- sellers ---
+    SellerStats:
+      type: object
+      required: [rating, sales_count, product_count, joined_at, years_on_banovit]
+      properties:
+        rating:
+          oneOf:
+            - type: object
+              required: [average, count]
+              properties:
+                average: { type: number }
+                count: { type: integer }
+            - type: 'null'
+        sales_count: { type: integer }
+        product_count: { type: integer }
+        joined_at: { type: [string, 'null'], format: date }
+        years_on_banovit: { type: [integer, 'null'] }
+    SellerCard:
+      type: object
+      required: [id, slug, name, url, tagline, logo, is_house, stats]
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        name: { type: string }
+        url: { type: string, description: '/seller/{slug}/' }
+        tagline: { type: [string, 'null'] }
+        logo: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+        is_house: { type: boolean, description: 'Banovit itself' }
+        stats: { $ref: '#/components/schemas/SellerStats' }
+    OpeningRange:
+      type: object
+      required: [open, close]
+      properties:
+        open: { type: string, description: 'HH:MM, Asia/Tehran' }
+        close: { type: string }
+    OpeningDay:
+      type: object
+      required: [day, label, ranges]
+      properties:
+        day: { type: string, enum: [sat, sun, mon, tue, wed, thu, fri] }
+        label: { type: string }
+        ranges: { type: array, description: 'Empty = closed that day', items: { $ref: '#/components/schemas/OpeningRange' } }
+    Seller:
+      allOf:
+        - $ref: '#/components/schemas/SellerCard'
+        - type: object
+          required: [about_html, location, opening_hours, breadcrumb, seo]
+          properties:
+            about_html: { type: [string, 'null'] }
+            location:
+              oneOf:
+                - type: object
+                  required: [address, lat, lng]
+                  properties:
+                    address: { type: [string, 'null'] }
+                    lat: { type: [number, 'null'] }
+                    lng: { type: [number, 'null'] }
+                - type: 'null'
+            opening_hours:
+              oneOf:
+                - type: object
+                  required: [timezone, days]
+                  properties:
+                    timezone: { type: string, const: Asia/Tehran }
+                    days: { type: array, items: { $ref: '#/components/schemas/OpeningDay' } }
+                - type: 'null'
+            breadcrumb: { type: array, items: { $ref: '#/components/schemas/BreadcrumbItem' } }
+            seo: { $ref: '#/components/schemas/Seo' }
+    SellerReview:
+      type: object
+      required: [id, author, rating, body, created_at, product]
+      properties:
+        id: { type: integer }
+        author:
+          type: object
+          required: [name, avatar, is_buyer, is_experienced_buyer]
+          properties:
+            name: { type: string }
+            avatar: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+            is_buyer: { type: boolean, description: '«خریدار» badge' }
+            is_experienced_buyer: { type: boolean, description: '«خریدار فعال و باتجربه بانویت»' }
+        rating: { type: integer, minimum: 1, maximum: 5 }
+        body: { type: string }
+        created_at: { type: string, format: date-time }
+        product:
+          oneOf:
+            - type: object
+              required: [name, path, image, variant_label]
+              properties:
+                name: { type: string }
+                path: { type: string }
+                image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
+                variant_label: { type: [string, 'null'], description: 'e.g. «رنگ طوسی • سایز ۷۵x۹۸»' }
+            - type: 'null'
+    SellerReviewList:
+      type: object
+      required: [data, meta, links]
+      properties:
+        data: { type: array, items: { $ref: '#/components/schemas/SellerReview' } }
+        meta:
+          type: object
+          required: [page, per_page, total, last_page, rating]
+          properties:
+            page: { type: integer }
+            per_page: { type: integer }
+            total: { type: integer }
+            last_page: { type: integer }
+            rating: { $ref: '#/components/schemas/SellerStats/properties/rating' }
+        links:
+          type: object
+          properties:
+            prev_page: { type: [integer, 'null'] }
+            next_page: { type: [integer, 'null'] }
     ProductCard:
       type: object
       required: [id, slug, name, path, price, discount_percent, in_stock, colors, colors_more, badges]

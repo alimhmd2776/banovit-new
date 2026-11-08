@@ -36,6 +36,13 @@ export type MenuKey = operations['getMenu']['parameters']['path']['key'];
 export type Customer = Schemas['Customer'];
 export type CustomerSession = Schemas['CustomerSession'];
 export type OtpChallenge = Schemas['OtpChallenge'];
+// --- sellers ---
+export type SellerCard = Schemas['SellerCard'];
+export type Seller = Schemas['Seller'];
+export type SellerStats = Schemas['SellerStats'];
+export type OpeningDay = Schemas['OpeningDay'];
+export type SellerReview = Schemas['SellerReview'];
+export type SellerReviewList = Schemas['SellerReviewList'];
 
 export type ListingParams = NonNullable<operations['listCategoryProducts']['parameters']['query']>;
 
@@ -136,6 +143,14 @@ export function createStorefrontClient(opts: ClientOptions) {
     listProductReviews: (slug: string, page = 1, init?: RequestOptions) =>
       get<ReviewListing>(`/products/${encodePath(slug)}/reviews${page > 1 ? `?page=${page}` : ''}`, init),
     getMenu: (key: MenuKey, init?: RequestOptions) => get<{ data: Menu }>(`/menus/${key}`, init).then((r) => r.data),
+    // --- sellers ---
+    listSellers: (init?: RequestOptions) => get<{ data: SellerCard[] }>('/sellers', init).then((r) => r.data),
+    getSeller: (slug: string, init?: RequestOptions) =>
+      get<{ data: Seller }>(`/sellers/${encodePath(slug)}`, init).then((r) => r.data),
+    listSellerProducts: (slug: string, params?: ListingParams, init?: RequestOptions) =>
+      get<ProductListing>(`/sellers/${encodePath(slug)}/products${listingQueryString(params)}`, init),
+    listSellerReviews: (slug: string, page = 1, init?: RequestOptions) =>
+      get<SellerReviewList>(`/sellers/${encodePath(slug)}/reviews${page > 1 ? `?page=${page}` : ''}`, init),
   };
 }
 
