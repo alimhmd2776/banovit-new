@@ -3,7 +3,7 @@
 import { useCallback, useDeferredValue, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { MenuItem } from '@banovit/api-client';
-import { cx, IconChevronLeft, IconChevronRight, IconClose, IconSearch } from '@banovit/ui';
+import { IconChevronLeft, IconChevronRight, IconClose, IconSearch } from '@banovit/ui';
 import { countLabel, groupsOf, searchMenu } from './menu-model';
 import { CategoryThumb, MenuLink } from './parts';
 import { useModal } from './useModal';
@@ -233,8 +233,7 @@ function SearchResults({
   if (!tops.length && !subs.length) {
     return (
       <div className="flex flex-col items-center px-6 pt-10 text-center" role="status">
-        <EmptyIllustration />
-        <p className="mt-5 text-sm font-bold text-text">دسته بندی با عنوان "{query}" یافت نشد</p>
+        <p className="text-sm font-bold text-text">دسته بندی با عنوان "{query}" یافت نشد</p>
         <p className="mt-2 text-xs text-text-subtle">مجددا در نوشتاری جست‌وجو خود دقت فرمایید.</p>
       </div>
     );
@@ -252,21 +251,3 @@ function SearchResults({
   );
 }
 
-function EmptyIllustration() {
-  return (
-    <svg width="132" height="112" viewBox="0 0 132 112" fill="none" aria-hidden="true" className={cx('text-border')}>
-      <rect x="34" y="8" width="64" height="80" rx="8" className="fill-surface-muted" stroke="currentColor" strokeWidth="2" />
-      <rect x="44" y="18" width="44" height="8" rx="4" fill="currentColor" />
-      <rect x="44" y="34" width="14" height="14" rx="3" fill="currentColor" />
-      <rect x="62" y="36" width="26" height="4" rx="2" fill="currentColor" />
-      <rect x="62" y="44" width="18" height="4" rx="2" fill="currentColor" />
-      <circle cx="74" cy="66" r="16" className="fill-surface" stroke="var(--neutral-400)" strokeWidth="4" />
-      <path d="M86 78l12 12" stroke="var(--neutral-400)" strokeWidth="6" strokeLinecap="round" />
-      <circle cx="44" cy="82" r="9" fill="var(--neutral-400)" />
-      <path d="M40.5 78.5l7 7M47.5 78.5l-7 7" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="18" cy="38" r="4" stroke="currentColor" strokeWidth="2" />
-      <circle cx="116" cy="54" r="4" stroke="currentColor" strokeWidth="2" />
-      <path d="M108 30l6-6M14 70l8-3M110 74l8 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
