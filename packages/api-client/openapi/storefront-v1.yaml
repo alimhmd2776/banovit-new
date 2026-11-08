@@ -587,6 +587,22 @@ paths:
               schema: { $ref: '#/components/schemas/SellerReviewList' }
         '404': { $ref: '#/components/responses/NotFound' }
   # --- contact ---
+  # --- plp ---
+  /settings/listing:
+    get:
+      operationId: getListingSettings
+      summary: Listing-page texts (support box, empty states, brands row) and the site footer, editable in the CMS («صفحه فروشگاه و فوتر»)
+      responses:
+        '200':
+          description: Listing page + footer settings
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ListingSettings' }
+  # --- /plp ---
   /settings/contact:
     get:
       operationId: getContactSettings
@@ -1228,6 +1244,77 @@ components:
           schema: { $ref: '#/components/schemas/Error' }
   schemas:
     # --- contact ---
+    # --- plp ---
+    ListingImage:
+      type: object
+      required: [url]
+      properties:
+        url: { type: string }
+        width: { type: [integer, 'null'] }
+        height: { type: [integer, 'null'] }
+        alt: { type: [string, 'null'] }
+    ListingSettings:
+      type: object
+      required: [support_box, brands_row_title, empty_state, empty_category, footer]
+      properties:
+        support_box:
+          type: object
+          required: [enabled, title, button, success]
+          properties:
+            enabled: { type: boolean }
+            title: { type: string }
+            text: { type: [string, 'null'] }
+            placeholder: { type: [string, 'null'] }
+            button: { type: string }
+            success: { type: string }
+        brands_row_title: { type: string, description: '%%term_title%% = listing title' }
+        empty_state:
+          type: object
+          required: [title, button]
+          properties:
+            title: { type: string }
+            text: { type: [string, 'null'] }
+            button: { type: string }
+            image: { oneOf: [{ $ref: '#/components/schemas/ListingImage' }, { type: 'null' }] }
+        empty_category:
+          type: object
+          required: [title, button, url]
+          properties:
+            title: { type: string }
+            text: { type: [string, 'null'] }
+            button: { type: string }
+            url: { type: string }
+        footer:
+          type: object
+          required: [site_name, columns, badges]
+          properties:
+            site_name: { type: string }
+            tagline: { type: [string, 'null'] }
+            about: { type: [string, 'null'] }
+            columns:
+              type: array
+              items:
+                type: object
+                required: [title, links]
+                properties:
+                  title: { type: string }
+                  links:
+                    type: array
+                    items:
+                      type: object
+                      required: [label, url]
+                      properties: { label: { type: string }, url: { type: string } }
+            badges:
+              type: array
+              items:
+                type: object
+                required: [label, image]
+                properties:
+                  label: { type: string }
+                  url: { type: [string, 'null'] }
+                  image: { type: string }
+            copyright: { type: [string, 'null'], description: '%%year%% = Jalali year' }
+    # --- /plp ---
     ContactSettings:
       type: object
       required: [path, heading, phones, locations, map, form, socials, opening_hours, seo]

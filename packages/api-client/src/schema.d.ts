@@ -303,7 +303,6 @@ export interface paths {
          * @description categories = desktop mega menu + mobile category sheet (level 1 category, level 2 group, level 3 items);
          *     header_nav = desktop nav row; header_top = desktop top bar; mobile_quick = mobile drawer «دسترسی سریع».
          *     Inactive items and categories/tags without products are already removed.
-         *
          */
         get: operations["getMenu"];
         put?: never;
@@ -459,6 +458,23 @@ export interface paths {
         };
         /** Buyer reviews of a seller (empty until the reviews module ships) */
         get: operations["listSellerReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/settings/listing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listing-page texts (support box, empty states, brands row) and the site footer, editable in the CMS («صفحه فروشگاه و فوتر») */
+        get: operations["getListingSettings"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1015,7 +1031,57 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ListingImage: {
+            url: string;
+            width?: number | null;
+            height?: number | null;
+            alt?: string | null;
+        };
+        ListingSettings: {
+            support_box: {
+                enabled: boolean;
+                title: string;
+                text?: string | null;
+                placeholder?: string | null;
+                button: string;
+                success: string;
+            };
+            /** @description %%term_title%% = listing title */
+            brands_row_title: string;
+            empty_state: {
+                title: string;
+                text?: string | null;
+                button: string;
+                image?: components["schemas"]["ListingImage"] | null;
+            };
+            empty_category: {
+                title: string;
+                text?: string | null;
+                button: string;
+                url: string;
+            };
+            footer: {
+                site_name: string;
+                tagline?: string | null;
+                about?: string | null;
+                columns: {
+                    title: string;
+                    links: {
+                        label: string;
+                        url: string;
+                    }[];
+                }[];
+                badges: {
+                    label: string;
+                    url?: string | null;
+                    image: string;
+                }[];
+                /** @description %%year%% = Jalali year */
+                copyright?: string | null;
+            };
+        };
         ContactSettings: {
+            /** @example /contact-us/ */
             path: string;
             heading: string;
             intro?: string | null;
@@ -1023,7 +1089,9 @@ export interface components {
             hours_note?: string | null;
             opening_hours: {
                 days: ("Saturday" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday")[];
+                /** @example 09:00 */
                 opens: string;
+                /** @example 17:00 */
                 closes: string;
             }[];
             phones: {
@@ -3492,6 +3560,28 @@ export interface operations {
                 };
             };
             404: components["responses"]["NotFound"];
+        };
+    };
+    getListingSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Listing page + footer settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ListingSettings"];
+                    };
+                };
+            };
         };
     };
     getContactSettings: {
