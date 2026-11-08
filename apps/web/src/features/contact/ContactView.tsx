@@ -1,32 +1,21 @@
 import Image from 'next/image';
 import type { ContactSettings } from '@banovit/api-client';
-import {
-  IconBale,
-  IconBuilding,
-  IconChat,
-  IconInstagram,
-  IconMail,
-  IconMapFold,
-  IconNavigation,
-  IconPhone,
-  IconTelegram,
-  IconWarehouse,
-  IconWhatsapp,
-  cx,
-} from '@banovit/ui';
+import { IconBuilding, IconMail, IconMapFold, IconNavigation, IconPhone, IconWarehouse, cx } from '@banovit/ui';
 import { ContactForm } from './ContactForm';
 import { displayPhone, osmEmbedUrl } from './format';
 
-const SOCIAL: Record<string, { name: string; Icon: typeof IconChat }> = {
-  whatsapp: { name: 'واتس‌اپ', Icon: IconWhatsapp },
-  telegram: { name: 'تلگرام', Icon: IconTelegram },
-  instagram: { name: 'اینستاگرام', Icon: IconInstagram },
-  bale: { name: 'بله', Icon: IconBale },
-  rubika: { name: 'روبیکا', Icon: IconChat },
-  eitaa: { name: 'ایتا', Icon: IconChat },
-  aparat: { name: 'آپارات', Icon: IconChat },
-  linkedin: { name: 'لینکدین', Icon: IconChat },
+const SOCIAL_NAMES: Record<string, string> = {
+  whatsapp: 'واتس‌اپ',
+  telegram: 'تلگرام',
+  instagram: 'اینستاگرام',
+  bale: 'بله',
+  rubika: 'روبیکا',
+  eitaa: 'ایتا',
+  aparat: 'آپارات',
+  linkedin: 'لینکدین',
 };
+
+type Logo = ContactSettings['logo'];
 
 const LOCATION_ICON = { office: IconBuilding, warehouse: IconWarehouse, store: IconMapFold } as const;
 
@@ -39,11 +28,12 @@ export function ContactView({ s }: { s: ContactSettings }) {
   return (
     <div className="mx-auto max-w-container px-4 pb-6 lg:pb-12">
       {/* mobile page bar (the site header stays above it) */}
-      {/* one H1 for both layouts: the mobile page bar; visually hidden on desktop (the design has no title there) */}
-      <div className="-mx-4 mb-6 border-b border-border px-4 py-3 lg:sr-only">
-        <h1 className="text-lg font-bold text-text">تماس با ما</h1>
+      {/* mobile page bar. The live page has no H1 (SEO parity), so this is only an H1 when the CMS sets one. */}
+      <div className="-mx-4 mb-6 border-b border-border px-4 py-3 lg:hidden">
+        <p className="text-lg font-bold text-text">تماس با ما</p>
         <p className="text-xs text-text-muted">تیم تخصصی و فنی بانویت</p>
       </div>
+      {s.seo.h1 ? <h1 className="sr-only">{s.seo.h1}</h1> : null}
 
       <div className="grid gap-4 lg:mt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,530px)] lg:gap-x-5 lg:gap-y-6">
         <Intro s={s} />
@@ -74,21 +64,24 @@ export function ContactView({ s }: { s: ContactSettings }) {
   );
 }
 
-function BrandMark({ className }: { className?: string }) {
+/** Brand mark = the original logo file from live uploads (CMS «لوگوی صفحه»); empty slot when not set. */
+function BrandMark({ logo, size, className }: { logo: Logo; size: number; className?: string }) {
+  if (!logo?.url) return <span aria-hidden="true" className={cx('inline-block shrink-0', className)} style={{ width: size, height: size }} />;
   return (
-    <span
-      aria-hidden="true"
-      className={cx('inline-flex shrink-0 items-center justify-center rounded-full bg-primary font-extrabold text-primary-on shadow-md', className)}
-    >
-      بانُ
-    </span>
+    <Image
+      src={logo.url}
+      alt={logo.alt ?? 'بانویت'}
+      width={size}
+      height={size}
+      className={cx('shrink-0 rounded-full object-contain', className)}
+    />
   );
 }
 
 function Intro({ s }: { s: ContactSettings }) {
   return (
     <section className="flex flex-col items-center gap-3 text-center lg:col-start-1 lg:row-start-1 lg:flex-row lg:items-center lg:gap-4 lg:text-start">
-      <BrandMark className="size-[88px] text-3xl lg:size-14 lg:text-xl" />
+      <BrandMark logo={s.logo ?? null} size={88} className="size-[88px] lg:size-14" />
       <div>
         <h2 className="text-xl font-bold text-text lg:text-2xl">{s.heading}</h2>
         {s.intro ? <p className="mt-1 text-sm text-text-muted lg:text-base">{s.intro}</p> : null}
@@ -202,7 +195,7 @@ function MapCard({ s }: { s: ContactSettings }) {
 
       {hasCoords || s.map.image ? (
         <span className="pointer-events-none absolute left-1/2 top-1/2 inline-flex -translate-x-1/2 -translate-y-[140%] items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-bold text-primary-on shadow-md">
-          <BrandMark className="size-6 text-[10px] shadow-none ring-2 ring-primary-on/80" />
+          <BrandMark logo={s.logo ?? null} size={24} className="size-6 bg-surface" />
           {s.map.pin_label ?? 'بانویت'}
         </span>
       ) : null}
@@ -230,8 +223,8 @@ function Socials({ s, className }: { s: ContactSettings; className?: string }) {
   if (!s.socials.length) return null;
   return (
     <ul className={cx('flex items-center gap-2', className)} aria-label="بانویت در شبکه‌های اجتماعی">
-      {s.socials.map(({ network, url }) => {
-        const { name, Icon } = SOCIAL[network] ?? { name: network, Icon: IconChat };
+      {s.socials.map(({ network, url, icon }) => {
+        const name = SOCIAL_NAMES[network] ?? network;
         return (
           <li key={url}>
             <a
@@ -239,9 +232,14 @@ function Socials({ s, className }: { s: ContactSettings; className?: string }) {
               target="_blank"
               rel="noopener noreferrer me"
               aria-label={`بانویت در ${name}`}
-              className="inline-flex size-10 items-center justify-center rounded-full text-primary hover:bg-primary-subtle"
+              className="inline-flex h-10 min-w-10 items-center justify-center rounded-full px-1 text-xs font-medium text-primary hover:bg-primary-subtle"
             >
-              <Icon size={24} />
+              {icon?.url ? (
+                // eslint-disable-next-line @next/next/no-img-element -- original live SVG/PNG, tiny, no optimisation needed
+                <img src={icon.url} alt="" width={24} height={24} loading="lazy" className="size-6 object-contain" />
+              ) : (
+                name
+              )}
             </a>
           </li>
         );
