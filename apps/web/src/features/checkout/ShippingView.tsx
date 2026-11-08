@@ -12,9 +12,10 @@ import { SummaryCard } from '@/features/cart/SummaryCard';
 import { useCart } from '@/features/cart/use-cart';
 import { AddressSheet } from './AddressSheet';
 import { AddonsSection, AddressCard, DeliverySlots, InstallSheet, OrderItems } from './sections';
+import { InstallationVisit, ShippingMethods } from './shipping-options';
 import { Steps } from './Steps';
 
-/** Step 1 «تکمیل اطلاعات»: address, delivery day, add-ons, items. */
+/** Step 1 «تکمیل اطلاعات»: address, shipping method, delivery day, add-ons, install visit, items. */
 export function ShippingView({ initial }: { initial: Cart }) {
   const router = useRouter();
   const { cart, busy, error, setError, run } = useCart(initial);
@@ -44,8 +45,13 @@ export function ShippingView({ initial }: { initial: Cart }) {
       document.getElementById('slots-title')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
+    if (cart.installation_schedule?.required && !cart.options.installation_date) {
+      setProblem('زمان مراجعه تیم نصب را انتخاب کنید.');
+      document.getElementById('install-visit-title')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
     setProblem(null);
-    track('add_shipping_info', { value: rialToToman(cart.totals.payable.amount), shipping_tier: cart.delivery.zone.label, items: analyticsItems(cart) });
+    track('add_shipping_info', { value: rialToToman(cart.totals.payable.amount), shipping_tier: cart.delivery.method?.title ?? cart.delivery.zone.label, items: analyticsItems(cart) });
     router.push('/checkout/payment/');
   };
 
@@ -63,6 +69,14 @@ export function ShippingView({ initial }: { initial: Cart }) {
             </p>
           ) : null}
           <AddressCard address={cart.options.address} onEdit={() => setAddressOpen(true)} />
+          <ShippingMethods
+            cart={cart}
+            busy={busy !== null}
+            onSelect={(key) => {
+              setProblem(null);
+              void run('method', () => cartApi.update({ shipping_method: key }));
+            }}
+          />
           <DeliverySlots
             cart={cart}
             selected={cart.options.delivery_date}
@@ -77,6 +91,14 @@ export function ShippingView({ initial }: { initial: Cart }) {
             busy={busy !== null}
             onPackaging={(on) => void run('packaging', () => cartApi.update({ packaging: on }))}
             onOpenInstall={() => setInstallOpen(true)}
+          />
+          <InstallationVisit
+            cart={cart}
+            busy={busy !== null}
+            onSelect={(date, slot) => {
+              setProblem(null);
+              void run('install-visit', () => cartApi.update({ installation_date: date, installation_slot: slot }));
+            }}
           />
           <OrderItems cart={cart} />
         </div>
