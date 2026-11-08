@@ -52,6 +52,7 @@ export const siteConfig = {
         { name: 'پیگیری سفارش', href: '/track-order/' },
         { name: 'پیوستن به همکاران', href: '/landing/b2b/' },
         { name: 'حریم خصوصی', href: '/privacy-policy/' },
+        { name: 'شرایط و قوانین', href: '/terms/' },
       ],
     },
     {
