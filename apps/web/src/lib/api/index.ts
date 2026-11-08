@@ -74,6 +74,18 @@ export function movedLocation(e: unknown): string | null {
 }
 
 /** «تماس با ما» content edited in the CMS (tag mirrors the API Surrogate-Key `settings:contact`). */
+// --- plp ---
+/** Listing-page texts + footer («صفحه فروشگاه و فوتر»). Never throws: a CMS outage hides those blocks instead of failing the page. */
+export const getListingSettings = cache(async () => {
+  try {
+    return await client.getListingSettings({ next: { tags: ['settings', 'settings:listing'], revalidate: 300 } });
+  } catch (e) {
+    console.error('listing settings unavailable', e);
+    return null;
+  }
+});
+// --- /plp ---
+
 export const getContactSettings = cache(async () =>
   client.getContactSettings({ next: { tags: ['settings', 'settings:contact'], revalidate: 300 } }),
 );

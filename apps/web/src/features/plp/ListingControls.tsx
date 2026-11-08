@@ -183,7 +183,7 @@ export function FilterSidebar({ meta, state, basePath }: { meta: ListingMeta; st
 }
 
 /** Opens the mobile filter sheet from outside the toolbar (empty state «تغییر فیلتر»). */
-export function ChangeFilterButton({ meta, state, basePath }: { meta: ListingMeta; state: ListingState; basePath: string }) {
+export function ChangeFilterButton({ meta, state, basePath, label }: { meta: ListingMeta; state: ListingState; basePath: string; label: string }) {
   const { go } = useListingNavigation(basePath);
   const [open, setOpen] = useState(false);
   return (
@@ -193,7 +193,7 @@ export function ChangeFilterButton({ meta, state, basePath }: { meta: ListingMet
         onClick={() => (window.matchMedia('(min-width: 1024px)').matches ? go(clearFilters(state)) : setOpen(true))}
         className="mt-6 inline-flex h-11 items-center rounded-sm bg-primary px-6 text-sm font-bold text-primary-on hover:bg-primary-hover"
       >
-        تغییر فیلتر
+        {label}
       </button>
       {open ? (
         <FilterSheet

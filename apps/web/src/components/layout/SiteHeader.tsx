@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { TopBanner } from './TopBanner';
 import { cx, IconCart, IconSearch } from '@banovit/ui';
 import { getMenu } from '@/lib/api';
 import { siteConfig } from '@/lib/site-config';
@@ -27,12 +28,7 @@ export async function SiteHeader() {
 
   return (
     <>
-      <Link
-        href={siteConfig.topBanner.href}
-        className="flex h-12 items-center justify-center bg-primary px-4 text-center text-lg font-extrabold text-primary-on hover:bg-primary-hover lg:h-10 lg:text-sm"
-      >
-        {siteConfig.topBanner.text}
-      </Link>
+      <TopBanner />
 
       <div className="hidden bg-surface lg:block">
         <div className="mx-auto flex max-w-container items-center justify-between gap-4 border-b border-border px-4 py-3 text-xs text-text-muted">

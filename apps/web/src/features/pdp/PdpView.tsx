@@ -13,7 +13,7 @@ import {
   IconTruck,
   ProductCard,
 } from '@banovit/ui';
-import { SupportCallout } from '@/features/plp/SupportCallout';
+import { SupportCallout } from '@/features/plp/SupportCalloutBox';
 import { jsonLdScript, productJsonLd, type Crumb } from '@/lib/seo';
 import { siteConfig } from '@/lib/site-config';
 import { ExpandableHtml } from './Expandable';
