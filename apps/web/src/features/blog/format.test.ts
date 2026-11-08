@@ -44,3 +44,15 @@ describe('faAgo', () => {
     expect(faAgo(null)).toBe('');
   });
 });
+
+describe('resolveBlogUi', () => {
+  it('fills missing and empty panel values with the defaults, replaces lists whole', async () => {
+    const { resolveBlogUi, fillTemplate } = await import('./ui');
+    const ui = resolveBlogUi({ labels: { empty: '', more: 'بیشتر' }, post_page: { share: { items: [{ type: 'copy', url: null }] } }, blocks: {} });
+    expect(ui.labels.empty).toBe('مقاله‌ای پیدا نشد.');
+    expect(ui.labels.more).toBe('بیشتر');
+    expect(ui.post_page.share.items).toHaveLength(1);
+    expect(ui.post_page.faq_title).toBe('سوالات متداول');
+    expect(fillTemplate('نتایج جستجو برای «{q}»', { q: 'سینک' })).toBe('نتایج جستجو برای «سینک»');
+  });
+});

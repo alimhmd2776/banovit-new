@@ -792,6 +792,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/blog/ui": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Blog texts and page switches set in the CMS panel (labels, single post page, box labels) */
+        get: operations["getBlogUi"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/blog/posts": {
         parameters: {
             query?: never;
@@ -2276,22 +2293,83 @@ export interface components {
             word_count: number;
             seo: components["schemas"]["Seo"];
         };
-        /** @description The live single-post sidebar (top to bottom; the TOC comes from `toc`) */
+        /** @description The single-post sidebar as configured in the CMS panel (ordered sections; the toc section's items come from `toc`) */
         BlogPostSidebar: {
-            /** @description The post's own banners (live [sidebar_banner]), usually linking a shop category */
-            banners: {
+            sections: components["schemas"]["BlogSidebarSection"][];
+        };
+        BlogSidebarSection: {
+            /** @enum {string} */
+            type: "banners" | "toc" | "recent_posts" | "recent_comments";
+            /** @description Blue part of the heading («جدید ترین») */
+            accent?: string | null;
+            /** @description Rest of the heading («مقاله ها») */
+            title?: string | null;
+            card_title?: string | null;
+            interval_seconds?: number;
+            banners?: {
                 image: components["schemas"]["Image"];
                 url: string | null;
             }[];
-            /** @description «جدید ترین مقاله ها» (latest 5) */
-            recent_posts: components["schemas"]["BlogPostCard"][];
-            /** @description «جدید ترین نظرات مشتریان» — latest 4 approved comments site-wide (posts and products) */
-            recent_comments: {
+            posts?: components["schemas"]["BlogPostCard"][];
+            comments?: {
                 author: string;
                 text: string;
                 title: string;
                 url: string;
             }[];
+        };
+        BlogUi: {
+            labels: {
+                breadcrumb_root?: string | null;
+                search_placeholder?: string | null;
+                categories_title?: string | null;
+                empty?: string | null;
+                more?: string | null;
+                featured_title?: string | null;
+                feed_description?: string | null;
+            };
+            post_page: {
+                show_summary?: boolean;
+                summary_title?: string | null;
+                show_tags?: boolean;
+                show_author_box?: boolean;
+                faq_title?: string | null;
+                related_products?: components["schemas"]["BlogUiSection"];
+                related_posts?: components["schemas"]["BlogUiSection"];
+                share?: {
+                    enabled?: boolean;
+                    title?: string | null;
+                    items?: {
+                        /** @enum {string} */
+                        type: "copy" | "telegram" | "whatsapp" | "instagram" | "aparat";
+                        url?: string | null;
+                    }[];
+                };
+                toc?: {
+                    title?: string | null;
+                    mobile_floating?: boolean;
+                    include_faq?: boolean;
+                    collapse_after_px?: number;
+                    more?: string | null;
+                    less?: string | null;
+                };
+            };
+            blocks: {
+                map?: {
+                    label?: string | null;
+                    link?: string | null;
+                };
+                stat?: {
+                    views?: string | null;
+                    updated?: string | null;
+                };
+            };
+        };
+        BlogUiSection: {
+            enabled?: boolean;
+            title?: string | null;
+            subtitle?: string | null;
+            limit?: number;
         };
         BlogCategory: components["schemas"]["BlogCategoryRef"] & {
             description_html: string | null;
@@ -4071,6 +4149,28 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: components["schemas"]["BlogHome"];
+                    };
+                };
+            };
+        };
+    };
+    getBlogUi: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Blog UI settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogUi"];
                     };
                 };
             };

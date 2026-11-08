@@ -11,6 +11,7 @@ import { BlogTitleBar } from './chrome';
 import { faDate, internalHref, mainHeadings } from './format';
 import { ShareBar, ShareButton } from './ShareButtons';
 import { RecentComments, RecentPosts, SidebarBanners } from './Sidebar';
+import type { ResolvedBlogUi } from './ui';
 import { Toc } from './Toc';
 import { ViewPing } from './ViewPing';
 
@@ -19,7 +20,11 @@ import { ViewPing } from './ViewPing';
  * Single post (/blog/{slug}/). Mobile: one column with the floating TOC pill.
  * From lg: article column + sticky sidebar (TOC). Same content in both.
  */
-export function PostView({ post }: { post: BlogPost }) {
+export function PostView({ post, ui }: { post: BlogPost; ui: ResolvedBlogUi }) {
+  const pp = ui.post_page;
+  const tocItems = mainHeadings(post.toc, pp.toc.include_faq && post.faqs.length > 0 ? pp.faq_title : null);
+  const tocLabels = { title: pp.toc.title, more: pp.toc.more, less: pp.toc.less, collapse_after_px: pp.toc.collapse_after_px };
+  const tocSection = post.sidebar.sections.find((s) => s.type === 'toc');
   const url = abs(post.url);
   const crumbs = post.breadcrumb.map((c, i) => (i === post.breadcrumb.length - 1 ? { name: c.name } : { name: c.name, url: c.url }));
   const author = post.author_profile;
@@ -33,6 +38,7 @@ export function PostView({ post }: { post: BlogPost }) {
       <div className="mx-auto max-w-container px-4 pb-28 pt-3 lg:pb-16 lg:pt-6">
         <div className="space-y-3">
           <BlogTitleBar
+            labels={ui.labels}
             actions={
               <>
                 <ShareButton url={url} title={post.title} />
@@ -124,22 +130,24 @@ export function PostView({ post }: { post: BlogPost }) {
             </header>
 
             <div className="mt-5 space-y-5">
-              {post.summary_html ? <SummaryBox html={post.summary_html} /> : null}
-              <PostBlocks blocks={post.blocks} />
+              {pp.show_summary && post.summary_html ? <SummaryBox html={post.summary_html} title={pp.summary_title} /> : null}
+              <PostBlocks blocks={post.blocks} labels={ui.blocks} />
             </div>
 
-            {post.related_products.length > 0 ? <ProductCarousel title="محصولات مرتبط" subtitle="انتخاب خریداران بانویت" products={post.related_products} /> : null}
+            {pp.related_products.enabled && post.related_products.length > 0 ? (
+              <ProductCarousel title={pp.related_products.title} subtitle={pp.related_products.subtitle} products={post.related_products} />
+            ) : null}
 
             {post.faqs.length > 0 ? (
               <section aria-labelledby="post-faq" className="mt-8">
                 <h2 id="post-faq" className="mb-3 text-lg font-bold text-text">
-                  سوالات متداول
+                  {pp.faq_title}
                 </h2>
                 <Accordion items={post.faqs.map((f, i) => ({ id: i, title: f.question, html: f.answer_html }))} className="divide-y-0 border-0 bg-transparent [&>details]:mb-3 [&>details]:rounded-md [&>details]:border [&>details]:border-border [&>details]:bg-surface" />
               </section>
             ) : null}
 
-            {post.tags.length > 0 ? (
+            {pp.show_tags && post.tags.length > 0 ? (
               <ul className="mt-8 flex flex-wrap gap-2" aria-label="برچسب‌ها">
                 {post.tags.map((t) => (
                   <li key={t.slug}>
@@ -151,7 +159,7 @@ export function PostView({ post }: { post: BlogPost }) {
               </ul>
             ) : null}
 
-            {author ? (
+            {pp.show_author_box && author ? (
               <section aria-label="نویسنده" className="mt-10 flex flex-col items-center gap-2 text-center">
                 <Link href={author.url} className="relative size-28 overflow-hidden rounded-full border-4 border-surface bg-primary shadow-md">
                   {author.avatar ? <Image src={author.avatar.url} alt={author.avatar.alt ?? author.name} fill sizes="112px" className="object-cover" /> : null}
@@ -171,24 +179,31 @@ export function PostView({ post }: { post: BlogPost }) {
               </section>
             ) : null}
 
-            <div className="mt-5">
-              <ShareBar url={url} title={post.title} />
-            </div>
+            {pp.share.enabled ? (
+              <div className="mt-5">
+                <ShareBar url={url} title={post.title} heading={pp.share.title} items={pp.share.items} />
+              </div>
+            ) : null}
           </article>
 
           {/* live «تک پست» sidebar: banner, TOC (desktop), latest posts, latest comments */}
           <aside className="mt-10 space-y-8 lg:mt-0" aria-label="ستون کناری">
-            <SidebarBanners banners={post.sidebar.banners} />
-            <Toc items={mainHeadings(post.toc, post.faqs.length > 0 ? 'سوالات متداول' : null)} />
-            <RecentPosts posts={post.sidebar.recent_posts} />
-            <RecentComments comments={post.sidebar.recent_comments} />
+            {post.sidebar.sections.map((s) => {
+              if (s.type === 'banners') return <SidebarBanners key={s.type} banners={s.banners ?? []} intervalSeconds={s.interval_seconds} />;
+              if (s.type === 'toc') return <Toc key={s.type} items={tocItems} desktop={s} mobile={pp.toc.mobile_floating} labels={tocLabels} />;
+              if (s.type === 'recent_posts') return <RecentPosts key={s.type} posts={s.posts ?? []} accent={s.accent ?? ''} title={s.title ?? ''} />;
+              if (s.type === 'recent_comments')
+                return <RecentComments key={s.type} comments={s.comments ?? []} accent={s.accent ?? ''} title={s.title ?? ''} cardTitle={s.card_title ?? null} />;
+              return null;
+            })}
+            {!tocSection ? <Toc items={tocItems} desktop={null} mobile={pp.toc.mobile_floating} labels={tocLabels} /> : null}
           </aside>
         </div>
 
         {post.related_posts.length > 0 ? (
           <section aria-labelledby="related-posts" className="mt-12">
-            <SectionHeader id="related-posts" title="مطالب مرتبط" kicker="Related" icon={<IconBook size={20} />} />
-            <PostRail posts={post.related_posts} label="مطالب مرتبط" />
+            <SectionHeader id="related-posts" title={pp.related_posts.title} kicker={pp.related_posts.subtitle} icon={<IconBook size={20} />} />
+            <PostRail posts={post.related_posts} label={pp.related_posts.title} />
           </section>
         ) : null}
       </div>
