@@ -19,13 +19,7 @@ API ادمین: `GET|PUT /api/admin/storefront/contact-settings` (کل سند ج
 
 ### بعد از خاموش شدن وردپرس
 
-پیش‌فرض تصاویر هنوز آدرس `banovit.com/wp-content/uploads/...` است (برابری با لایو). در روز cutover:
-
-```bash
-php artisan storefront:contact-import-media --media-dir=~/banovit-new/media/wp-content/uploads [--dry-run]
-```
-
-فایل‌های اصلی را از کپی محلی uploads به کتابخانه رسانه CMS می‌برد و آدرس‌ها را در تنظیمات عوض می‌کند (تکرارپذیر؛ فایل ناموجود گزارش می‌شود و دست نمی‌خورد). چون آدرس og:image عوض می‌شود، قبل از cutover اجرا نشود.
+پیش‌فرض تصاویر همان آدرس لایو `banovit.com/wp-content/uploads/...` است و عوض نمی‌شود: طبق تصمیم docs/04 «تصمیم: رسانه‌های وردپرس» مسیر `/wp-content/uploads/` روی استک جدید از کپی رسانه (stage2) و در production از object storage پشت CDN سرو می‌شود. بارگذاری‌های جدید CMS زیر `/media/...` می‌روند.
 
 ## سئو
 
