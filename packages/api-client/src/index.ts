@@ -20,6 +20,15 @@ export type Seo = Schemas['Seo'];
 export type Faq = Schemas['Faq'];
 export type SortKey = Schemas['SortKey'];
 export type ApiError = Schemas['Error'];
+export type ProductDetail = Schemas['ProductDetail'];
+export type ProductOption = Schemas['ProductOption'];
+export type ProductVariant = Schemas['ProductVariant'];
+export type ProductAddon = Schemas['ProductAddon'];
+export type ProductLive = Schemas['ProductLive'];
+export type ProductRating = Schemas['ProductRating'];
+export type Review = Schemas['Review'];
+export type ReviewListing = Schemas['ReviewListing'];
+export type Availability = Schemas['Availability'];
 
 export type ListingParams = NonNullable<operations['listCategoryProducts']['parameters']['query']>;
 
@@ -113,6 +122,12 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: Brand }>(`/brands/${encodePath(slug)}`, init).then((r) => r.data),
     listBrandProducts: (slug: string, params?: Omit<ListingParams, 'brand'>, init?: RequestOptions) =>
       get<ProductListing>(`/brands/${encodePath(slug)}/products${listingQueryString(params)}`, init),
+    getProduct: (slug: string, init?: RequestOptions) =>
+      get<{ data: ProductDetail }>(`/products/${encodePath(slug)}`, init).then((r) => r.data),
+    getProductLive: (slug: string, init?: RequestOptions) =>
+      get<{ data: ProductLive }>(`/products/${encodePath(slug)}/live`, init).then((r) => r.data),
+    listProductReviews: (slug: string, page = 1, init?: RequestOptions) =>
+      get<ReviewListing>(`/products/${encodePath(slug)}/reviews${page > 1 ? `?page=${page}` : ''}`, init),
   };
 }
 

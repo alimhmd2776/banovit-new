@@ -14,3 +14,18 @@
   .scrollbar-none { scrollbar-width: none; }
   .scrollbar-none::-webkit-scrollbar { display: none; }
 }
+
+/* Product description HTML from the CMS (migrated WordPress content). */
+@layer components {
+  .prose-pdp :where(p, ul, ol, table, figure) { margin-block: 0.75em; }
+  .prose-pdp :where(h2, h3, h4) { margin-block: 1.1em 0.5em; font-weight: 700; color: var(--color-text); line-height: 1.8; }
+  .prose-pdp h2 { font-size: 1rem; }
+  .prose-pdp :where(h3, h4) { font-size: 0.9375rem; }
+  .prose-pdp ul { list-style: disc; padding-inline-start: 1.25rem; }
+  .prose-pdp ol { list-style: decimal; padding-inline-start: 1.25rem; }
+  .prose-pdp a { color: var(--color-primary); text-decoration: underline; text-underline-offset: 3px; }
+  .prose-pdp img { max-width: 100%; height: auto; border-radius: var(--radius-sm); }
+  .prose-pdp table { width: 100%; border-collapse: collapse; display: block; overflow-x: auto; }
+  .prose-pdp :where(td, th) { border: 1px solid var(--color-border); padding: 0.5rem 0.75rem; }
+  .prose-pdp strong { color: var(--color-text); }
+}

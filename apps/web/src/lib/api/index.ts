@@ -32,6 +32,13 @@ export const listBrandProducts = cache(async (slug: string, params: ListingParam
   client.listBrandProducts(slug, params, { next: { tags: ['products', `brand:${slug}`], revalidate: 300 } }),
 );
 
+export const getProduct = cache(async (slug: string) =>
+  client.getProduct(slug, { next: { tags: ['products', `product-slug:${slug}`], revalidate: REVALIDATE } }),
+);
+
+/** Uncached: used by the BFF route the browser polls after the (CDN-cached) page loads. */
+export const storefront = client;
+
 export function isNotFound(e: unknown): boolean {
   return e instanceof StorefrontApiError && e.status === 404;
 }
