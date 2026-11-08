@@ -141,6 +141,156 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/cart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The visitor's cart (empty cart with token null when none) */
+        get: operations["getCart"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Checkout options (address, delivery day, packaging, payment method, note, attribution) */
+        patch: operations["updateCart"];
+        trace?: never;
+    };
+    "/cart/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a product (creates the cart when there is no token; response carries data.token) */
+        post: operations["addCartItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cart/items/{item}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["removeCartItem"];
+        options?: never;
+        head?: never;
+        patch: operations["updateCartItem"];
+        trace?: never;
+    };
+    "/cart/coupon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["applyCoupon"];
+        delete: operations["removeCoupon"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cart/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** After login (Bearer customer token), fold the guest cart into the customer's */
+        post: operations["mergeCart"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Place the cart as an order (sales_invoices, source=storefront) and start payment */
+        post: operations["placeOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orders/{number}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getOrder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/orders/{number}/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retry payment of a pending order */
+        post: operations["payOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payments/zarinpal/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["verifyZarinpal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/menus/{key}": {
         parameters: {
             query?: never;
@@ -883,6 +1033,188 @@ export interface components {
                 attempts_left?: number;
             };
         };
+        Address: {
+            title?: string;
+            recipient_name?: string;
+            recipient_phone?: string;
+            province?: string;
+            city?: string;
+            address_line?: string;
+            plaque?: string;
+            unit?: string;
+            postal_code?: string;
+            lat?: number;
+            lng?: number;
+        };
+        CartItemCreate: {
+            product_id: number;
+            variation_id?: number | null;
+            /** @description Alias of variation_id */
+            variant_id?: number | null;
+            /** @default 1 */
+            quantity: number;
+            installation?: boolean;
+            /** @description PDP add-on option ids (installation service) */
+            addon_ids?: number[];
+        };
+        CartUpdate: {
+            packaging?: boolean;
+            /** Format: date */
+            delivery_date?: string | null;
+            address?: components["schemas"]["Address"] | null;
+            /** @description Saved customer address (signed-in) */
+            address_id?: string | null;
+            payment_method?: string | null;
+            customer_note?: string | null;
+            attribution?: {
+                [key: string]: string;
+            };
+        };
+        CartLine: {
+            id: number;
+            product: {
+                id: number;
+                name: string;
+                slug: string;
+                path: string;
+                image: components["schemas"]["Image"] | null;
+                brand: {
+                    slug: string;
+                    name: string;
+                } | null;
+            };
+            variation: {
+                id: number;
+                attributes: {
+                    name: string;
+                    value: string;
+                }[];
+            } | null;
+            quantity: number;
+            max_quantity: number;
+            unit_price: components["schemas"]["Money"];
+            unit_regular_price: components["schemas"]["Money"];
+            discount_percent: number;
+            line_total: components["schemas"]["Money"];
+            line_regular_total: components["schemas"]["Money"];
+            purchasable: boolean;
+            issue: {
+                code: string;
+                message: string;
+            } | null;
+            installation: {
+                available: boolean;
+                available_in_zone: boolean;
+                selected: boolean;
+                addon_ids: number[];
+                unit_fee: components["schemas"]["Money"];
+                total: components["schemas"]["Money"];
+            };
+        };
+        DeliverySlot: {
+            /** Format: date */
+            date: string;
+            weekday: string;
+            /** @description Jalali */
+            day_label: string;
+            fee: components["schemas"]["Money"];
+        };
+        PaymentMethod: {
+            /** @enum {string} */
+            key: "zarinpal" | "card_to_card" | "installments";
+            label: string;
+            available: boolean;
+            description: string | null;
+        };
+        CartTotals: {
+            items_regular: components["schemas"]["Money"];
+            items: components["schemas"]["Money"];
+            product_discount: components["schemas"]["Money"];
+            installation: components["schemas"]["Money"];
+            packaging: components["schemas"]["Money"];
+            shipping: components["schemas"]["Money"];
+            service_fee: components["schemas"]["Money"];
+            coupon_discount: components["schemas"]["Money"];
+            payable: components["schemas"]["Money"];
+            savings: components["schemas"]["Money"];
+        };
+        Cart: {
+            token: string | null;
+            item_count: number;
+            items: components["schemas"]["CartLine"][];
+            options: {
+                packaging: boolean;
+                /** Format: date */
+                delivery_date: string | null;
+                address: components["schemas"]["Address"] | null;
+                payment_method: string | null;
+                customer_note: string | null;
+            };
+            coupon: {
+                code: string;
+                label: string;
+                discount: components["schemas"]["Money"];
+            } | null;
+            delivery: {
+                zone: {
+                    key: string;
+                    label: string;
+                };
+                fee: components["schemas"]["Money"];
+                fee_label: string | null;
+                window_label: string;
+                requires_slot: boolean;
+                slots: components["schemas"]["DeliverySlot"][];
+            };
+            addons: {
+                packaging: {
+                    label: string;
+                    description: string;
+                    fee: components["schemas"]["Money"];
+                } | null;
+                installation: {
+                    label: string;
+                    item_label: string;
+                    description: string;
+                    available_in_zone: boolean;
+                    available_items: number;
+                    selected_items: number;
+                };
+            };
+            payment_methods: components["schemas"]["PaymentMethod"][];
+            totals: components["schemas"]["CartTotals"];
+            issues: {
+                code: string;
+                message: string;
+                item_id: number | null;
+            }[];
+            ready_for_checkout: boolean;
+        };
+        OrderSummary: {
+            number: string;
+            status: string;
+            status_label: string;
+            is_paid: boolean;
+            payment_method: string | null;
+            payment_method_label: string | null;
+            total: components["schemas"]["Money"];
+            item_count: number;
+            /** Format: date-time */
+            placed_at: string | null;
+        };
+        PaymentStart: {
+            method: string;
+            /** @enum {string} */
+            status: "redirect" | "offline";
+            redirect_url: string | null;
+            message: string | null;
+        };
+        PlacedOrder: {
+            order: components["schemas"]["OrderSummary"];
+            /** @description Send as X-Order-Token to read/pay this order; null on replay */
+            access_token: string | null;
+            payment: components["schemas"]["PaymentStart"] | null;
+        };
         OtpChallenge: {
             /** @description Normalized 09XXXXXXXXX */
             phone: string;
@@ -938,6 +1270,26 @@ export interface components {
                 "application/json": components["schemas"]["Error"];
             };
         };
+        /** @description Stock/price/state conflict (out_of_stock, cart_changed, ...) */
+        Conflict: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Full cart */
+        CartResponse: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    data: components["schemas"]["Cart"];
+                };
+            };
+        };
         /** @description Invalid query */
         ValidationError: {
             headers: {
@@ -949,6 +1301,8 @@ export interface components {
         };
     };
     parameters: {
+        /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+        cartToken: string;
         /** @description Slug path after /shop/category/, e.g. vanity/cabinet-vanity (slashes allowed) */
         categoryPath: string;
         /** @description Product slug after /shop/ (decoded or percent-encoded) */
@@ -1253,6 +1607,300 @@ export interface operations {
             };
             404: components["responses"]["NotFound"];
             422: components["responses"]["ValidationError"];
+        };
+    };
+    getCart: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["CartResponse"];
+        };
+    };
+    updateCart: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CartUpdate"];
+            };
+        };
+        responses: {
+            200: components["responses"]["CartResponse"];
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    addCartItem: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CartItemCreate"];
+            };
+        };
+        responses: {
+            201: components["responses"]["CartResponse"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    removeCartItem: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path: {
+                item: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["CartResponse"];
+        };
+    };
+    updateCartItem: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path: {
+                item: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description 0 removes the line */
+                    quantity?: number;
+                    installation?: boolean;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["CartResponse"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    applyCoupon: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    code: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["CartResponse"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    removeCoupon: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: components["responses"]["CartResponse"];
+        };
+    };
+    mergeCart: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    guest_token: string;
+                };
+            };
+        };
+        responses: {
+            200: components["responses"]["CartResponse"];
+            401: components["responses"]["NotFound"];
+            404: components["responses"]["NotFound"];
+        };
+    };
+    placeOrder: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Opaque cart token (the BFF keeps it in the httpOnly bnv_cart cookie) */
+                "X-Cart-Token"?: components["parameters"]["cartToken"];
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Replay of the same Idempotency-Key (payment is null) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PlacedOrder"];
+                    };
+                };
+            };
+            /** @description Order placed */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PlacedOrder"];
+                    };
+                };
+            };
+            409: components["responses"]["Conflict"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    getOrder: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Order-Token"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Order summary */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["OrderSummary"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    payOrder: {
+        parameters: {
+            query?: never;
+            header?: {
+                "X-Order-Token"?: string;
+            };
+            path: {
+                number: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    payment_method?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Payment started */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            order: components["schemas"]["OrderSummary"];
+                            payment: components["schemas"]["PaymentStart"];
+                        };
+                    };
+                };
+            };
+            409: components["responses"]["Conflict"];
+        };
+    };
+    verifyZarinpal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    authority: string;
+                    status: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Verification result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            paid: boolean;
+                            ref_id: string | null;
+                            order: components["schemas"]["OrderSummary"];
+                        };
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
         };
     };
     getMenu: {
