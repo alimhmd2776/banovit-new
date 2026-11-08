@@ -31,6 +31,15 @@ export type PaymentMethod = Schemas['PaymentMethod'];
 export type OrderSummary = Schemas['OrderSummary'];
 export type PaymentStart = Schemas['PaymentStart'];
 export type PlacedOrder = Schemas['PlacedOrder'];
+export type ProductDetail = Schemas['ProductDetail'];
+export type ProductOption = Schemas['ProductOption'];
+export type ProductVariant = Schemas['ProductVariant'];
+export type ProductAddon = Schemas['ProductAddon'];
+export type ProductLive = Schemas['ProductLive'];
+export type ProductRating = Schemas['ProductRating'];
+export type Review = Schemas['Review'];
+export type ReviewListing = Schemas['ReviewListing'];
+export type Availability = Schemas['Availability'];
 export type Menu = Schemas['Menu'];
 export type MenuItem = Schemas['MenuItem'];
 export type MenuPromo = Schemas['MenuPromo'];
@@ -177,6 +186,12 @@ export function createStorefrontClient(opts: ClientOptions) {
         authority,
         status,
       }).then((r) => r.data),
+    getProduct: (slug: string, init?: RequestOptions) =>
+      get<{ data: ProductDetail }>(`/products/${encodePath(slug)}`, init).then((r) => r.data),
+    getProductLive: (slug: string, init?: RequestOptions) =>
+      get<{ data: ProductLive }>(`/products/${encodePath(slug)}/live`, init).then((r) => r.data),
+    listProductReviews: (slug: string, page = 1, init?: RequestOptions) =>
+      get<ReviewListing>(`/products/${encodePath(slug)}/reviews${page > 1 ? `?page=${page}` : ''}`, init),
     getMenu: (key: MenuKey, init?: RequestOptions) => get<{ data: Menu }>(`/menus/${key}`, init).then((r) => r.data),
   };
 }
