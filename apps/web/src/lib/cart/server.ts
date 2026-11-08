@@ -47,9 +47,18 @@ const cookieBase = { httpOnly: true, secure: process.env.NODE_ENV === 'productio
 
 /** JSON response with the cart; keeps the token/count cookies in sync with it. */
 export function cartResponse(cart: Cart, status = 200): NextResponse {
-  const res = NextResponse.json({ data: cart }, { status, headers: { 'Cache-Control': 'no-store' } });
+  const res = NextResponse.json({ data: publicCart(cart) }, { status, headers: { 'Cache-Control': 'no-store' } });
   syncCartCookies(res, cart);
   return res;
+}
+
+/**
+ * The cart as the browser may see it: the token is the cart's only credential
+ * and lives in the httpOnly bnv_cart cookie, so it never goes into JSON or
+ * RSC props that page JS can read.
+ */
+export function publicCart(cart: Cart): Cart {
+  return { ...cart, token: null };
 }
 
 export function syncCartCookies(res: NextResponse, cart: Pick<Cart, 'token' | 'item_count'>) {
@@ -95,7 +104,7 @@ export async function readJson(req: Request): Promise<Record<string, unknown>> {
 /** Server components (cart/checkout pages): the cart for the first paint, or null if the API is down. */
 export async function loadCart(): Promise<Cart | null> {
   try {
-    return await cartClient.getCart(await cartSession());
+    return publicCart(await cartClient.getCart(await cartSession()));
   } catch {
     return null;
   }
