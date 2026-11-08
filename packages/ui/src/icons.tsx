@@ -78,3 +78,8 @@ export const IconArticle = make(<><rect x="5" y="3.5" width="14" height="17" rx=
 export const IconUserSquare = make(<><rect x="4" y="4" width="16" height="16" rx="3" /><circle cx="12" cy="10" r="2.5" /><path d="M7.5 17c.8-2 2.5-3 4.5-3s3.7 1 4.5 3" /></>, 'IconUserSquare');
 export const IconBag = make(<><path d="M6 8h12l-1 12H7z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></>, 'IconBag');
 export const IconDots4 = make(<><circle cx="7.5" cy="7.5" r="2.5" /><circle cx="16.5" cy="7.5" r="2.5" /><circle cx="7.5" cy="16.5" r="2.5" /><circle cx="16.5" cy="16.5" r="2.5" /></>, 'IconDots4');
+// Seller profile (sellers thread)
+export const IconTrend = make(<><path d="M4 18h16" /><path d="M5 14l4-4 3 3 6-6" /><path d="M15 7h3v3" /></>, 'IconTrend');
+export const IconClock = make(<><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></>, 'IconClock');
+export const IconMapPin = make(<><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z" /><circle cx="12" cy="10" r="2.3" /></>, 'IconMapPin');
+export const IconVerified = make(<><path d="M12 3l2.1 1.6 2.6-.2.8 2.5 2.2 1.4-.8 2.5.8 2.5-2.2 1.4-.8 2.5-2.6-.2L12 21l-2.1-1.6-2.6.2-.8-2.5-2.2-1.4.8-2.5-.8-2.5 2.2-1.4.8-2.5 2.6.2z" fill="currentColor" stroke="none" /><path d="M9 12l2 2 4-4" stroke="var(--color-on-primary)" /></>, 'IconVerified');
