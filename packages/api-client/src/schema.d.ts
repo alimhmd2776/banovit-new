@@ -467,6 +467,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/settings/auth": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Texts, links and timings of the /login/ page, editable in the CMS admin app («ورود و پیامک کد») */
+        get: operations["getAuthSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/callback-requests": {
         parameters: {
             query?: never;
@@ -1886,6 +1903,44 @@ export interface components {
             /** @description Send as X-Order-Token to read/pay this order; null on replay */
             access_token: string | null;
             payment: components["schemas"]["PaymentStart"] | null;
+        };
+        AuthSettings: {
+            code_length: number;
+            /** @description Seconds before a new code can be requested */
+            resend_cooldown: number;
+            /** @description Seconds a code stays valid */
+            code_ttl: number;
+            /** @description code_subtitle has {phone}, resend_wait has {time}; *_url start with / or https:// */
+            texts: {
+                page_title: string;
+                phone_title: string;
+                phone_subtitle: string;
+                phone_label: string;
+                phone_placeholder: string;
+                phone_submit: string;
+                sending_title: string;
+                sending_subtitle: string;
+                code_title: string;
+                code_subtitle: string;
+                code_submit: string;
+                checking_label: string;
+                resend_wait: string;
+                resend_label: string;
+                welcome_title: string;
+                welcome_subtitle: string;
+                first_name_label: string;
+                last_name_label: string;
+                profile_submit: string;
+                consent_prefix: string;
+                terms_label: string;
+                terms_url: string;
+                consent_middle: string;
+                privacy_label: string;
+                privacy_url: string;
+                consent_suffix: string;
+                error_generic: string;
+                error_network: string;
+            };
         };
         OtpChallenge: {
             /** @description Normalized 09XXXXXXXXX */
@@ -3387,6 +3442,28 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: components["schemas"]["ContactSettings"];
+                    };
+                };
+            };
+        };
+    };
+    getAuthSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Login page settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AuthSettings"];
                     };
                 };
             };

@@ -2,6 +2,7 @@ import 'server-only';
 import { cache } from 'react';
 import { createStorefrontClient, StorefrontApiError, type BlogListParams, type BlogSitemapType, type ListingParams, type Menu, type MenuKey } from '@banovit/api-client';
 import { env } from '@/lib/env';
+import { AUTH_SETTINGS_FALLBACK, AUTH_TEXT_DEFAULTS } from '@/features/auth/links';
 
 /**
  * The only way pages get data (docs/05-conventions.md). Every call carries
@@ -75,6 +76,14 @@ export const getBlogSitemap = cache(async (type: BlogSitemapType) =>
 export function movedLocation(e: unknown): string | null {
   return e instanceof StorefrontApiError && e.code === 'moved' && e.location ? e.location : null;
 }
+
+/** /login/ texts, links and code length from the CMS panel; built-in defaults when the CMS is unreachable. */
+export const getAuthSettings = cache(async () =>
+  client
+    .getAuthSettings({ next: { tags: ['settings', 'settings:auth'], revalidate: 300 } })
+    .then((s) => ({ ...s, texts: { ...AUTH_TEXT_DEFAULTS, ...s.texts } }))
+    .catch(() => AUTH_SETTINGS_FALLBACK),
+);
 
 /** «تماس با ما» content edited in the CMS (tag mirrors the API Surrogate-Key `settings:contact`). */
 export const getContactSettings = cache(async () =>
