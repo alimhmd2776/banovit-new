@@ -44,3 +44,10 @@ export const IconBolt = make(<path d="M13 3L5 13h6l-1 8 8-10h-6z" fill="currentC
 export const IconBox = make(<><path d="M3 7l9-4 9 4-9 4z" /><path d="M3 7v10l9 4 9-4V7" /><path d="M12 11v10" /></>, 'IconBox');
 export const IconPlus = make(<path d="M12 5v14M5 12h14" />, 'IconPlus');
 export const IconMinus = make(<path d="M5 12h14" />, 'IconMinus');
+export const IconShare = make(<><path d="M12 15V4" /><path d="M8 8l4-4 4 4" /><path d="M6 12v6a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-6" /></>, 'IconShare');
+export const IconHeart = make(<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />, 'IconHeart');
+export const IconTrend = make(<><path d="M4 18h16" /><path d="M5 14l4-4 3 3 6-6" /><path d="M15 7h3v3" /></>, 'IconTrend');
+export const IconStore = make(<><path d="M4 9l1.5-5h13L20 9" /><path d="M4 9h16v2a3 3 0 0 1-5.3 1.9A3 3 0 0 1 12 14a3 3 0 0 1-2.7-1.1A3 3 0 0 1 4 11z" /><path d="M5.5 13.5V20h13v-6.5" /></>, 'IconStore');
+export const IconClock = make(<><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></>, 'IconClock');
+export const IconMapPin = make(<><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z" /><circle cx="12" cy="10" r="2.3" /></>, 'IconMapPin');
+export const IconVerified = make(<><path d="M12 3l2.1 1.6 2.6-.2.8 2.5 2.2 1.4-.8 2.5.8 2.5-2.2 1.4-.8 2.5-2.6-.2L12 21l-2.1-1.6-2.6.2-.8-2.5-2.2-1.4.8-2.5-.8-2.5 2.2-1.4.8-2.5 2.6.2z" fill="currentColor" stroke="none" /><path d="M9 12l2 2 4-4" stroke="var(--color-on-primary)" /></>, 'IconVerified');

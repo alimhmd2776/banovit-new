@@ -89,6 +89,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/sellers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Public sellers (house seller first) */
+        get: operations["listSellers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sellers/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Seller profile page data (/seller/{slug}/) */
+        get: operations["getSeller"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sellers/{slug}/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Products this seller sells (seller facet is fixed) */
+        get: operations["listSellerProducts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sellers/{slug}/reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Buyer reviews of a seller (empty until the reviews module ships) */
+        get: operations["listSellerReviews"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -159,6 +227,92 @@ export interface components {
             breadcrumb: components["schemas"]["BreadcrumbItem"][];
             seo: components["schemas"]["Seo"];
             faqs: components["schemas"]["Faq"][];
+        };
+        SellerStats: {
+            rating: {
+                average: number;
+                count: number;
+            } | null;
+            sales_count: number;
+            product_count: number;
+            /** Format: date */
+            joined_at: string | null;
+            years_on_banovit: number | null;
+        };
+        SellerCard: {
+            id: number;
+            slug: string;
+            name: string;
+            /** @description /seller/{slug}/ */
+            url: string;
+            tagline: string | null;
+            logo: components["schemas"]["Image"] | null;
+            /** @description Banovit itself */
+            is_house: boolean;
+            stats: components["schemas"]["SellerStats"];
+        };
+        OpeningRange: {
+            /** @description HH:MM, Asia/Tehran */
+            open: string;
+            close: string;
+        };
+        OpeningDay: {
+            /** @enum {string} */
+            day: "sat" | "sun" | "mon" | "tue" | "wed" | "thu" | "fri";
+            label: string;
+            /** @description Empty = closed that day */
+            ranges: components["schemas"]["OpeningRange"][];
+        };
+        Seller: components["schemas"]["SellerCard"] & {
+            about_html: string | null;
+            location: {
+                address: string | null;
+                lat: number | null;
+                lng: number | null;
+            } | null;
+            opening_hours: {
+                /** @constant */
+                timezone: "Asia/Tehran";
+                days: components["schemas"]["OpeningDay"][];
+            } | null;
+            breadcrumb: components["schemas"]["BreadcrumbItem"][];
+            seo: components["schemas"]["Seo"];
+        };
+        SellerReview: {
+            id: number;
+            author: {
+                name: string;
+                avatar: components["schemas"]["Image"] | null;
+                /** @description «خریدار» badge */
+                is_buyer: boolean;
+                /** @description «خریدار فعال و باتجربه بانویت» */
+                is_experienced_buyer: boolean;
+            };
+            rating: number;
+            body: string;
+            /** Format: date-time */
+            created_at: string;
+            product: {
+                name: string;
+                path: string;
+                image: components["schemas"]["Image"] | null;
+                /** @description e.g. «رنگ طوسی • سایز ۷۵x۹۸» */
+                variant_label: string | null;
+            } | null;
+        };
+        SellerReviewList: {
+            data: components["schemas"]["SellerReview"][];
+            meta: {
+                page: number;
+                per_page: number;
+                total: number;
+                last_page: number;
+                rating: components["schemas"]["SellerStats"]["rating"];
+            };
+            links: {
+                prev_page?: number | null;
+                next_page?: number | null;
+            };
         };
         ProductCard: {
             id: number;
@@ -469,6 +623,116 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProductListing"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listSellers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Sellers */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SellerCard"][];
+                    };
+                };
+            };
+        };
+    };
+    getSeller: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Seller */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["Seller"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listSellerProducts: {
+        parameters: {
+            query?: {
+                page?: components["parameters"]["page"];
+                per_page?: components["parameters"]["per_page"];
+                sort?: components["parameters"]["sort"];
+                /** @description Comma-separated brand slugs (OR) */
+                brand?: components["parameters"]["brand"];
+                /** @description filter[pa_color]=white,black — values OR-ed inside a facet, facets AND-ed. Unknown facets are ignored. */
+                filter?: components["parameters"]["filter"];
+                /** @description Rial */
+                min_price?: components["parameters"]["min_price"];
+                /** @description Rial */
+                max_price?: components["parameters"]["max_price"];
+                in_stock?: components["parameters"]["in_stock"];
+                on_sale?: components["parameters"]["on_sale"];
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Listing */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductListing"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+            422: components["responses"]["ValidationError"];
+        };
+    };
+    listSellerReviews: {
+        parameters: {
+            query?: {
+                page?: components["parameters"]["page"];
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Reviews */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SellerReviewList"];
                 };
             };
             404: components["responses"]["NotFound"];
