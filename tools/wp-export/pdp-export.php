@@ -1,6 +1,7 @@
 <?php
 // Read-only export of product-page (PDP) data that the CMS does not sync from WooCommerce.
-// Run on the WP host:  wp eval-file pdp-export.php > pdp-export.json
+// Run on the LIVE WP host (read-only; SEO data must come from live, never test2):
+//   wp eval-file pdp-export.php > pdp-export.json
 // Import in banovit-cms: php artisan storefront:import-wp-products pdp-export.json
 //
 // Prints one JSON document, streamed product by product so memory stays flat.
@@ -22,6 +23,19 @@ $raw_meta = function ($post_id, $pattern) {
     }
     return $out;
 };
+$terms = function ($pid, $tax) {
+    if (!taxonomy_exists($tax)) { return []; }
+    $out = [];
+    foreach ((array) wp_get_post_terms($pid, $tax) as $t) {
+        if ($t && !is_wp_error($t)) {
+            $row = ['id' => $t->term_id, 'slug' => urldecode($t->slug), 'name' => $t->name];
+            if (is_taxonomy_hierarchical($tax)) { $row['ancestors'] = array_map('intval', get_ancestors($t->term_id, $tax, 'taxonomy')); }
+            $out[] = $row;
+        }
+    }
+    return $out;
+};
+$acf_keys = ['kase_gheymat', 'omomi', 'product_label', 'text_mojodi', 'product_details', 'feachers_one'];
 $yoast_keys = ['title', 'metadesc', 'canonical', 'meta-robots-noindex', 'meta-robots-nofollow', 'meta-robots-adv', 'opengraph-title', 'opengraph-description', 'opengraph-image', 'focuskw', 'focuskeywords', 'primary_product_cat'];
 
 $addon_groups = [];
@@ -34,6 +48,7 @@ echo '{"exported_at":' . wp_json_encode(gmdate('c'));
 echo ',"site_url":' . wp_json_encode(home_url('/'));
 echo ',"wpseo_titles":' . wp_json_encode(array_intersect_key($titles, array_flip(['separator', 'title-product', 'metadesc-product', 'noindex-product'])), JSON_UNESCAPED_UNICODE);
 echo ',"addon_options":' . wp_json_encode(array_filter(wp_load_alloptions(), fn ($k) => preg_match('/^(cwa|rico)_/i', $k), ARRAY_FILTER_USE_KEY), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+echo ',"bdi_cost_rules":' . wp_json_encode(array_values((array) (maybe_unserialize(get_option('bdi_cost_rules')) ?: [])), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 echo ',"addon_groups":' . wp_json_encode($addon_groups, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 echo ',"products":[';
 
@@ -97,6 +112,11 @@ foreach ($ids as $pid) {
         'faq_meta' => $raw_meta($pid, '/faq/i'),
         'feature_meta' => $raw_meta($pid, '/feature|highlight|ویژگی/i'),
         'views' => (int) get_post_meta($pid, 'post_views_count', true),
+        // BDI installation rules match on these (category / tag / brand name).
+        'terms' => ['cats' => $terms($pid, 'product_cat'), 'tags' => $terms($pid, 'product_tag'), 'brands' => array_merge($terms($pid, 'pa_brand'), $terms($pid, 'product_brand'))],
+        'install_disabled' => (string) get_post_meta($pid, '_bdi_install_disabled', true),
+        'sink_product' => (string) get_post_meta($pid, '_sink_products', true),
+        'acf' => array_filter(array_combine($acf_keys, array_map(fn ($k) => get_post_meta($pid, $k, true), $acf_keys)), fn ($v) => $v !== '' && $v !== null && $v !== false),
     ];
     echo ($first ? '' : ',') . wp_json_encode($row, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     $first = false;

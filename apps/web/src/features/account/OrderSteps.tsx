@@ -9,9 +9,9 @@ export function OrderSteps({ steps, size = 'sm' }: { steps: OrderStep[]; size?: 
       {steps.map((s) => (
         <li key={s.key} className="flex flex-col gap-1.5" aria-current={s.state === 'current' ? 'step' : undefined}>
           <span className={cx('h-1 rounded-full', s.state === 'upcoming' ? 'bg-border' : 'bg-primary')} />
-          <span className={cx('flex items-center gap-1', size === 'sm' ? 'text-[10px]' : 'text-xs', s.state === 'upcoming' ? 'text-text-subtle' : s.state === 'current' ? 'font-bold text-text' : 'text-primary')}>
+          <span className={cx('flex items-start gap-1', size === 'sm' ? 'text-[10px]' : 'text-xs', s.state === 'upcoming' ? 'text-text-subtle' : s.state === 'current' ? 'font-bold text-text' : 'text-primary')}>
             {s.state === 'done' ? <IconCheckCircle size={12} className="shrink-0" /> : s.state === 'current' ? <IconClock size={12} className="shrink-0" /> : null}
-            <span className="truncate">{s.label}</span>
+            <span className="min-w-0 leading-4">{s.label}</span>
           </span>
         </li>
       ))}

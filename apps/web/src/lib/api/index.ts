@@ -32,6 +32,12 @@ export const listBrandProducts = cache(async (slug: string, params: ListingParam
   client.listBrandProducts(slug, params, { next: { tags: ['products', `brand:${slug}`], revalidate: 300 } }),
 );
 
+/** CMS content pages; tags match the CMS revalidation (pages, page:{id}, page-path:{path}). */
+export const getPage = cache(async (path: string) =>
+  client.getPage(path, { next: { tags: ['pages', `page-path:${path}`], revalidate: REVALIDATE } }),
+);
+
+export const listPages = cache(async () => client.listPages({ next: { tags: ['pages'], revalidate: REVALIDATE } }));
 /* ---------------- blog (tags mirror the CMS Surrogate-Key: blog, blog-post:{slug}, ...) ---------------- */
 
 export const getBlogHome = cache(async () => client.getBlogHome({ next: { tags: ['blog'], revalidate: REVALIDATE } }));

@@ -1,6 +1,7 @@
 import 'server-only';
 import { cookies, headers } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { stripMiddlewareCookieHeader } from '@/lib/http/cookies';
 import { createStorefrontClient, StorefrontApiError, type Cart, type SessionHeaders } from '@banovit/api-client';
 import { env } from '@/lib/env';
 
@@ -46,23 +47,35 @@ const cookieBase = { httpOnly: true, secure: process.env.NODE_ENV === 'productio
 
 /** JSON response with the cart; keeps the token/count cookies in sync with it. */
 export function cartResponse(cart: Cart, status = 200): NextResponse {
-  const res = NextResponse.json({ data: cart }, { status, headers: { 'Cache-Control': 'no-store' } });
+  const res = NextResponse.json({ data: publicCart(cart) }, { status, headers: { 'Cache-Control': 'no-store' } });
   syncCartCookies(res, cart);
   return res;
+}
+
+/**
+ * The cart as the browser may see it: the token is the cart's only credential
+ * and lives in the httpOnly bnv_cart cookie, so it never goes into JSON or
+ * RSC props that page JS can read.
+ */
+export function publicCart(cart: Cart): Cart {
+  return { ...cart, token: null };
 }
 
 export function syncCartCookies(res: NextResponse, cart: Pick<Cart, 'token' | 'item_count'>) {
   if (cart.token) res.cookies.set(CART_COOKIE, cart.token, { ...cookieBase, maxAge: MAX_AGE });
   res.cookies.set(CART_COUNT_COOKIE, String(cart.item_count), { ...cookieBase, httpOnly: false, maxAge: MAX_AGE });
+  stripMiddlewareCookieHeader(res); // keep the httpOnly cart token out of response headers
 }
 
 export function clearCartCookies(res: NextResponse) {
   res.cookies.delete(CART_COOKIE);
   res.cookies.set(CART_COUNT_COOKIE, '0', { ...cookieBase, httpOnly: false, maxAge: MAX_AGE });
+  stripMiddlewareCookieHeader(res);
 }
 
 export function setOrderCookie(res: NextResponse, number: string, token: string) {
   res.cookies.set(ORDER_COOKIE, `${number}:${token}`, { ...cookieBase, maxAge: 60 * 60 * 24 * 30 });
+  stripMiddlewareCookieHeader(res); // keep the order access token out of response headers
 }
 
 /** Map an API failure to the same {error} envelope for the browser. */
@@ -91,7 +104,7 @@ export async function readJson(req: Request): Promise<Record<string, unknown>> {
 /** Server components (cart/checkout pages): the cart for the first paint, or null if the API is down. */
 export async function loadCart(): Promise<Cart | null> {
   try {
-    return await cartClient.getCart(await cartSession());
+    return publicCart(await cartClient.getCart(await cartSession()));
   } catch {
     return null;
   }

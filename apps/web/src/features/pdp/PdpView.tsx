@@ -10,7 +10,6 @@ import {
   IconGift,
   IconShield,
   IconStar,
-  IconStore,
   IconTruck,
   ProductCard,
 } from '@banovit/ui';
@@ -20,7 +19,9 @@ import { siteConfig } from '@/lib/site-config';
 import { ExpandableHtml } from './Expandable';
 import { Gallery } from './Gallery';
 import { PurchaseProvider, type PurchaseProduct } from './PurchaseContext';
-import { BuyBox, InstallCard, MobileBuyBar, OptionPickers } from './PurchaseControls';
+import { AddonPickers, BuyBox, InstallCard, MobileBuyBar, OptionPickers } from './PurchaseControls';
+import { MadeToOrderBox, VanityCalculator } from './VanityCalculator';
+import { SellerPanel } from './SellerPanel';
 import { MoreReviews, WriteReview } from './ReviewActions';
 import { ReviewCard } from './ReviewCard';
 import { SectionTabs, type SectionTab } from './SectionTabs';
@@ -72,6 +73,9 @@ export function PdpView({ product: p }: { product: ProductDetail }) {
     options: p.options,
     variants: p.variants,
     addons: p.addons,
+    made_to_order: p.made_to_order,
+    consult_phone: p.consult_phone,
+    offers: p.offers,
   };
 
   const tabs: SectionTab[] = [
@@ -108,6 +112,11 @@ export function PdpView({ product: p }: { product: ProductDetail }) {
             <h1 className="text-lg font-extrabold leading-8 text-text lg:text-2xl lg:leading-10">{p.name}</h1>
 
             <ul className="flex flex-wrap items-center gap-2 text-xs">
+              {p.label ? (
+                <li>
+                  <span className="inline-flex h-8 items-center rounded-full bg-primary-subtle px-3 font-bold text-primary">{p.label}</span>
+                </li>
+              ) : null}
               {p.rating ? (
                 <li className="inline-flex items-center gap-1 px-1 text-text">
                   <IconStar size={16} className="fill-[var(--color-rating)] text-rating" aria-hidden />
@@ -133,9 +142,25 @@ export function PdpView({ product: p }: { product: ProductDetail }) {
 
             <InstallCard installBadge={p.badges.install_service} />
 
-            <div className="border-t border-border pt-5">
-              <OptionPickers />
-            </div>
+            {p.made_to_order || p.calculator ? (
+              <MadeToOrderBox note={p.availability_note} phone={p.consult_phone} hasCalculator={!!p.calculator} />
+            ) : p.availability_note ? (
+              <p className="rounded-md bg-surface-muted p-3 text-xs leading-6 text-text-muted">{p.availability_note}</p>
+            ) : null}
+
+            {p.options.length ? (
+              <div className="border-t border-border pt-5">
+                <OptionPickers />
+              </div>
+            ) : null}
+
+            {p.addons.some((a) => !a.options.some((o) => o.kind === 'installation')) && !p.made_to_order ? (
+              <div className="border-t border-border pt-5">
+                <AddonPickers />
+              </div>
+            ) : null}
+
+            {p.calculator ? <VanityCalculator calc={p.calculator} productName={p.name} consultPhone={p.consult_phone} /> : null}
 
             {highlights.length ? (
               <div className="space-y-3 border-t border-border pt-5">
@@ -325,16 +350,7 @@ function MoreLink({ href }: { href: string }) {
 function SellerBox({ seller }: { seller: ProductDetail['seller'] }) {
   return (
     <section aria-labelledby="seller-title" className="space-y-4 border-t-8 border-bg pt-5 lg:rounded-lg lg:border lg:border-border lg:bg-surface lg:p-5">
-      <h2 id="seller-title" className="text-[15px] font-bold text-text">
-        خرید مطمئن از بانویت
-      </h2>
-      <div className="flex items-center gap-3">
-        <span className="flex size-10 items-center justify-center rounded-full bg-primary-subtle text-primary">
-          <IconStore size={20} />
-        </span>
-        <p className="text-sm font-bold text-text">{seller.name}</p>
-        {seller.badge ? <span className="rounded-full bg-primary-subtle px-2 py-0.5 text-[11px] text-primary-on-subtle">{seller.badge}</span> : null}
-      </div>
+      <SellerPanel />
       <div className="flex items-start gap-3 border-t border-border pt-4">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-surface-muted text-text-muted">
           <IconShield size={20} />

@@ -15,6 +15,25 @@
   .scrollbar-none::-webkit-scrollbar { display: none; }
 }
 
+/* CMS rich text (sanitized subset: p, h2–h4, lists, links, quotes, tables, images). */
+@layer components {
+  .cms-prose { font-size: 0.875rem; line-height: 2; overflow-wrap: anywhere; }
+  .cms-prose > * + * { margin-top: 0.75em; }
+  .cms-prose h2 { @apply mt-6 text-base font-bold text-text lg:text-lg; }
+  .cms-prose h3 { @apply mt-5 text-sm font-bold text-text lg:text-base; }
+  .cms-prose h4 { @apply mt-4 text-sm font-bold text-text; }
+  .cms-prose > :first-child { margin-top: 0; }
+  .cms-prose ul { list-style: disc; padding-inline-start: 1.25rem; }
+  .cms-prose ol { list-style: decimal; padding-inline-start: 1.25rem; }
+  .cms-prose li + li { margin-top: 0.25em; }
+  .cms-prose a { @apply text-primary underline underline-offset-4 hover:text-primary-hover; }
+  .cms-prose strong, .cms-prose b { @apply font-bold text-text; }
+  .cms-prose blockquote { @apply border-s-2 border-border ps-3 text-text-muted; }
+  .cms-prose img { @apply h-auto max-w-full rounded-md; }
+  .cms-prose table { @apply w-full border-collapse text-sm; }
+  .cms-prose th, .cms-prose td { @apply border border-border p-2 text-start; }
+}
+
 /*
  * Article body (CMS HTML, sanitized server-side). No typography plugin: the
  * rules below follow the blog design (17/30 body, blue table header, zebra rows,

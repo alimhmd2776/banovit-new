@@ -1,7 +1,7 @@
 import type { Cart } from '@banovit/api-client';
 import { faDigits, formatToman } from '@banovit/ui';
 import { siteConfig } from '@/lib/site-config';
-import { lineDetails } from '@/features/cart/CartLineCard';
+import { lineDetailsWithSeller } from '@/features/cart/CartLineCard';
 import { PrintButton } from './PrintButton';
 
 /** «پیش فاکتور» of the current cart, print-friendly (replaces the WP pre-invoice page). */
@@ -46,7 +46,7 @@ export function Proforma({ cart }: { cart: Cart }) {
                 <td className="py-2">{faDigits(i + 1)}</td>
                 <td className="py-2">
                   {l.product.name}
-                  {lineDetails(l).length ? <span className="block text-xs text-text-muted">{lineDetails(l).join('، ')}</span> : null}
+                  {<span className="block text-xs text-text-muted">{lineDetailsWithSeller(l).join('، ')}</span>}
                 </td>
                 <td className="py-2 text-center">{faDigits(l.quantity)}</td>
                 <td className="py-2 text-end">{formatToman(l.unit_price.amount)}</td>

@@ -12,11 +12,13 @@ export const siteConfig = {
   topBanner: { text: 'بسته بندی امن و چندلایه', href: '/shipping-methods/' },
   address: 'تهران، کارخانه نوآوری آزادی',
   about: 'پیشرو در ارائه انواع محصولات بهداشتی و آشپزخانه، متعهد به ارائه بهترین محصولات با کیفیت بالا برای خانه‌های شما.',
+  // Same links and the same icon files as the live footer.
   social: [
-    { name: 'اینستاگرام', href: 'https://instagram.com/banovit', icon: 'instagram' },
-    { name: 'تلگرام', href: 'https://t.me/banovitcom', icon: 'telegram' },
-    { name: 'واتساپ', href: 'https://wa.me/+989927809601', icon: 'whatsapp' },
-    { name: 'آپارات', href: 'https://www.aparat.com/banovit', icon: 'aparat' },
+    { name: 'آپارات', href: 'https://www.aparat.com/banovit', icon: 'https://banovit.com/wp-content/uploads/2024/07/aparat-social.svg' },
+    { name: 'اینستاگرام', href: 'https://instagram.com/banovit', icon: 'https://banovit.com/wp-content/uploads/2024/07/insta-social.svg' },
+    { name: 'تلگرام', href: 'https://t.me/banovitcom', icon: 'https://banovit.com/wp-content/uploads/2024/08/Vector-1.svg' },
+    { name: 'واتساپ', href: 'https://wa.me/+989927809601', icon: 'https://banovit.com/wp-content/uploads/2024/08/Vector-2.svg' },
+    { name: 'روبیکا', href: 'https://rubika.ir/banovit', icon: 'https://banovit.com/wp-content/uploads/2022/05/rubika-icon.png' },
   ],
   enamad: {
     href: 'https://trustseal.enamad.ir/?id=516602&Code=bEu3ObZADXWU4nC4jLQ10pdhqFhN3ehP',
@@ -50,6 +52,7 @@ export const siteConfig = {
         { name: 'پیگیری سفارش', href: '/track-order/' },
         { name: 'پیوستن به همکاران', href: '/landing/b2b/' },
         { name: 'حریم خصوصی', href: '/privacy-policy/' },
+        { name: 'شرایط و قوانین', href: '/terms/' },
       ],
     },
     {

@@ -1,0 +1,12 @@
+{
+  "_source": "Elementor image boxes on live https://banovit.com/shop/category/*/ (same block on every category page), scraped 2026-11-08. Only these 9 top-level categories have an image on live; subcategories have none.",
+  "kitchen-sink": "https://banovit.com/wp-content/uploads/2026/05/sink-kitchen-category.webp",
+  "vanity": "https://banovit.com/wp-content/uploads/2026/01/Frame-2611276.webp",
+  "bathroom-mirror": "https://banovit.com/wp-content/uploads/2026/01/Frame-2611271.webp",
+  "sink": "https://banovit.com/wp-content/uploads/2026/01/Frame-2611272.webp",
+  "faucets": "https://banovit.com/wp-content/uploads/2026/01/Frame-2611274.webp",
+  "toilet": "https://banovit.com/wp-content/uploads/2026/01/Frame-2611273.webp",
+  "towel-dryer": "https://banovit.com/wp-content/uploads/2026/01/Frame-2611275.webp",
+  "flush-tank": "https://banovit.com/wp-content/uploads/2026/05/flush-tank-category.webp",
+  "public-vanity": "https://banovit.com/wp-content/uploads/2026/01/Frame-2611270.webp"
+}

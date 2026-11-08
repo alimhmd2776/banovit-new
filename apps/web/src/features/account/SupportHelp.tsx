@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IconChevronLeft, IconSearch } from '@banovit/ui';
 import { EmptyState } from './EmptyState';
 import { SUPPORT_TOPICS } from './supportTopics';
@@ -11,8 +11,12 @@ export function SupportHelp() {
   const [q, setQ] = useState('');
   const t = q.trim();
   const topics = t ? SUPPORT_TOPICS.filter((s) => [s.title, s.subtitle, ...s.faq.flatMap((f) => [f.q, f.a])].some((x) => x.includes(t))) : SUPPORT_TOPICS;
-  const hour = new Date().getHours();
-  const greet = hour < 12 ? 'صبح بخیر' : hour < 17 ? 'وقت بخیر' : 'عصر بخیر';
+  // Time of day only in the browser: the server clock (UTC) would mismatch hydration.
+  const [greet, setGreet] = useState('وقت بخیر');
+  useEffect(() => {
+    const hour = new Date().getHours();
+    setGreet(hour < 12 ? 'صبح بخیر' : hour < 17 ? 'وقت بخیر' : 'عصر بخیر');
+  }, []);
   return (
     <div className="pt-5">
       <h2 className="text-xl font-extrabold leading-9 text-text">

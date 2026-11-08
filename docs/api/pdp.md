@@ -53,3 +53,22 @@
 - «بلاگ‌های مفید» تا ساخت ماژول بلاگ خالی است (`related_posts: []`) و بخش پنهان می‌ماند.
 - فروشنده/ارسال فعلاً از `config/storefront.php` (`pdp.seller`، `pdp.shipping`) می‌آید تا ماژول offers (چندفروشندگی) آماده شود. علاقه‌مندی (قلب) API ندارد و فعلاً حذف شده است.
 - لایک/دیسلایک دیدگاه فقط نمایش داده می‌شود (endpoint رأی ندارد).
+
+## Add-ons, installation and made-to-order products (2026-11-08)
+
+Source: docs/07-feature-parity.md §10–12.
+
+- `addons[].display`: `select | multiselect | button | color` (Rico-wc-addons type).
+- `options[].price_type` sets how an option is priced:
+  - `fixed`: per unit.
+  - `percentage`: `percent` of the unit price, per unit.
+  - `flat_rate`: once per cart line.
+- `options[].color` is the swatch color for `display=color`.
+- Installation is a separate add-on titled «خدمات نصب». It has one option with `kind=installation`, and its price comes from the BDI `bdi_cost_rules`. A price of 0 means free installation.
+- `made_to_order` (from `_sink_products`): the product cannot be bought online. The buy button becomes «مشاوره رایگان», linking to `consult_phone`.
+- `label` and `availability_note` come from ACF `product_label` and `text_mojodi`.
+- `calculator` (`kind=vanity`) is the «روشویی عمومی» price form:
+  - Formula: `length_cm × (slab_price_per_cm [+ frame_price_per_cm]) + bowls × bowl_price`.
+  - The rates are in CMS config `storefront.pdp.vanity_calculator`. They match the live form: 275,000 / 375,000 toman per cm.
+  - `bowl_price` comes from ACF `kase_gheymat`.
+  - «ثبت درخواست» posts to `/api/callback-requests/` with `form=product_quote`. The CMS records it as a sales lead.

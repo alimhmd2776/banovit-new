@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { Money, ProductAddon, ProductLive, ProductOption, ProductVariant } from '@banovit/api-client';
+import type { Money, ProductAddon, ProductLive, ProductOffers, ProductOption, ProductVariant, SellerCard } from '@banovit/api-client';
 import { addToCart, type CartError } from './cart';
 import { trackEcommerce } from '@/lib/analytics';
 import { choose, initialSelection, matchVariant, selectionQuery, type Selection } from './variants';
@@ -23,7 +23,28 @@ export type PurchaseProduct = {
   options: ProductOption[];
   variants: ProductVariant[];
   addons: ProductAddon[];
+  /** No online purchase (WP _sink_products): the buy button becomes the free consultation call. */
+  made_to_order: boolean;
+  consult_phone: string;
+  offers: ProductOffers;
 };
+
+export type Offer = ProductOffers['items'][number];
+
+/** Default seller for a unit: Banovit when it has it in stock, else the cheapest in-stock seller. */
+export function defaultOffer(offers: Offer[], houseSlug: string | undefined): Offer | null {
+  const inStock = offers.filter((o) => o.in_stock);
+  return inStock.find((o) => o.seller === houseSlug) ?? [...inStock].sort((a, b) => a.price.amount - b.price.amount)[0] ?? offers.find((o) => o.seller === houseSlug) ?? offers[0] ?? null;
+}
+
+type AddonOption = ProductAddon['options'][number];
+
+/** Rial one option adds per unit at `unit` (flat_rate options are counted once per line, see extrasFlat). */
+export function optionUnitAmount(o: AddonOption, unit: number): number {
+  if (o.price_type === 'percentage') return Math.round((unit * (o.percent ?? 0)) / 100);
+  if (o.price_type === 'flat_rate') return 0;
+  return o.price.amount;
+}
 
 type Status = { kind: 'idle' } | { kind: 'adding' } | { kind: 'added' } | { kind: 'error'; message: string };
 
@@ -36,11 +57,21 @@ type Ctx = {
   current: { price: Money | null; regular: Money | null; discount: number; inStock: boolean; fromPrice: boolean };
   addonIds: number[];
   toggleAddon: (addonId: number, optionId: number) => void;
+  /** Per unit: installation options (cart fee) + other add-ons. */
   addonTotal: number;
+  installTotal: number;
+  extrasTotal: number;
+  /** flat_rate add-ons, once per cart line. */
+  extrasFlat: number;
   quantity: number;
   setQuantity: (n: number) => void;
   status: Status;
   add: () => Promise<void>;
+  /** Sellers of the current unit (variant, or the simple product), cheapest first. */
+  unitOffers: Offer[];
+  offer: Offer | null;
+  sellerOf: (slug: string) => SellerCard | undefined;
+  selectSeller: (slug: string) => void;
   /** Which option is missing when the shopper presses add too early. */
   missing: string | null;
 };
@@ -64,6 +95,7 @@ function withLive(p: PurchaseProduct, live: ProductLive | null): PurchaseProduct
     discount_percent: live.discount_percent,
     in_stock: live.in_stock,
     variants: p.variants.map((v) => ({ ...v, ...(byId.get(v.id) ?? {}) })),
+    offers: live.offers ?? p.offers,
   };
 }
 
@@ -138,20 +170,49 @@ export function PurchaseProvider({ product: initial, children }: { product: Purc
     [product.addons],
   );
 
-  const addonTotal = useMemo(
-    () => product.addons.flatMap((a) => a.options).filter((o) => addonIds.includes(o.id)).reduce((s, o) => s + o.price.amount, 0),
-    [product.addons, addonIds],
+  const [sellerSlug, setSellerSlug] = useState<string | null>(null);
+  const house = product.offers.sellers.find((s) => s.is_house);
+  const unitOffers = useMemo(() => {
+    const unitId = product.type === 'variable' ? (variant?.id ?? undefined) : null;
+    if (unitId === undefined) return [];
+    return product.offers.items.filter((o) => o.variant_id === unitId).sort((a, b) => Number(b.in_stock) - Number(a.in_stock) || a.price.amount - b.price.amount);
+  }, [product, variant]);
+  const offer = useMemo(
+    () => unitOffers.find((o) => o.seller === sellerSlug) ?? defaultOffer(unitOffers, house?.slug),
+    [unitOffers, sellerSlug, house],
   );
+  const sellerOf = useCallback((slug: string) => product.offers.sellers.find((s) => s.slug === slug), [product.offers.sellers]);
+  const selectSeller = useCallback((slug: string) => {
+    setSellerSlug(slug);
+    setStatus({ kind: 'idle' });
+  }, []);
 
   const current = useMemo(() => {
+    if (offer && offer.seller !== house?.slug) {
+      const regular = offer.regular_price;
+      const discount = regular && regular.amount > offer.price.amount ? Math.floor((100 * (regular.amount - offer.price.amount)) / regular.amount) : 0;
+      return { price: offer.price, regular, discount, inStock: offer.in_stock, fromPrice: false };
+    }
     if (product.type === 'variable') {
       if (variant) return { price: variant.price, regular: variant.regular_price, discount: variant.discount_percent, inStock: variant.in_stock, fromPrice: false };
       return { price: product.price, regular: product.regular_price, discount: product.discount_percent, inStock: product.in_stock, fromPrice: !!product.price_max };
     }
     return { price: product.price, regular: product.regular_price, discount: product.discount_percent, inStock: product.in_stock, fromPrice: false };
-  }, [product, variant]);
+  }, [product, variant, offer, house]);
+
+  const { installTotal, extrasTotal, extrasFlat } = useMemo(() => {
+    const unit = current.price?.amount ?? 0;
+    const chosen = product.addons.flatMap((a) => a.options).filter((o) => addonIds.includes(o.id));
+    return {
+      installTotal: chosen.filter((o) => o.kind === 'installation').reduce((s, o) => s + o.price.amount, 0),
+      extrasTotal: chosen.filter((o) => o.kind !== 'installation').reduce((s, o) => s + optionUnitAmount(o, unit), 0),
+      extrasFlat: chosen.filter((o) => o.kind !== 'installation' && o.price_type === 'flat_rate').reduce((s, o) => s + o.price.amount, 0),
+    };
+  }, [product.addons, addonIds, current.price]);
+  const addonTotal = installTotal + extrasTotal;
 
   const add = useCallback(async () => {
+    if (product.made_to_order) return;
     if (product.type === 'variable' && !variant) {
       const first = product.options.find((o) => !selection[o.key]);
       setMissing(first?.key ?? product.options[0]?.key ?? null);
@@ -169,6 +230,7 @@ export function PurchaseProvider({ product: initial, children }: { product: Purc
       await addToCart({
         product_id: product.id,
         variation_id: variant?.id ?? null,
+        seller: offer && offer.seller !== house?.slug ? offer.seller : null,
         quantity,
         addon_ids: addonIds,
         installation: product.addons.some((a) => a.options.some((o) => o.kind === 'installation' && addonIds.includes(o.id))),
@@ -176,15 +238,15 @@ export function PurchaseProvider({ product: initial, children }: { product: Purc
       setStatus({ kind: 'added' });
       trackEcommerce('add_to_cart', {
         currency: 'IRR',
-        value: ((current.price?.amount ?? 0) + addonTotal) * quantity,
+        value: ((current.price?.amount ?? 0) + addonTotal) * quantity + extrasFlat,
         items: [gaItem(product, variant, quantity)],
       });
     } catch (e) {
       setStatus({ kind: 'error', message: (e as CartError).message ?? 'افزودن به سبد انجام نشد. دوباره تلاش کنید.' });
     }
-  }, [product, variant, selection, quantity, addonIds, current.price, addonTotal]);
+  }, [product, variant, selection, quantity, addonIds, current.price, addonTotal, extrasFlat, offer, house]);
 
-  const value: Ctx = { product, selection, select, variant, current, addonIds, toggleAddon, addonTotal, quantity, setQuantity, status, add, missing };
+  const value: Ctx = { product, selection, select, variant, current, addonIds, toggleAddon, addonTotal, installTotal, extrasTotal, extrasFlat, unitOffers, offer, sellerOf, selectSeller, quantity, setQuantity, status, add, missing };
   return <PurchaseCtx.Provider value={value}>{children}</PurchaseCtx.Provider>;
 }
 

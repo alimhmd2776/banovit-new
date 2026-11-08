@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       phone: String(body.phone ?? ''),
       name: typeof body.name === 'string' ? body.name.slice(0, 100) : undefined,
       message: typeof body.message === 'string' ? body.message.slice(0, 1000) : undefined,
-      form: body.form === 'contact' ? 'contact' : 'callout',
+      form: body.form === 'contact' || body.form === 'product_quote' ? body.form : 'callout',
       website: typeof body.website === 'string' ? body.website.slice(0, 200) : undefined,
       page_url: String(body.page_url ?? '').slice(0, 500),
       page_title: String(body.page_title ?? '').slice(0, 200),

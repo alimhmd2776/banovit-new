@@ -926,6 +926,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/pages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Published CMS content pages (routing, page-sitemap.xml) */
+        get: operations["listPages"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pages/{path}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One content page (/{path}/), e.g. about-us, shipping-methods, terms, landing/b2b */
+        get: operations["getPage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1208,6 +1242,8 @@ export interface components {
             count: number;
             selected: boolean;
             hex?: string | null;
+            /** @description Brand logo (brand facet only) */
+            image?: components["schemas"]["Image"];
         };
         Facet: {
             /** @description brand or a pa_* attribute slug */
@@ -1297,6 +1333,15 @@ export interface components {
             label: string;
             description: string | null;
             price: components["schemas"]["Money"];
+            /**
+             * @description fixed = per unit; percentage = percent of the unit price, per unit; flat_rate = once per cart line
+             * @enum {string}
+             */
+            price_type: "fixed" | "percentage" | "flat_rate";
+            /** @description percentage options only */
+            percent: number | null;
+            /** @description Swatch for display=color (#rrggbb) */
+            color: string | null;
             /** @description installation | other */
             kind: string;
             default: boolean;
@@ -1307,6 +1352,11 @@ export interface components {
             description: string | null;
             /** @enum {string} */
             type: "checkbox" | "radio";
+            /**
+             * @description Rico-wc-addons control type
+             * @enum {string}
+             */
+            display: "select" | "multiselect" | "button" | "color";
             required: boolean;
             options: components["schemas"]["ProductAddonOption"][];
         };
@@ -1351,6 +1401,7 @@ export interface components {
         };
         ProductLive: {
             id: number;
+            offers: components["schemas"]["ProductOffers"];
             price: components["schemas"]["Money"] | null;
             price_max: components["schemas"]["Money"] | null;
             regular_price: components["schemas"]["Money"] | null;
@@ -1367,7 +1418,42 @@ export interface components {
         };
         /** @enum {string} */
         Availability: "in_stock" | "out_of_stock" | "backorder" | "no_price";
+        /** @description Every seller's price per sellable unit. The page selects the house offer by default when in stock, else the cheapest in-stock one. */
+        ProductOffers: {
+            sellers: components["schemas"]["SellerCard"][];
+            items: {
+                /** @description SellerCard.slug; sent to the cart as seller (house seller: null) */
+                seller: string;
+                /** @description null = simple product */
+                variant_id: number | null;
+                price: components["schemas"]["Money"];
+                regular_price: components["schemas"]["Money"] | null;
+                in_stock: boolean;
+            }[];
+        };
+        /** @description Public-vanity price form: price = length_cm × (slab_price_per_cm [+ frame_price_per_cm]) + bowls × bowl_price */
+        VanityCalculator: {
+            /** @constant */
+            kind: "vanity";
+            min_length_cm: number;
+            max_length_cm: number;
+            width_cm: number;
+            min_bowls: number;
+            max_bowls: number;
+            slab_price_per_cm: components["schemas"]["Money"];
+            frame_price_per_cm: components["schemas"]["Money"];
+            bowl_price: components["schemas"]["Money"];
+        };
         ProductDetail: {
+            /** @description e.g. «سفارشی» */
+            label: string | null;
+            /** @description Production time / stock text */
+            availability_note: string | null;
+            offers: components["schemas"]["ProductOffers"];
+            /** @description No online purchase: show the «سفارشی تولید می‌شود + مشاوره رایگان» box */
+            made_to_order: boolean;
+            consult_phone: string;
+            calculator: components["schemas"]["VanityCalculator"] | null;
             id: number;
             slug: string;
             name: string;
@@ -1472,6 +1558,51 @@ export interface components {
             button_text?: string;
             url?: string;
         };
+        PageListItem: {
+            id: number;
+            path: string;
+            url: string;
+            title: string;
+            indexable: boolean;
+            /** Format: date-time */
+            updated_at: string | null;
+        };
+        PageCrumb: {
+            name: string;
+            url: string;
+        };
+        /** @description Typed block {id, type, v, props}. Types and props: banovit-cms App\Domain\Content\Blocks\BlockRegistry; TS union in apps/web/src/features/pages/types.ts. */
+        ContentBlock: {
+            id: string;
+            type: string;
+            v: number;
+            props: {
+                [key: string]: unknown;
+            };
+        };
+        ContentPage: {
+            id: number;
+            /** @description H1 */
+            title: string;
+            slug: string;
+            path: string;
+            /** @description Site-relative, trailing slash, percent-encoded */
+            url: string;
+            /** @enum {string} */
+            template: "default" | "document" | "feature";
+            excerpt?: string | null;
+            hero_image?: components["schemas"]["Image"] | null;
+            blocks: components["schemas"]["ContentBlock"][];
+            /** @description Sanitized HTML; rendered when blocks is empty */
+            body_html?: string | null;
+            /** Format: date-time */
+            published_at?: string | null;
+            /** Format: date-time */
+            updated_at?: string | null;
+            breadcrumb: components["schemas"]["PageCrumb"][];
+            seo: components["schemas"]["Seo"];
+            faqs: components["schemas"]["Faq"][];
+        };
         Error: {
             error: {
                 code: string;
@@ -1510,6 +1641,8 @@ export interface components {
             installation?: boolean;
             /** @description PDP add-on option ids (installation service) */
             addon_ids?: number[];
+            /** @description Storefront seller slug; null/absent = Banovit itself. 422 seller_offer_unavailable when that seller has no live offer */
+            seller?: string | null;
         };
         CartUpdate: {
             packaging?: boolean;
@@ -1526,6 +1659,11 @@ export interface components {
         };
         CartLine: {
             id: number;
+            /** @description Marketplace seller of this line; null = Banovit itself */
+            seller?: {
+                slug: string;
+                name: string;
+            } | null;
             product: {
                 id: number;
                 name: string;
@@ -1551,6 +1689,12 @@ export interface components {
             discount_percent: number;
             line_total: components["schemas"]["Money"];
             line_regular_total: components["schemas"]["Money"];
+            /** @description Selected non-installation add-ons (anti-fog, light colour …), already included in line_total */
+            addons?: {
+                id: number;
+                label: string;
+                total: components["schemas"]["Money"];
+            }[];
             purchasable: boolean;
             issue: {
                 code: string;
@@ -4050,6 +4194,54 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    listPages: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Pages */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PageListItem"][];
+                    };
+                };
+            };
+        };
+    };
+    getPage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description URL path without the outer slashes, percent-encoded or not (slashes allowed) */
+                path: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Page */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ContentPage"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
         };
     };
 }
