@@ -7,6 +7,7 @@ import { PostList } from './cards';
 import { BlogSearch, BlogTitleBar, CategoryTabs } from './chrome';
 import { localizeLinks, postPagePath } from './format';
 
+import type { ResolvedBlogUi } from './ui';
 /**
  * Archive pages kept from WordPress: /blog/page/N/, /blog/category/{path}/,
  * /blog/tag/{slug}/, /blog/author/{slug}/ (each with /page/N/), and the
@@ -23,7 +24,9 @@ export function ArchiveView({
   descriptionHtml,
   author,
   query,
+  ui,
 }: {
+  ui: ResolvedBlogUi;
   title: string;
   crumbs: Crumb[];
   basePath: string;
@@ -48,9 +51,9 @@ export function ArchiveView({
       ) : null}
       <div className="mx-auto max-w-container space-y-5 px-4 pb-24 pt-3 lg:space-y-8 lg:pb-16 lg:pt-6">
         <div className="space-y-4">
-          <BlogTitleBar />
-          <BlogSearch defaultValue={query} />
-          <CategoryTabs categories={categories} activePath={activeCategory} />
+          <BlogTitleBar labels={ui.labels} />
+          <BlogSearch defaultValue={query} placeholder={ui.labels.search_placeholder} />
+          <CategoryTabs categories={categories} activePath={activeCategory} labels={ui.labels} />
         </div>
 
         <header className="space-y-3">
@@ -79,7 +82,7 @@ export function ArchiveView({
         {listing.data.length > 0 ? (
           <PostList posts={listing.data} headingLevel={2} />
         ) : (
-          <p className="rounded-lg bg-surface-muted p-8 text-center text-sm text-text-muted">مقاله‌ای پیدا نشد.</p>
+          <p className="rounded-lg bg-surface-muted p-8 text-center text-sm text-text-muted">{ui.labels.empty}</p>
         )}
 
         {meta.last_page > 1 ? (

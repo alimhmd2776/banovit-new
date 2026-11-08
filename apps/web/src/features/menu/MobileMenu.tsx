@@ -8,8 +8,9 @@ import { cx, IconBag, IconChevronLeft, IconChevronRight, IconDots4, IconMenu, Ic
 import { CategorySheet } from './CategorySheet';
 import { MenuIcon, MenuLink } from './parts';
 import { useModal } from './useModal';
-import { Logo } from './Logo';
 import { useHeaderSession } from './header-session';
+import { DEFAULT_TEXTS, fill, type HeaderTexts } from './header-texts';
+import { FALLBACK_LOGO, Logo, type LogoAsset } from './Logo';
 
 /**
  * Mobile navigation: hamburger -> side drawer (designs/menu/07) with the
@@ -20,10 +21,14 @@ export function MobileMenu({
   categories,
   productLinks,
   quickLinks,
+  texts = DEFAULT_TEXTS,
+  logo = FALLBACK_LOGO,
 }: {
   categories: MenuItem[];
   productLinks: MenuItem[];
   quickLinks: MenuItem[];
+  texts?: HeaderTexts;
+  logo?: LogoAsset;
 }) {
   const [drawer, setDrawer] = useState(false);
   const [sheet, setSheet] = useState(false);
@@ -50,8 +55,10 @@ export function MobileMenu({
         }}
         productLinks={productLinks}
         quickLinks={quickLinks}
+        texts={texts}
+        logo={logo}
       />
-      <CategorySheet items={categories} open={sheet} onClose={closeSheet} />
+      <CategorySheet items={categories} open={sheet} onClose={closeSheet} texts={texts} />
     </>
   );
 }
@@ -72,12 +79,16 @@ function Drawer({
   onOpenCategories,
   productLinks,
   quickLinks,
+  texts,
+  logo,
 }: {
   open: boolean;
   onClose: () => void;
   onOpenCategories: () => void;
   productLinks: MenuItem[];
   quickLinks: MenuItem[];
+  texts: HeaderTexts;
+  logo: LogoAsset;
 }) {
   const { cartCount, name: userName, signedIn } = useHeaderSession();
   const titleId = useId();
@@ -119,7 +130,7 @@ function Drawer({
           منوی سایت
         </h2>
         <div className="flex items-center justify-between px-4 pt-4">
-          <Logo compact />
+          <Logo compact logo={logo} />
           <button
             type="button"
             onClick={onClose}
@@ -138,7 +149,7 @@ function Drawer({
             id={`${titleId}-s`}
             name="s"
             type="search"
-            placeholder="جستجو محصولات ..."
+            placeholder={texts.drawer_search_placeholder}
             className="h-11 w-full rounded-md bg-surface-muted pe-11 ps-4 text-sm text-text placeholder:text-text-subtle focus:outline-2 focus:outline-focus"
           />
           <input type="hidden" name="post_type" value="product" />
@@ -146,19 +157,19 @@ function Drawer({
         </form>
 
         <nav aria-label="منوی موبایل" className="mt-3 flex-1 overflow-y-auto overscroll-contain px-2">
-          <p className="px-3 pb-1 pt-3 text-xs text-text-subtle">محصولات</p>
+          <p className="px-3 pb-1 pt-3 text-xs text-text-subtle">{texts.drawer_products_title}</p>
           <ul>
             <li>
               <button type="button" className={row} onClick={onOpenCategories} aria-haspopup="dialog" data-autofocus>
                 <IconDots4 size={20} className="text-text-muted" />
-                <span className="flex-1 text-start">دسته بندی</span>
+                <span className="flex-1 text-start">{texts.drawer_categories_link}</span>
               </button>
             </li>
             {productLinks.map(linkRow)}
           </ul>
           {quickLinks.length ? (
             <>
-              <p className="px-3 pb-1 pt-4 text-xs text-text-subtle">دسترسی سریع</p>
+              <p className="px-3 pb-1 pt-4 text-xs text-text-subtle">{texts.drawer_quick_title}</p>
               <ul>{quickLinks.map(linkRow)}</ul>
             </>
           ) : null}
@@ -171,15 +182,9 @@ function Drawer({
             </span>
             <span>
               <span className="block text-sm font-bold text-text">
-                {cartCount ? (
-                  <>
-                    {new Intl.NumberFormat('fa-IR').format(cartCount)} محصول در سبد<span className="text-primary">!</span>
-                  </>
-                ) : (
-                  'سبد خرید'
-                )}
+                {cartCount ? <CartCountText text={fill(texts.drawer_cart_count, { count: new Intl.NumberFormat('fa-IR').format(cartCount) })} /> : texts.drawer_cart_title}
               </span>
-              <span className="mt-0.5 block text-xs text-text-subtle">جهت مشاهده سبدخرید کلیک کنید</span>
+              <span className="mt-0.5 block text-xs text-text-subtle">{texts.drawer_cart_hint}</span>
             </span>
           </MenuLink>
         </div>
@@ -192,13 +197,25 @@ function Drawer({
             <IconUser size={20} />
           </span>
           <span className="flex-1">
-            <span className="block text-sm font-bold text-text">{signedIn ? userName : 'ورود یا ثبت‌نام'}</span>
-            <span className="mt-0.5 block text-xs text-text-subtle">حساب کاربری من</span>
+            <span className="block text-sm font-bold text-text">{signedIn ? userName : texts.login}</span>
+            <span className="mt-0.5 block text-xs text-text-subtle">{texts.drawer_account_hint}</span>
           </span>
           <IconChevronLeft size={18} className="text-text-muted" />
         </MenuLink>
       </div>
     </div>,
     document.body,
+  );
+}
+
+/** «۲ محصول در سبد!» with the trailing «!» in the brand color, like the design. */
+function CartCountText({ text }: { text: string }) {
+  return text.endsWith('!') ? (
+    <>
+      {text.slice(0, -1)}
+      <span className="text-primary">!</span>
+    </>
+  ) : (
+    <>{text}</>
   );
 }

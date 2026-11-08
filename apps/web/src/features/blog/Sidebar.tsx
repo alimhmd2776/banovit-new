@@ -3,16 +3,17 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import type { BlogPostSidebar } from '@banovit/api-client';
+import type { BlogSidebarSection } from '@banovit/api-client';
 import { cx, IconChevronLeft, IconChevronRight, IconClock } from '@banovit/ui';
 import { faAgo, internalHref } from './format';
 
 /** Divider + «جدید ترین» (blue) + « مقاله ها», like the live sidebar headings. */
 export function SidebarHeading({ accent, rest, id }: { accent: string; rest: string; id?: string }) {
+  if (!accent && !rest) return null;
   return (
     <div className="mb-3 flex items-center gap-3">
       <h2 id={id} className="shrink-0 text-base font-bold text-text">
-        <span className="text-primary">{accent}</span> {rest}
+        {accent ? <span className="text-primary">{accent}</span> : null} {rest}
       </h2>
       <span aria-hidden="true" className="h-px flex-1 bg-border" />
     </div>
@@ -52,8 +53,12 @@ function Dots({ count, active, onPick, label }: { count: number; active: number;
 }
 
 /** The post's own banners ([sidebar_banner]): fading slider, 4s autoplay, dots when more than one. */
-export function SidebarBanners({ banners }: { banners: BlogPostSidebar['banners'] }) {
-  const [active, setActive] = useAutoplay(banners.length, 4000);
+type Banner = NonNullable<BlogSidebarSection['banners']>[number];
+type Card = NonNullable<BlogSidebarSection['posts']>[number];
+type Comment = NonNullable<BlogSidebarSection['comments']>[number];
+
+export function SidebarBanners({ banners, intervalSeconds = 4 }: { banners: Banner[]; intervalSeconds?: number }) {
+  const [active, setActive] = useAutoplay(banners.length, intervalSeconds * 1000);
   if (banners.length === 0) return null;
   return (
     <div>
@@ -88,11 +93,11 @@ export function SidebarBanners({ banners }: { banners: BlogPostSidebar['banners'
 }
 
 /** «جدید ترین مقاله ها»: 75×75 thumbnail, title, «… پیش». */
-export function RecentPosts({ posts }: { posts: BlogPostSidebar['recent_posts'] }) {
+export function RecentPosts({ posts, accent, title }: { posts: Card[]; accent: string; title: string }) {
   if (posts.length === 0) return null;
   return (
     <section aria-labelledby="sidebar-recent-posts">
-      <SidebarHeading id="sidebar-recent-posts" accent="جدید ترین" rest="مقاله ها" />
+      <SidebarHeading id="sidebar-recent-posts" accent={accent} rest={title} />
       <ul className="space-y-3">
         {posts.map((p) => (
           <li key={p.id}>
@@ -118,21 +123,23 @@ export function RecentPosts({ posts }: { posts: BlogPostSidebar['recent_posts'] 
 }
 
 /** «جدید ترین نظرات مشتریان»: «نظرات اخیر کاربران» card, one comment per slide, dots + arrows. */
-export function RecentComments({ comments }: { comments: BlogPostSidebar['recent_comments'] }) {
+export function RecentComments({ comments, accent, title, cardTitle }: { comments: Comment[]; accent: string; title: string; cardTitle: string | null }) {
   const [active, setActive] = useState(0);
   if (comments.length === 0) return null;
   const c = comments[active] ?? comments[0]!;
   const go = (d: number) => setActive((x) => (x + d + comments.length) % comments.length);
   return (
     <section aria-labelledby="sidebar-recent-comments">
-      <SidebarHeading id="sidebar-recent-comments" accent="جدید ترین" rest="نظرات مشتریان" />
+      <SidebarHeading id="sidebar-recent-comments" accent={accent} rest={title} />
       <div className="rounded-lg border border-border bg-surface p-4">
+        {cardTitle ? (
         <p className="mb-3 flex items-center gap-2 text-sm font-bold text-text">
           <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" className="text-primary">
             <path fill="currentColor" d="M10 7H6a3 3 0 0 0-3 3v4h5v5h2v-6H5v-3a1 1 0 0 1 1-1h4V7zm11 0h-4a3 3 0 0 0-3 3v4h5v5h2v-6h-5v-3a1 1 0 0 1 1-1h4V7z" />
           </svg>
-          نظرات اخیر کاربران
+          {cardTitle}
         </p>
+        ) : null}
         <figure aria-live="polite">
           <figcaption className="flex items-center gap-2">
             <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-subtle text-sm font-bold text-primary">

@@ -24,6 +24,17 @@
 
 بعد از ذخیره، CMS به `POST {web}/api/revalidate` با تگ‌های `menu` و `menu:{key}` خبر می‌دهد (`STOREFRONT_REVALIDATE_URL` و `STOREFRONT_REVALIDATE_SECRET` در env CMS؛ خالی یعنی فقط TTL ده دقیقه‌ای).
 
+## تنظیمات هدر: `GET /api/storefront/v1/settings/header`
+
+هر چیزی در هدر که منو نیست، در پنل «سایت جدید › تنظیمات هدر» (`/panel/storefront-header`) ویرایش می‌شود و در `storefront_settings.site_header` ذخیره می‌شود. کش: `Surrogate-Key: settings:header` و بعد از ذخیره revalidate تگ `settings:header`.
+
+- `top_banner`: `enabled`، `interval_seconds` و `slides[]` با `{url, image, mobile_image, alt}`. پیش‌فرض‌ها همان دو GIF بنر چرخان وردپرس هستند و اسلاید غیرفعال در پاسخ عمومی نمی‌آید.
+- `logo`: `{image, alt, width, height}`. پیش‌فرض آن `uploads/2026/07/Frame-1077.svg` است.
+- `support`: `{label, phones[{number, display}], hours}`، یعنی خط پشتیبانی بالای هدر دسکتاپ.
+- `texts`: همه متن‌های هدر، مگامنو، منوی کناری و شیت دسته‌بندی (`:count` و `:query` جای‌نگهدار هستند). مقدار خالی یعنی متن پیش‌فرض `features/menu/header-texts.ts`.
+
+تصویرها (بنر، لوگو، و تصویر، آیکن و بنر تبلیغاتی آیتم‌های منو) در پنل از کتابخانه رسانه انتخاب یا بارگذاری می‌شوند.
+
 ## `GET /api/storefront/v1/menus/{key}`
 
 `key`: `categories` | `header_nav` | `header_top` | `mobile_quick`. کش: `Surrogate-Key: menu menu:{key}`.

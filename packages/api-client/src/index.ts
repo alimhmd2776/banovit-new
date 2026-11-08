@@ -37,6 +37,8 @@ export type BlogQuizBlock = Schemas['BlogQuizBlock'];
 export type BlogMapBlock = Schemas['BlogMapBlock'];
 export type BlogStatBlock = Schemas['BlogStatBlock'];
 export type BlogPostSidebar = Schemas['BlogPostSidebar'];
+export type BlogSidebarSection = Schemas['BlogSidebarSection'];
+export type BlogUi = Schemas['BlogUi'];
 export type BlogAuthor = Schemas['BlogAuthor'];
 export type BlogAuthorPage = Schemas['BlogAuthorPage'];
 export type BlogCategory = Schemas['BlogCategory'];
@@ -80,6 +82,7 @@ export type Menu = Schemas['Menu'];
 export type MenuItem = Schemas['MenuItem'];
 export type MenuPromo = Schemas['MenuPromo'];
 export type MenuKey = operations['getMenu']['parameters']['path']['key'];
+export type HeaderSettings = Schemas['HeaderSettings'];
 export type Customer = Schemas['Customer'];
 export type CustomerSession = Schemas['CustomerSession'];
 export type OtpChallenge = Schemas['OtpChallenge'];
@@ -249,6 +252,7 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: ContactSettings }>('/settings/contact', init).then((r) => r.data),
 
     getBlogHome: (init?: RequestOptions) => get<{ data: BlogHome }>('/blog/home', init).then((r) => r.data),
+    getBlogUi: (init?: RequestOptions) => get<{ data: BlogUi }>('/blog/ui', init).then((r) => r.data),
     listBlogPosts: (params?: BlogListParams, init?: RequestOptions) =>
       get<BlogPostListing>(`/blog/posts${blogQueryString(params)}`, init),
     getBlogPost: (slug: string, init?: RequestOptions) =>
@@ -291,6 +295,7 @@ export function createStorefrontClient(opts: ClientOptions) {
     listProductReviews: (slug: string, page = 1, init?: RequestOptions) =>
       get<ReviewListing>(`/products/${encodePath(slug)}/reviews${page > 1 ? `?page=${page}` : ''}`, init),
     getMenu: (key: MenuKey, init?: RequestOptions) => get<{ data: Menu }>(`/menus/${key}`, init).then((r) => r.data),
+    getHeaderSettings: (init?: RequestOptions) => get<{ data: HeaderSettings }>('/settings/header', init).then((r) => r.data),
     // --- sellers ---
     listSellers: (init?: RequestOptions) => get<{ data: SellerCard[] }>('/sellers', init).then((r) => r.data),
     getSeller: (slug: string, init?: RequestOptions) =>
