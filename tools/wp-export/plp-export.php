@@ -43,6 +43,8 @@ echo wp_json_encode([
         }
         return $out;
     })(),
+    // WooCommerce catalog visibility: published but never listed in shop/category/brand pages.
+    'hidden_from_catalog_ids' => array_map('intval', $wpdb->get_col("SELECT tr.object_id FROM {$wpdb->term_relationships} tr JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id = tr.term_taxonomy_id JOIN {$wpdb->terms} t ON t.term_id = tt.term_id WHERE tt.taxonomy = 'product_visibility' AND t.slug = 'exclude-from-catalog'")),
     'meta_keys_product_cat' => $wpdb->get_col("SELECT DISTINCT tm.meta_key FROM {$wpdb->termmeta} tm JOIN {$wpdb->term_taxonomy} tt ON tt.term_id = tm.term_id AND tt.taxonomy = 'product_cat'"),
     'wpseo_titles' => array_intersect_key(get_option('wpseo_titles') ?: [], array_flip(['separator', 'title-tax-product_cat', 'metadesc-tax-product_cat', 'title-tax-pa_brand', 'metadesc-tax-pa_brand', 'title-archive-product'])),
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
