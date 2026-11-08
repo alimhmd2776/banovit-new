@@ -1,17 +1,19 @@
+'use client';
+
 import Link from 'next/link';
 import { cx } from '@banovit/ui';
+import { useAccountSettings } from './settings';
 
 type Art = 'orders' | 'wishlist' | 'views' | 'reviews' | 'addresses' | 'notifications' | 'tickets' | 'search' | 'success';
 
 /**
  * Empty states from the designs (illustration, title, text, optional CTA).
- * Media rule (docs/05-conventions.md): illustrations must be original files,
- * never re-drawn. The 3D illustrations of designs 08/10/12/19/22/26/34/36/38
- * are not in the live WP uploads yet, so the slot stays empty (same size, so
- * the layout does not jump) until the files exist; then map `art` to the
- * upload URL in ART_SRC.
+ * Title, text and image are editable in the panel («تنظیمات حساب کاربری سایت»
+ * → صفحات خالی); the props are the page's own wording when the panel leaves
+ * one empty. Media rule (docs/05-conventions.md): images are original files
+ * only, never re-drawn, so with no image set the slot stays empty (same size,
+ * so the layout does not jump).
  */
-const ART_SRC: Partial<Record<Art, string>> = {};
 export function EmptyState({
   art,
   title,
@@ -27,11 +29,15 @@ export function EmptyState({
   className?: string;
   children?: React.ReactNode;
 }) {
+  const cms = useAccountSettings()?.empty_states?.[art];
+  const src = cms?.image_url ?? null;
+  title = cms?.title || title;
+  text = cms?.text || text;
   return (
     <div className={cx('flex flex-col items-center px-4 py-12 text-center', className)}>
-      {ART_SRC[art] ? (
+      {src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={ART_SRC[art]} alt="" width={150} height={130} className="h-[130px] w-[150px] object-contain" />
+        <img src={src} alt="" width={150} height={130} className="h-[130px] w-[150px] object-contain" />
       ) : (
         <div className="h-[130px] w-[150px]" data-missing-art={art} aria-hidden="true" />
       )}

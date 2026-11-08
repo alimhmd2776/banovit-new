@@ -1,7 +1,8 @@
 import 'server-only';
 import { cache } from 'react';
-import { createStorefrontClient, StorefrontApiError, type BlogListParams, type BlogSitemapType, type ListingParams, type Menu, type MenuKey } from '@banovit/api-client';
+import { createStorefrontClient, StorefrontApiError, type BlogListParams, type BlogSitemapType, type ListingParams, type HeaderSettings, type Menu, type MenuKey } from '@banovit/api-client';
 import { env } from '@/lib/env';
+import { AUTH_SETTINGS_FALLBACK, AUTH_TEXT_DEFAULTS } from '@/features/auth/links';
 
 /**
  * The only way pages get data (docs/05-conventions.md). Every call carries
@@ -42,6 +43,9 @@ export const listPages = cache(async () => client.listPages({ next: { tags: ['pa
 
 export const getBlogHome = cache(async () => client.getBlogHome({ next: { tags: ['blog'], revalidate: REVALIDATE } }));
 
+/** Blog texts and switches from the CMS panel; null (built-in defaults) when the CMS is unreachable. */
+export const getBlogUi = cache(async () => client.getBlogUi({ next: { tags: ['blog'], revalidate: REVALIDATE } }).catch(() => null));
+
 export const listBlogPosts = cache(async (params: BlogListParams) =>
   client.listBlogPosts(params, { next: { tags: ['blog'], revalidate: REVALIDATE } }),
 );
@@ -73,9 +77,34 @@ export function movedLocation(e: unknown): string | null {
   return e instanceof StorefrontApiError && e.code === 'moved' && e.location ? e.location : null;
 }
 
+/** /login/ texts, links and code length from the CMS panel; built-in defaults when the CMS is unreachable. */
+export const getAuthSettings = cache(async () =>
+  client
+    .getAuthSettings({ next: { tags: ['settings', 'settings:auth'], revalidate: 300 } })
+    .then((s) => ({ ...s, texts: { ...AUTH_TEXT_DEFAULTS, ...s.texts } }))
+    .catch(() => AUTH_SETTINGS_FALLBACK),
+);
+
 /** «تماس با ما» content edited in the CMS (tag mirrors the API Surrogate-Key `settings:contact`). */
+// --- plp ---
+/** Listing-page texts + footer («صفحه فروشگاه و فوتر»). Never throws: a CMS outage hides those blocks instead of failing the page. */
+export const getListingSettings = cache(async () => {
+  try {
+    return await client.getListingSettings({ next: { tags: ['settings', 'settings:listing'], revalidate: 300 } });
+  } catch (e) {
+    console.error('listing settings unavailable', e);
+    return null;
+  }
+});
+// --- /plp ---
+
 export const getContactSettings = cache(async () =>
   client.getContactSettings({ next: { tags: ['settings', 'settings:contact'], revalidate: 300 } }),
+);
+
+/** «تنظیمات حساب کاربری سایت» edited in the CMS panel (tag mirrors the Surrogate-Key `settings:account`). */
+export const getAccountSettings = cache(async () =>
+  client.getAccountSettings({ next: { tags: ['settings', 'settings:account'], revalidate: 300 } }),
 );
 
 export const getProduct = cache(async (slug: string) =>
@@ -100,6 +129,19 @@ export const getMenu = cache(async (key: MenuKey): Promise<Menu> => {
 export function isNotFound(e: unknown): boolean {
   return e instanceof StorefrontApiError && e.status === 404;
 }
+
+/**
+ * «تنظیمات هدر» (banner, logo, support line, UI copy). Never throws: null
+ * means the CMS is unreachable and the header falls back to built-in values.
+ */
+export const getHeaderSettings = cache(async (): Promise<HeaderSettings | null> => {
+  try {
+    return await client.getHeaderSettings({ next: { tags: ['settings', 'settings:header'], revalidate: 600 } });
+  } catch (e) {
+    console.error('header settings unavailable', e);
+    return null;
+  }
+});
 
 export const getSeller = cache(async (slug: string) =>
   client.getSeller(slug, { next: { tags: ['sellers', `seller:${slug}`], revalidate: REVALIDATE } }),

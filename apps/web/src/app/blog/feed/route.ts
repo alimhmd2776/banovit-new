@@ -1,4 +1,5 @@
-import { listBlogPosts } from '@/lib/api';
+import { getBlogUi, listBlogPosts } from '@/lib/api';
+import { resolveBlogUi } from '@/features/blog/ui';
 import { env } from '@/lib/env';
 import { abs } from '@/lib/seo/blog';
 import { siteConfig } from '@/lib/site-config';
@@ -9,6 +10,7 @@ export const dynamic = 'force-dynamic'; // never prerender at build (API not rea
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 export async function GET() {
+  const ui = resolveBlogUi(await getBlogUi());
   const { data } = await listBlogPosts({ page: 1, per_page: 20 });
   const items = data
     .map(
@@ -29,7 +31,7 @@ ${p.category ? `<category><![CDATA[${p.category.name}]]></category>` : ''}
 <title>${esc(`مقالات ${siteConfig.name}`)}</title>
 <atom:link href="${env.canonicalOrigin}/blog/feed/" rel="self" type="application/rss+xml" />
 <link>${env.canonicalOrigin}/blog/</link>
-<description>${esc('راهنمای خرید، مقایسه و آموزش شیرآلات، روشویی، سینک و لوازم آشپزخانه')}</description>
+<description>${esc(ui.labels.feed_description)}</description>
 <language>fa-IR</language>
 ${items}
 </channel>

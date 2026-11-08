@@ -7,7 +7,8 @@ import { Tabs } from '@/features/account/Tabs';
 import { TicketList } from '@/features/account/TicketList';
 import { accountGet, qs } from '@/lib/account/api';
 import { requireCustomer } from '@/lib/auth/session';
-import { siteConfig } from '@/lib/site-config';
+import { phoneDisplay } from '@/features/account/format';
+import { supportSettings } from '@/features/account/supportTopics';
 
 export const metadata = { title: 'پشتیبانی بانویت', alternates: { canonical: '/my-account/support/' } };
 
@@ -19,19 +20,24 @@ export default async function SupportPage({ searchParams }: { searchParams: Prom
   const tab: Tab = t === 'in_review' || t === 'reviewed' ? t : 'help';
   const self = `/my-account/support/${qs({ tab: tab === 'help' ? undefined : tab })}`;
   await requireCustomer(self);
-  const res = await accountGet<{ data: TicketSummary[]; meta: { counts: Record<'in_review' | 'reviewed', number> } }>(
+  const [support, res] = await Promise.all([
+    supportSettings(),
+    accountGet<{ data: TicketSummary[]; meta: { counts: Record<'in_review' | 'reviewed', number> } }>(
     `/tickets${qs({ tab: tab === 'help' ? 'in_review' : tab })}`,
-    self,
-  );
+      self,
+    ),
+  ]);
 
   return (
     <>
       <AppBar
         title="پشتیبانی بانویت"
         actions={
-          <a href={`tel:${siteConfig.supportPhone}`} aria-label={`تماس با پشتیبانی ${siteConfig.supportPhoneDisplay}`} className={appBarButton}>
-            <IconPhone size={20} />
-          </a>
+          support?.phone ? (
+            <a href={`tel:${support.phone}`} aria-label={`تماس با پشتیبانی ${phoneDisplay(support.phone)}`} className={appBarButton}>
+              <IconPhone size={20} />
+            </a>
+          ) : null
         }
       >
         <Tabs
@@ -45,7 +51,7 @@ export default async function SupportPage({ searchParams }: { searchParams: Prom
         />
       </AppBar>
       {tab === 'help' ? (
-        <SupportHelp />
+        <SupportHelp topics={support?.topics ?? []} heading={support?.heading ?? null} />
       ) : res.data.length ? (
         <TicketList items={res.data} />
       ) : (

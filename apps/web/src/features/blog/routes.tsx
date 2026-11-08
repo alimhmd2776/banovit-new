@@ -8,6 +8,7 @@ import {
   getBlogHome,
   getBlogPost,
   getBlogTag,
+  getBlogUi,
   isNotFound,
   listBlogCategories,
   listBlogPosts,
@@ -18,6 +19,7 @@ import { ArchiveView } from './ArchiveView';
 import { postPagePath } from './format';
 import { HomeView } from './HomeView';
 import { PostView } from './PostView';
+import { fillTemplate, resolveBlogUi } from './ui';
 
 /**
  * Route handlers for every blog URL kept from WordPress (docs/03-seo-parity.md):
@@ -29,7 +31,8 @@ import { PostView } from './PostView';
 export type SearchParams = Record<string, string | string[] | undefined>;
 
 const PER_PAGE = 12;
-const BLOG: Crumb = { name: 'مقالات', url: '/blog/' };
+const blogCrumb = (name: string): Crumb => ({ name, url: '/blog/' });
+const ui = async () => resolveBlogUi(await getBlogUi());
 
 function decode(s: string): string {
   try {
@@ -88,16 +91,19 @@ export async function blogIndexMetadata(pageParam: string | undefined, sp: Searc
 export async function BlogIndexPage({ pageParam, sp }: { pageParam?: string; sp: SearchParams }) {
   const page = parsePage(pageParam);
   const q = query(sp);
+  const u = await ui();
+  const BLOG = blogCrumb(u.labels.breadcrumb_root);
   if (q) {
     const spPage = Number(Array.isArray(sp.page) ? sp.page[0] : sp.page) || 1;
     const [listing, categories] = await Promise.all([load(listBlogPosts({ q, page: Math.min(Math.max(1, spPage), 100), per_page: PER_PAGE })), load(listBlogCategories())]);
-    return <ArchiveView title={`نتایج جستجو برای «${q}»`} crumbs={[BLOG, { name: 'جستجو', url: '/blog/' }]} basePath="/blog/" listing={listing} page={listing.meta.page} categories={categories} query={q} />;
+    return <ArchiveView ui={u} title={fillTemplate(u.labels.search_title, { q })} crumbs={[BLOG, { name: 'جستجو', url: '/blog/' }]} basePath="/blog/" listing={listing} page={listing.meta.page} categories={categories} query={q} />;
   }
-  if (page === 1) return <HomeView home={await load(getBlogHome())} />;
+  if (page === 1) return <HomeView home={await load(getBlogHome())} ui={u} />;
 
   const [listing, categories] = await Promise.all([load(listBlogPosts({ page, per_page: PER_PAGE })), load(listBlogCategories())]);
   guardPage(page, listing.meta.last_page);
-  return <ArchiveView title="همه مقالات بانویت" crumbs={[BLOG]} basePath="/blog/" listing={listing} page={page} categories={categories} />;
+  const allTitle = (await getBlogHome().catch(() => null))?.all.title ?? 'همه مقالات بانویت';
+  return <ArchiveView ui={u} title={allTitle} crumbs={[BLOG]} basePath="/blog/" listing={listing} page={page} categories={categories} />;
 }
 
 /* ---------------- /blog/{slug}/ ---------------- */
@@ -108,7 +114,7 @@ export async function postMetadata(slug: string): Promise<Metadata> {
 
 export async function BlogPostPage({ slug }: { slug: string }) {
   const post = await load(getBlogPost(decode(slug)));
-  return <PostView post={post} />;
+  return <PostView post={post} ui={await ui()} />;
 }
 
 /* ---------------- /blog/category/{...path}/[page/N/] ---------------- */
@@ -136,6 +142,7 @@ export async function BlogCategoryPage({ raw }: { raw: string[] }) {
   const root = category.path.split('/')[0];
   return (
     <ArchiveView
+      ui={await ui()}
       title={category.name}
       crumbs={category.breadcrumb}
       basePath={category.url}
@@ -165,7 +172,7 @@ export async function tagMetadata(slug: string, pageParam?: string): Promise<Met
 
 export async function BlogTagPage({ slug, pageParam }: { slug: string; pageParam?: string }) {
   const { tag, listing, categories, page } = await loadTag(slug, pageParam);
-  return <ArchiveView title={`برچسب: ${tag.name}`} crumbs={tag.breadcrumb} basePath={tag.url} listing={listing} page={page} categories={categories} descriptionHtml={tag.description_html} />;
+  return <ArchiveView ui={await ui()} title={fillTemplate((await ui()).labels.tag_title, { name: tag.name })} crumbs={tag.breadcrumb} basePath={tag.url} listing={listing} page={page} categories={categories} descriptionHtml={tag.description_html} />;
 }
 
 /* ---------------- /blog/author/{slug}/ ---------------- */
@@ -185,6 +192,6 @@ export async function authorMetadata(slug: string, pageParam?: string): Promise<
 
 export async function BlogAuthorPage({ slug, pageParam }: { slug: string; pageParam?: string }) {
   const { author, listing, categories, page } = await loadAuthor(slug, pageParam);
-  return <ArchiveView title={author.name} crumbs={author.breadcrumb} basePath={author.url} listing={listing} page={page} categories={categories} author={author} />;
+  return <ArchiveView ui={await ui()} title={author.name} crumbs={author.breadcrumb} basePath={author.url} listing={listing} page={page} categories={categories} author={author} />;
 }
 

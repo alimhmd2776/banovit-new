@@ -314,6 +314,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/settings/header": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Header banner slides, logo, support line and UI copy («تنظیمات هدر» in the CMS) */
+        get: operations["getHeaderSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/otp": {
         parameters: {
             query?: never;
@@ -450,6 +467,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/settings/listing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Listing-page texts (support box, empty states, brands row) and the site footer, editable in the CMS («صفحه فروشگاه و فوتر») */
+        get: operations["getListingSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/settings/contact": {
         parameters: {
             query?: never;
@@ -459,6 +493,23 @@ export interface paths {
         };
         /** «تماس با ما» page content (/contact-us/), editable in the CMS admin app */
         get: operations["getContactSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/settings/auth": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Texts, links and timings of the /login/ page, editable in the CMS admin app («ورود و پیامک کد») */
+        get: operations["getAuthSettings"];
         put?: never;
         post?: never;
         delete?: never;
@@ -775,6 +826,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/settings/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Panel-edited wording/options of the customer account area (support topics, menu, empty states, map, limits) */
+        get: operations["getAccountSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/blog/home": {
         parameters: {
             query?: never;
@@ -784,6 +852,23 @@ export interface paths {
         };
         /** Everything the /blog/ landing renders */
         get: operations["getBlogHome"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/blog/ui": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Blog texts and page switches set in the CMS panel (labels, single post page, box labels) */
+        get: operations["getBlogUi"];
         put?: never;
         post?: never;
         delete?: never;
@@ -964,6 +1049,55 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ListingImage: {
+            url: string;
+            width?: number | null;
+            height?: number | null;
+            alt?: string | null;
+        };
+        ListingSettings: {
+            support_box: {
+                enabled: boolean;
+                title: string;
+                text?: string | null;
+                placeholder?: string | null;
+                button: string;
+                success: string;
+            };
+            /** @description %%term_title%% = listing title */
+            brands_row_title: string;
+            empty_state: {
+                title: string;
+                text?: string | null;
+                button: string;
+                image?: components["schemas"]["ListingImage"] | null;
+            };
+            empty_category: {
+                title: string;
+                text?: string | null;
+                button: string;
+                url: string;
+            };
+            footer: {
+                site_name: string;
+                tagline?: string | null;
+                about?: string | null;
+                columns: {
+                    title: string;
+                    links: {
+                        label: string;
+                        url: string;
+                    }[];
+                }[];
+                badges: {
+                    label: string;
+                    url?: string | null;
+                    image: string;
+                }[];
+                /** @description %%year%% = Jalali year */
+                copyright?: string | null;
+            };
+        };
         ContactSettings: {
             path: string;
             heading: string;
@@ -1537,6 +1671,36 @@ export interface components {
             /** Format: date-time */
             updated_at: string | null;
         };
+        HeaderSettings: {
+            top_banner: {
+                enabled: boolean;
+                interval_seconds: number;
+                slides: {
+                    url?: string | null;
+                    image: string;
+                    mobile_image?: string | null;
+                    alt?: string | null;
+                }[];
+            };
+            logo: {
+                image: string;
+                alt: string;
+                width: number;
+                height: number;
+            };
+            support: {
+                label?: string | null;
+                hours?: string | null;
+                phones: {
+                    number: string;
+                    display: string;
+                }[];
+            };
+            /** @description UI copy keyed by name (search_placeholder, sheet_title, ...); null = use the built-in default. :count / :query are placeholders. */
+            texts: {
+                [key: string]: string | null;
+            };
+        };
         Menu: {
             key: string;
             name: string;
@@ -1874,6 +2038,44 @@ export interface components {
             access_token: string | null;
             payment: components["schemas"]["PaymentStart"] | null;
         };
+        AuthSettings: {
+            code_length: number;
+            /** @description Seconds before a new code can be requested */
+            resend_cooldown: number;
+            /** @description Seconds a code stays valid */
+            code_ttl: number;
+            /** @description code_subtitle has {phone}, resend_wait has {time}; *_url start with / or https:// */
+            texts: {
+                page_title: string;
+                phone_title: string;
+                phone_subtitle: string;
+                phone_label: string;
+                phone_placeholder: string;
+                phone_submit: string;
+                sending_title: string;
+                sending_subtitle: string;
+                code_title: string;
+                code_subtitle: string;
+                code_submit: string;
+                checking_label: string;
+                resend_wait: string;
+                resend_label: string;
+                welcome_title: string;
+                welcome_subtitle: string;
+                first_name_label: string;
+                last_name_label: string;
+                profile_submit: string;
+                consent_prefix: string;
+                terms_label: string;
+                terms_url: string;
+                consent_middle: string;
+                privacy_label: string;
+                privacy_url: string;
+                consent_suffix: string;
+                error_generic: string;
+                error_network: string;
+            };
+        };
         OtpChallenge: {
             /** @description Normalized 09XXXXXXXXX */
             phone: string;
@@ -2106,6 +2308,67 @@ export interface components {
             messages: components["schemas"]["TicketMessage"][];
             can_reply: boolean;
         };
+        AccountSettings: {
+            support: {
+                phone: string | null;
+                heading: string | null;
+                success_title: string | null;
+                success_text: string | null;
+                form_hint: string | null;
+                max_images: number;
+                max_image_mb: number;
+                /** @description Enabled topics only, in panel order */
+                topics: {
+                    key: string;
+                    title: string;
+                    subtitle: string | null;
+                    needs_order: boolean;
+                    enabled: boolean;
+                    faq: {
+                        q: string;
+                        a: string;
+                    }[];
+                }[];
+            };
+            orders: {
+                status_labels: {
+                    [key: string]: string;
+                };
+                step_labels: {
+                    [key: string]: string;
+                };
+            };
+            notifications: {
+                [key: string]: unknown;
+            };
+            menu: {
+                key: string;
+                /** @enum {string} */
+                group: "shopping" | "services";
+                label: string;
+                href: string;
+                enabled: boolean;
+            }[];
+            empty_states: {
+                [key: string]: {
+                    title: string | null;
+                    text: string | null;
+                    image_url: string | null;
+                };
+            };
+            limits: {
+                max_addresses: number;
+                recently_viewed: number;
+            };
+            map: {
+                tile_url: string;
+                attribution: string | null;
+                geocoder_url: string | null;
+                default_lat: number;
+                default_lng: number;
+                default_zoom: number;
+            };
+        };
         Crumb: {
             name: string;
             url: string;
@@ -2280,22 +2543,83 @@ export interface components {
             word_count: number;
             seo: components["schemas"]["Seo"];
         };
-        /** @description The live single-post sidebar (top to bottom; the TOC comes from `toc`) */
+        /** @description The single-post sidebar as configured in the CMS panel (ordered sections; the toc section's items come from `toc`) */
         BlogPostSidebar: {
-            /** @description The post's own banners (live [sidebar_banner]), usually linking a shop category */
-            banners: {
+            sections: components["schemas"]["BlogSidebarSection"][];
+        };
+        BlogSidebarSection: {
+            /** @enum {string} */
+            type: "banners" | "toc" | "recent_posts" | "recent_comments";
+            /** @description Blue part of the heading («جدید ترین») */
+            accent?: string | null;
+            /** @description Rest of the heading («مقاله ها») */
+            title?: string | null;
+            card_title?: string | null;
+            interval_seconds?: number;
+            banners?: {
                 image: components["schemas"]["Image"];
                 url: string | null;
             }[];
-            /** @description «جدید ترین مقاله ها» (latest 5) */
-            recent_posts: components["schemas"]["BlogPostCard"][];
-            /** @description «جدید ترین نظرات مشتریان» — latest 4 approved comments site-wide (posts and products) */
-            recent_comments: {
+            posts?: components["schemas"]["BlogPostCard"][];
+            comments?: {
                 author: string;
                 text: string;
                 title: string;
                 url: string;
             }[];
+        };
+        BlogUi: {
+            labels: {
+                breadcrumb_root?: string | null;
+                search_placeholder?: string | null;
+                categories_title?: string | null;
+                empty?: string | null;
+                more?: string | null;
+                featured_title?: string | null;
+                feed_description?: string | null;
+            };
+            post_page: {
+                show_summary?: boolean;
+                summary_title?: string | null;
+                show_tags?: boolean;
+                show_author_box?: boolean;
+                faq_title?: string | null;
+                related_products?: components["schemas"]["BlogUiSection"];
+                related_posts?: components["schemas"]["BlogUiSection"];
+                share?: {
+                    enabled?: boolean;
+                    title?: string | null;
+                    items?: {
+                        /** @enum {string} */
+                        type: "copy" | "telegram" | "whatsapp" | "instagram" | "aparat";
+                        url?: string | null;
+                    }[];
+                };
+                toc?: {
+                    title?: string | null;
+                    mobile_floating?: boolean;
+                    include_faq?: boolean;
+                    collapse_after_px?: number;
+                    more?: string | null;
+                    less?: string | null;
+                };
+            };
+            blocks: {
+                map?: {
+                    label?: string | null;
+                    link?: string | null;
+                };
+                stat?: {
+                    views?: string | null;
+                    updated?: string | null;
+                };
+            };
+        };
+        BlogUiSection: {
+            enabled?: boolean;
+            title?: string | null;
+            subtitle?: string | null;
+            limit?: number;
         };
         BlogCategory: components["schemas"]["BlogCategoryRef"] & {
             description_html: string | null;
@@ -3033,6 +3357,28 @@ export interface operations {
             404: components["responses"]["NotFound"];
         };
     };
+    getHeaderSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Header settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["HeaderSettings"];
+                    };
+                };
+            };
+        };
+    };
     requestOtp: {
         parameters: {
             query?: never;
@@ -3296,6 +3642,28 @@ export interface operations {
             404: components["responses"]["NotFound"];
         };
     };
+    getListingSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Listing page + footer settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ListingSettings"];
+                    };
+                };
+            };
+        };
+    };
     getContactSettings: {
         parameters: {
             query?: never;
@@ -3313,6 +3681,28 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: components["schemas"]["ContactSettings"];
+                    };
+                };
+            };
+        };
+    };
+    getAuthSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Login page settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AuthSettings"];
                     };
                 };
             };
@@ -4058,6 +4448,28 @@ export interface operations {
             };
         };
     };
+    getAccountSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Account settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountSettings"];
+                    };
+                };
+            };
+        };
+    };
     getBlogHome: {
         parameters: {
             query?: never;
@@ -4075,6 +4487,28 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: components["schemas"]["BlogHome"];
+                    };
+                };
+            };
+        };
+    };
+    getBlogUi: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Blog UI settings */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BlogUi"];
                     };
                 };
             };
