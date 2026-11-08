@@ -24,6 +24,9 @@ export type Menu = Schemas['Menu'];
 export type MenuItem = Schemas['MenuItem'];
 export type MenuPromo = Schemas['MenuPromo'];
 export type MenuKey = operations['getMenu']['parameters']['path']['key'];
+export type Customer = Schemas['Customer'];
+export type CustomerSession = Schemas['CustomerSession'];
+export type OtpChallenge = Schemas['OtpChallenge'];
 // --- sellers ---
 export type SellerCard = Schemas['SellerCard'];
 export type Seller = Schemas['Seller'];
