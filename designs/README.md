@@ -54,3 +54,12 @@ Must be implemented against the final version of the menu/category plugin instal
 | 06-category-search-empty-mobile.png | category search, no result | Mega Category 4.png |
 
 From the project chat uploads (2026-11-08).
+
+## pdp/ — برگه تک محصول (mobile, 393px)
+
+| File | Screen | Original export |
+|---|---|---|
+| 01-pdp-mobile.jpg | **Primary.** App bar (back, title «خرید محصول», voice search, wishlist) + section tabs (مشخصات / بررسی تخصصی / دیدگاه کاربران / پیشنهاد ما), gallery (main + side thumbs, counter), sheet: breadcrumb, H1, rating + views + «مشخصات فنی» chips, «نصب محصول توسط تیم فنی» card, variation pickers (مدل / رنگ with swatch / سایز, required *), spec chips row «مشخصات فنی کالا», seller box «خرید مطمئن از بانویت» (seller, satisfaction %, warranty, shipping & payment), «معرفی محصول» (collapsible), «مشخصات فنی محصول» table, «ویژگی های کلیدی», reviews summary + review card + «دیدگاه خود را ... ثبت کنید», «محصولات مرتبط» carousel (ProductCard), «بلاگ های مفید برای شما», «سوالات متداول» accordion, «آیا نیاز به تیم پشتیبانی دارید؟» callback form, footer, sticky price bar + «افزودن به سبد» | New.jpg |
+| 02-pdp-mobile-alt.jpg | Earlier variant of the same page: no «معرفی محصول», specs as stacked rows instead of a table | PDP.jpg |
+
+`pdp/slices/` holds the same two exports cut into 900px-tall overlapping parts (`01-partNN` = New.jpg, `02-partNN` = PDP.jpg) so they are readable at full resolution. From "Banovit interface 2.zip" (2026-11-08). No desktop frame was provided.
