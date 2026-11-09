@@ -23,4 +23,4 @@ rm -rf cms-src/public/panel cms-src/public/supplier-app
 cp -r $D/admin-app/dist cms-src/public/panel; cp -r $D/supplier-app/dist cms-src/public/supplier-app; rm -rf $D
 else echo "SKIP_SPA=1: panels not rebuilt"; fi
 for u in /panel/ /supplier-app/; do printf "%s %s\n" $u "$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: cms-new.banovit.com' http://127.0.0.1:8111$u)"; done
-echo $C > state/cms_sha; echo "$(date -u +%Y-%m-%dT%H:%MZ) | $WHO | unchanged | $C (integration/storefront) | migrate: $MIG; SPAs ${SKIP_SPA:+skipped}${SKIP_SPA:-rebuilt} (deploy-cms.sh); backup new_cms-before-$C-$TS" >> DEPLOYED.log; tail -1 DEPLOYED.log
+echo $C > state/cms_sha; echo "$(date -u +%Y-%m-%dT%H:%MZ) | $WHO | unchanged | $C (integration/storefront) | migrate: $MIG; SPAs $([ "${SKIP_SPA:-}" = 1 ] && echo skipped || echo rebuilt) (deploy-cms.sh); backup new_cms-before-$C-$TS" >> DEPLOYED.log; tail -1 DEPLOYED.log
