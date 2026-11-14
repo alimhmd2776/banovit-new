@@ -89,6 +89,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tags/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Product tag page data (/shop/tag/{slug}/) */
+        get: operations["getTag"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tags/{slug}/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Products of one product tag (tag filter fixed; facets from the tag's rule set) */
+        get: operations["listTagProducts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/products/{slug}": {
         parameters: {
             query?: never;
@@ -1011,6 +1045,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/sitemaps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Catalog sitemap files with their lastmod (for sitemap_index.xml) */
+        get: operations["listCatalogSitemaps"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sitemaps/{type}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Rows for product-sitemapN.xml, product_cat-sitemap.xml, pa_brand-sitemap.xml, product_tag-sitemap.xml */
+        get: operations["getCatalogSitemap"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/pages": {
         parameters: {
             query?: never;
@@ -1257,6 +1325,8 @@ export interface components {
             /** @description Site-relative, trailing slash, percent-encoded */
             url: string;
             description_html?: string | null;
+            /** @description «توضیحات تکمیلی» shown under the products (WP _supp_desc) */
+            long_description_html?: string | null;
             banner?: components["schemas"]["Image"] | null;
             image?: components["schemas"]["Image"] | null;
             product_count: number;
@@ -1274,7 +1344,31 @@ export interface components {
             logo?: components["schemas"]["Image"] | null;
             /** @description Brand intro (WP pa_brand term description) */
             description_html?: string | null;
+            /** @description «توضیحات تکمیلی» shown under the products (WP _supp_desc) */
+            long_description_html?: string | null;
             breadcrumb: components["schemas"]["BreadcrumbItem"][];
+            seo: components["schemas"]["Seo"];
+            faqs: components["schemas"]["Faq"][];
+        };
+        ProductTag: {
+            id: number;
+            name: string;
+            slug: string;
+            /** @description /shop/tag/{slug}/ */
+            url: string;
+            /** @description «توضیحات تکمیلی» shown under the products (WP _supp_desc) */
+            long_description_html?: string | null;
+            breadcrumb: components["schemas"]["BreadcrumbItem"][];
+            /** @description «دسته‌بندی‌های مرتبط», panel order (WP _related_cats) */
+            related_categories: components["schemas"]["CategoryChild"][];
+            /** @description «برندهای مرتبط», panel order (WP _related_brands) */
+            related_brands: {
+                id: number;
+                name: string;
+                slug: string;
+                url: string;
+                logo: components["schemas"]["Image"] | null;
+            }[];
             seo: components["schemas"]["Seo"];
             faqs: components["schemas"]["Faq"][];
         };
@@ -2936,6 +3030,66 @@ export interface operations {
         };
     };
     listBrandProducts: {
+        parameters: {
+            query?: {
+                page?: components["parameters"]["page"];
+                per_page?: components["parameters"]["per_page"];
+                sort?: components["parameters"]["sort"];
+                /** @description filter[pa_color]=white,black — values OR-ed inside a facet, facets AND-ed. Unknown facets are ignored. */
+                filter?: components["parameters"]["filter"];
+                /** @description Rial */
+                min_price?: components["parameters"]["min_price"];
+                /** @description Rial */
+                max_price?: components["parameters"]["max_price"];
+                in_stock?: components["parameters"]["in_stock"];
+                on_sale?: components["parameters"]["on_sale"];
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Listing */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductListing"];
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    getTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tag */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ProductTag"];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
+        };
+    };
+    listTagProducts: {
         parameters: {
             query?: {
                 page?: components["parameters"]["page"];
@@ -4769,6 +4923,63 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    listCatalogSitemaps: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Files */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            /** @enum {string} */
+                            type: "product" | "product_cat" | "pa_brand" | "product_tag";
+                            /** @description product-sitemap.xml = 1, product-sitemap2.xml = 2 … */
+                            page: number;
+                            /** Format: date-time */
+                            lastmod: string | null;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    getCatalogSitemap: {
+        parameters: {
+            query?: {
+                /** @description product only, 1000 rows per file */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                type: "product" | "product_cat" | "pa_brand" | "product_tag";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Rows */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SitemapRow"][];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
         };
     };
     listPages: {

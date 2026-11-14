@@ -8,7 +8,7 @@ import type { ListingState } from './url-state';
 import { faDigits } from '@banovit/ui';
 
 /** Subcategory rail: always one horizontal scroll row (mobile and desktop, Ali 2026-11-14). */
-export function SubcategoryCarousel({ items }: { items: Category['children'] }) {
+export function SubcategoryCarousel({ items, showCount = false }: { items: Category['children']; showCount?: boolean }) {
   if (!items.length) return null;
   return (
     <nav aria-label="زیردسته‌ها" className="-mx-4 lg:mx-0">
@@ -23,7 +23,11 @@ export function SubcategoryCarousel({ items }: { items: Category['children'] }) 
                 {c.image ? <Image src={c.image.url} alt={c.image.alt ?? ''} fill sizes="80px" className="object-cover" /> : null}
               </span>
               <span className="line-clamp-2 text-xs leading-5 text-text">{c.name}</span>
-              <span className="sr-only">{faDigits(c.product_count)} کالا</span>
+              {showCount ? (
+                <span className="text-[11px] text-text-muted">{faDigits(c.product_count)} محصول</span>
+              ) : (
+                <span className="sr-only">{faDigits(c.product_count)} کالا</span>
+              )}
             </Link>
           </li>
         ))}
@@ -37,20 +41,33 @@ export function BrandRow({ facet, title }: { facet: Facet | undefined; title: st
   if (!facet || facet.options.length < 2) return null;
   const brands = [...facet.options].sort((a, b) => b.count - a.count).slice(0, 12);
   return (
-    <section aria-labelledby="brands-title" className="space-y-3">
-      <h2 id="brands-title" className="text-base font-bold text-text">
+    <BrandLogos
+      title={title}
+      items={brands.map((b) => ({ key: b.value, slug: b.value, label: b.label, url: `/brand/${encodeURIComponent(b.value).toLowerCase()}/`, image: b.image ?? null }))}
+    />
+  );
+}
+
+export type BrandLogoItem = { key: string | number; slug: string; label: string; url: string; image: { url: string } | null };
+
+/** Row of brand logo tiles (facet brands on category pages, panel-chosen «برندهای مرتبط» on tag pages). */
+export function BrandLogos({ items, title, id = 'brands-title' }: { items: BrandLogoItem[]; title: string; id?: string }) {
+  if (!items.length) return null;
+  return (
+    <section aria-labelledby={id} className="space-y-3">
+      <h2 id={id} className="text-base font-bold text-text">
         {title}
       </h2>
       <ul className="relative -mx-4 grid auto-cols-[84px] grid-flow-col gap-3 overflow-x-auto px-4 pb-1 scrollbar-none lg:mx-0 lg:auto-cols-auto lg:grid-flow-row lg:grid-cols-8 lg:px-0">
-        {brands.map((b) => (
-          <li key={b.value}>
-            <Link href={`/brand/${encodeURIComponent(b.value).toLowerCase()}/`} className="group flex flex-col items-center gap-2 text-center">
+        {items.map((b) => (
+          <li key={b.key}>
+            <Link href={b.url} className="group flex flex-col items-center gap-2 text-center">
               <span className="relative flex size-[72px] items-center justify-center overflow-hidden rounded-md border border-border bg-surface px-1 group-hover:border-primary">
                 {b.image?.url ? (
                   <Image src={b.image.url} alt={b.label} fill sizes="72px" className="object-contain p-2" />
-                ) : /^[a-z0-9-]+$/.test(b.value) ? (
+                ) : /^[a-z0-9-]+$/.test(b.slug) ? (
                   <span className="line-clamp-2 text-[11px] font-extrabold uppercase leading-4 text-primary" dir="ltr">
-                    {b.value.replace(/-/g, ' ')}
+                    {b.slug.replace(/-/g, ' ')}
                   </span>
                 ) : (
                   <span className="text-lg font-extrabold text-primary">{b.label.slice(0, 1)}</span>
@@ -61,6 +78,19 @@ export function BrandRow({ facet, title }: { facet: Facet | undefined; title: st
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+/** «دسته‌بندی‌های مرتبط با …» of a tag page: the same circle rail as subcategories, with a heading and item counts. */
+export function RelatedCategories({ items, title }: { items: Category['children']; title: string }) {
+  if (!items.length) return null;
+  return (
+    <section aria-labelledby="related-cats-title" className="space-y-3">
+      <h2 id="related-cats-title" className="text-base font-bold text-text">
+        {title}
+      </h2>
+      <SubcategoryCarousel items={items} showCount />
     </section>
   );
 }

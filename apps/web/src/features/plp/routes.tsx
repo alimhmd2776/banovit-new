@@ -2,7 +2,7 @@ import 'server-only';
 import type { Metadata } from 'next';
 import { notFound, permanentRedirect } from 'next/navigation';
 import type { Seo } from '@banovit/api-client';
-import { getBrand, getCategory, isNotFound, listBrandProducts, listCategoryProducts, listProducts } from '@/lib/api';
+import { getBrand, getCategory, getTag, isNotFound, listBrandProducts, listCategoryProducts, listProducts, listTagProducts } from '@/lib/api';
 import { env } from '@/lib/env';
 import { listingMetadata, type Crumb } from '@/lib/seo';
 import { PlpView } from './PlpView';
@@ -10,7 +10,7 @@ import { isFilteredOrSorted, pagePath, parseListingState, splitPageSegments, toA
 
 /**
  * Route handlers for every product listing URL kept from WordPress:
- *   /shop/category/{...path}/[page/N/]   /brand/{slug}/[page/N/]   /shop/[page/N/]
+ *   /shop/category/{...path}/[page/N/]   /brand/{slug}/[page/N/]   /shop/tag/{slug}/[page/N/]   /shop/[page/N/]
  */
 
 export type SearchParams = Record<string, string | string[] | undefined>;
@@ -87,7 +87,8 @@ export async function CategoryPage({ segments, sp }: { segments: string[]; sp: S
       listing={listing}
       state={state}
       page={page}
-      descriptionHtml={page === 1 ? category.description_html : null}
+      // «توضیحات تکمیلی» (CMS long_description_html = live _supp_desc); the short term description is not shown (Ali 2026-11-14)
+      descriptionHtml={page === 1 ? (category.long_description_html ?? null) : null}
       faqs={page === 1 ? category.faqs : []}
     />
   );
@@ -125,7 +126,47 @@ export async function BrandPage({ slug, pageParam, sp }: { slug: string; pagePar
       page={page}
       faqs={page === 1 ? brand.faqs : []}
       logo={brand.logo ?? null}
-      intro={page === 1 ? (brand.description_html ?? null) : null}
+      descriptionHtml={page === 1 ? (brand.long_description_html ?? null) : null}
+      showBrandRow={false}
+    />
+  );
+}
+
+/* ---------------- product tag ---------------- */
+
+async function loadTag(slug: string, pageParam: string | undefined, sp: SearchParams) {
+  const page = parsePage(pageParam);
+  const state = parseListingState(sp);
+  const [tag, listing] = await Promise.all([
+    orNotFound(getTag(decode(slug))),
+    orNotFound(listTagProducts(decode(slug), toApiParams(state, page))),
+  ]);
+  return { tag, listing, state, page };
+}
+
+export async function tagMetadata(slug: string, pageParam: string | undefined, sp: SearchParams): Promise<Metadata> {
+  const { tag, listing, state, page } = await loadTag(slug, pageParam, sp);
+  return listingMetadata({ seo: tag.seo, path: tag.url, page, lastPage: listing.meta.last_page, filtered: isFilteredOrSorted(state) });
+}
+
+export async function TagPage({ slug, pageParam, sp }: { slug: string; pageParam?: string; sp: SearchParams }) {
+  const { tag, listing, state, page } = await loadTag(slug, pageParam, sp);
+  if (page > listing.meta.last_page && listing.meta.total > 0) notFound();
+  const first = page === 1;
+  return (
+    <PlpView
+      title={tag.name}
+      // live JSON-LD breadcrumb of a tag archive: خانه › tag
+      crumbs={[HOME, { name: tag.name, url: tag.url }]}
+      canonicalPath={tag.url}
+      basePath={tag.url}
+      listing={listing}
+      state={state}
+      page={page}
+      faqs={first ? tag.faqs : []}
+      descriptionHtml={first ? (tag.long_description_html ?? null) : null}
+      relatedCategories={first ? tag.related_categories : []}
+      relatedBrands={first ? tag.related_brands.map((b) => ({ key: b.id, slug: b.slug, label: b.name, url: b.url, image: b.logo ?? null })) : []}
       showBrandRow={false}
     />
   );

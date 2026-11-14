@@ -8,6 +8,7 @@ import type { components, operations } from './schema';
 export type Schemas = components['schemas'];
 export type Category = Schemas['Category'];
 export type Brand = Schemas['Brand'];
+export type ProductTag = Schemas['ProductTag'];
 export type ProductCard = Schemas['ProductCard'];
 export type ProductListing = Schemas['ProductListing'];
 export type ListingMeta = Schemas['ListingMeta'];
@@ -51,6 +52,8 @@ export type BlogPostListing = Schemas['BlogPostListing'];
 export type SitemapRow = Schemas['SitemapRow'];
 export type BlogListParams = NonNullable<operations['listBlogPosts']['parameters']['query']>;
 export type BlogSitemapType = 'posts' | 'categories' | 'tags' | 'authors';
+export type CatalogSitemapType = 'product' | 'product_cat' | 'pa_brand' | 'product_tag';
+export type CatalogSitemapFile = { type: CatalogSitemapType; page: number; lastmod: string | null };
 export type ContactSettings = Schemas['ContactSettings'];
 export type AuthSettings = Schemas['AuthSettings'];
 // --- plp ---
@@ -243,6 +246,10 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: Brand }>(`/brands/${encodePath(slug)}`, init).then((r) => r.data),
     listBrandProducts: (slug: string, params?: Omit<ListingParams, 'brand'>, init?: RequestOptions) =>
       get<ProductListing>(`/brands/${encodePath(slug)}/products${listingQueryString(params)}`, init),
+    getTag: (slug: string, init?: RequestOptions) =>
+      get<{ data: ProductTag }>(`/tags/${encodePath(slug)}`, init).then((r) => r.data),
+    listTagProducts: (slug: string, params?: ListingParams, init?: RequestOptions) =>
+      get<ProductListing>(`/tags/${encodePath(slug)}/products${listingQueryString(params)}`, init),
     listPages: (init?: RequestOptions) => get<{ data: PageListItem[] }>('/pages', init).then((r) => r.data),
     getPage: (path: string, init?: RequestOptions) =>
       get<{ data: ContentPage }>(`/pages/${encodePath(path)}`, init).then((r) => r.data),
@@ -270,6 +277,10 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: BlogTerm }>(`/blog/tags/${encodePath(slug)}`, init).then((r) => r.data),
     getBlogAuthor: (slug: string, init?: RequestOptions) =>
       get<{ data: BlogAuthorPage }>(`/blog/authors/${encodePath(slug)}`, init).then((r) => r.data),
+    listCatalogSitemaps: (init?: RequestOptions) =>
+      get<{ data: CatalogSitemapFile[] }>('/sitemaps', init).then((r) => r.data),
+    getCatalogSitemap: (type: CatalogSitemapType, page = 1, init?: RequestOptions) =>
+      get<{ data: SitemapRow[] }>(`/sitemaps/${type}${page > 1 ? `?page=${page}` : ''}`, init).then((r) => r.data),
     getBlogSitemap: (type: BlogSitemapType, init?: RequestOptions) =>
       get<{ data: SitemapRow[] }>(`/blog/sitemap/${type}`, init).then((r) => r.data),
     // cart & checkout (docs/api/cart.md)

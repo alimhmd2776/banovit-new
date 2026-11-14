@@ -17,6 +17,14 @@ export function urlsetXml(rows: SitemapRow[]): string {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls}\n</urlset>\n`;
 }
 
+/** Yoast-style sitemap index. */
+export function indexXml(files: { loc: string; lastmod: string | null }[]): string {
+  const items = files
+    .map((f) => `<sitemap><loc>${esc(f.loc)}</loc>${f.lastmod ? `<lastmod>${esc(f.lastmod)}</lastmod>` : ''}</sitemap>`)
+    .join('\n');
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${items}\n</sitemapindex>\n`;
+}
+
 export function xmlResponse(body: string): Response {
   return new Response(body, {
     headers: { 'Content-Type': 'application/xml; charset=UTF-8', 'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400' },
