@@ -6,6 +6,7 @@ import { ChangeFilterButton } from './ListingControls';
 import { ScrollRail } from './ScrollRail';
 import type { ListingState } from './url-state';
 import { faDigits } from '@banovit/ui';
+import { stripForeignClasses } from '@/lib/html/foreign-classes';
 
 /** Subcategory rail: always one horizontal scroll row (mobile and desktop, Ali 2026-11-14). */
 export function SubcategoryCarousel({ items, showCount = false }: { items: Category['children']; showCount?: boolean }) {
@@ -112,7 +113,7 @@ export function SeoDescription({ html, title, collapsedOnly = false }: { html: s
       <input type="checkbox" id={id} className="peer sr-only" />
       <div
         className="relative max-h-32 overflow-hidden text-[13px] leading-7 text-text-muted after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-12 after:bg-gradient-to-t after:from-surface peer-checked:max-h-none peer-checked:after:hidden [&_a]:text-primary [&_h2]:mb-2 [&_h2]:mt-4 [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-text [&_h3]:mt-3 [&_h3]:font-bold [&_h3]:text-text [&_li]:ms-5 [&_li]:list-disc [&_p]:mb-3"
-        dangerouslySetInnerHTML={{ __html: html }}
+        dangerouslySetInnerHTML={{ __html: stripForeignClasses(html) }}
       />
       <label htmlFor={id} className="mt-1 inline-block cursor-pointer text-[13px] font-bold text-primary underline underline-offset-4 peer-checked:hidden">
         بیشتر بخوانید
