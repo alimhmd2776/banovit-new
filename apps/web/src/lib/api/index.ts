@@ -1,6 +1,6 @@
 import 'server-only';
 import { cache } from 'react';
-import { createStorefrontClient, StorefrontApiError, type BlogListParams, type BlogSitemapType, type ListingParams, type HeaderSettings, type Menu, type MenuKey } from '@banovit/api-client';
+import { createStorefrontClient, StorefrontApiError, type BlogListParams, type BlogSitemapType, type ListingParams, type HeaderSettings, type Menu, type MenuKey, type TrackingSettings } from '@banovit/api-client';
 import { env } from '@/lib/env';
 import { AUTH_SETTINGS_FALLBACK, AUTH_TEXT_DEFAULTS } from '@/features/auth/links';
 
@@ -139,6 +139,19 @@ export const getHeaderSettings = cache(async (): Promise<HeaderSettings | null> 
     return await client.getHeaderSettings({ next: { tags: ['settings', 'settings:header'], revalidate: 600 } });
   } catch (e) {
     console.error('header settings unavailable', e);
+    return null;
+  }
+});
+
+/**
+ * Analytics tags (GTM / Matomo / Google Ads) from the CMS. Never throws: null = load no tag.
+ * Short revalidate so switching STOREFRONT_TRACKING_ENABLED on the CMS takes effect fast.
+ */
+export const getTrackingSettings = cache(async (): Promise<TrackingSettings | null> => {
+  try {
+    return await client.getTrackingSettings({ next: { tags: ['settings', 'settings:tracking'], revalidate: 300 } });
+  } catch (e) {
+    console.error('tracking settings unavailable', e);
     return null;
   }
 });

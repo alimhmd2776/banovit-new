@@ -3,7 +3,6 @@
 import { useNavRouter as useRouter } from '@/lib/use-nav-router';
 import { useEffect, useState } from 'react';
 import type { Cart } from '@banovit/api-client';
-import { rialToToman } from '@banovit/ui';
 import { track } from '@/lib/analytics';
 import { analyticsItems, cartApi } from '@/features/cart/client';
 import { CheckoutBar, PrimaryAction } from '@/features/cart/CheckoutBar';
@@ -24,14 +23,8 @@ export function ShippingView({ initial }: { initial: Cart }) {
   const [problem, setProblem] = useState<string | null>(null);
 
   useEffect(() => {
-    track('begin_checkout', { value: rialToToman(initial.totals.payable.amount), coupon: initial.coupon?.code, items: analyticsItems(initial) });
-    // First-touch attribution (utm/gclid) captured on landing, if any.
-    try {
-      const raw = window.localStorage.getItem('bnv_attribution');
-      if (raw && !initial.options.address) void cartApi.update({ attribution: JSON.parse(raw) as Record<string, string> }).catch(() => null);
-    } catch {
-      /* storage unavailable */
-    }
+    track('begin_checkout', { value: initial.totals.payable.amount, coupon: initial.coupon?.code, items: analyticsItems(initial) });
+    // Attribution (bnv_attr touches, GA4/Matomo ids) is read from cookies by the BFF when the order is placed.
   }, [initial]);
 
   const next = () => {
@@ -51,7 +44,7 @@ export function ShippingView({ initial }: { initial: Cart }) {
       return;
     }
     setProblem(null);
-    track('add_shipping_info', { value: rialToToman(cart.totals.payable.amount), shipping_tier: cart.delivery.method?.title ?? cart.delivery.zone.label, items: analyticsItems(cart) });
+    track('add_shipping_info', { value: cart.totals.payable.amount, shipping_tier: cart.delivery.method?.title ?? cart.delivery.zone.label, items: analyticsItems(cart) });
     router.push('/checkout/payment/');
   };
 

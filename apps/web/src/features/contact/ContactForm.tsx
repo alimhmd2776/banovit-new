@@ -4,6 +4,7 @@ import { useId, useRef, useState } from 'react';
 import { IconCheckCircle, cx } from '@banovit/ui';
 import type { ContactSettings } from '@banovit/api-client';
 import { isIranMobile, latinDigits } from './format';
+import { trackLead } from '@/lib/analytics';
 
 type Props = {
   /** Every text of the form, edited in the CMS (صفحه تماس با ما → فرم). */
@@ -62,7 +63,7 @@ export function ContactForm({ texts: t, pageTitle }: Props) {
       });
       if (res.ok) {
         setStatus('done');
-        window.dataLayer?.push({ event: 'generate_lead', form_id: 'contact', lead_source: 'contact-us' });
+        trackLead('contact', { lead_source: 'contact-us' });
         return;
       }
       const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
@@ -204,10 +205,4 @@ export function ContactForm({ texts: t, pageTitle }: Props) {
       </button>
     </form>
   );
-}
-
-declare global {
-  interface Window {
-    dataLayer?: Record<string, unknown>[];
-  }
 }

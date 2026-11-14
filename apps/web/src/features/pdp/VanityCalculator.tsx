@@ -3,6 +3,7 @@
 import { useId, useState } from 'react';
 import type { VanityCalculator as Calc } from '@banovit/api-client';
 import { cx, faDigits, formatToman, IconCheck, IconPhone } from '@banovit/ui';
+import { trackLead } from '@/lib/analytics';
 
 /** Persian/Arabic digits -> ASCII, keep digits only. */
 const toAscii = (v: string) => v.replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).replace(/\D/g, '');
@@ -61,7 +62,10 @@ export function VanityCalculator({ calc, productName, consultPhone }: { calc: Ca
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: digits, form: 'product_quote', message, page_url: window.location.pathname, page_title: productName }),
       });
-      if (res.ok) return setStatus({ kind: 'done' });
+      if (res.ok) {
+        trackLead('product_quote', { lead_source: 'vanity-calculator' });
+        return setStatus({ kind: 'done' });
+      }
       const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
       setStatus({ kind: 'error', message: res.status === 429 ? 'درخواست‌های زیادی ثبت شد؛ کمی بعد دوباره امتحان کنید.' : body?.error?.message ?? 'ثبت نشد. دوباره تلاش کنید.' });
     } catch {

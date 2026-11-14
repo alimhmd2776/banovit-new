@@ -281,7 +281,9 @@ export function createStorefrontClient(opts: ClientOptions) {
     removeCartItem: (s: SessionHeaders, id: number) => send<{ data: Cart }>('DELETE', `/cart/items/${id}`, s).then((r) => r.data),
     applyCoupon: (s: SessionHeaders, code: string) => send<{ data: Cart }>('POST', '/cart/coupon', s, { code }).then((r) => r.data),
     removeCoupon: (s: SessionHeaders) => send<{ data: Cart }>('DELETE', '/cart/coupon', s).then((r) => r.data),
-    placeOrder: (s: SessionHeaders) => send<{ data: PlacedOrder }>('POST', '/orders', s).then((r) => r.data),
+    /** attribution: bnv_attr touches + GA4/Matomo ids read by the BFF from the visitor's cookies. */
+    placeOrder: (s: SessionHeaders, body?: { attribution?: Record<string, unknown> }) =>
+      send<{ data: PlacedOrder }>('POST', '/orders', s, body).then((r) => r.data),
     getOrder: (s: SessionHeaders, number: string) =>
       send<{ data: OrderSummary }>('GET', `/orders/${encodeURIComponent(number)}`, s).then((r) => r.data),
     payOrder: (s: SessionHeaders, number: string, paymentMethod?: string) =>
@@ -301,6 +303,8 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<ReviewListing>(`/products/${encodePath(slug)}/reviews${page > 1 ? `?page=${page}` : ''}`, init),
     getMenu: (key: MenuKey, init?: RequestOptions) => get<{ data: Menu }>(`/menus/${key}`, init).then((r) => r.data),
     getHeaderSettings: (init?: RequestOptions) => get<{ data: HeaderSettings }>('/settings/header', init).then((r) => r.data),
+    /** Analytics tags (GTM / Matomo / Google Ads). enabled=false on test deploys. */
+    getTrackingSettings: (init?: RequestOptions) => get<{ data: TrackingSettings }>('/settings/tracking', init).then((r) => r.data),
     // --- sellers ---
     listSellers: (init?: RequestOptions) => get<{ data: SellerCard[] }>('/sellers', init).then((r) => r.data),
     getSeller: (slug: string, init?: RequestOptions) =>
@@ -313,3 +317,16 @@ export function createStorefrontClient(opts: ClientOptions) {
 }
 
 export type StorefrontClient = ReturnType<typeof createStorefrontClient>;
+
+/** GET /settings/tracking (CMS config storefront.tracking). */
+export type TrackingSettings = {
+  enabled: boolean;
+  gtm_id: string | null;
+  ga4_measurement_id: string | null;
+  matomo: { url: string; site_id: string } | null;
+  matomo_site_id: string | null;
+  google_ads: { id: string; labels: Record<string, string>; try_rate_irr: number | null } | null;
+  clarity_id: string | null;
+  yektanet_id: string | null;
+  mediaad_id: string | null;
+};

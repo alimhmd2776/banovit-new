@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect } from 'react';
 import type { Cart } from '@banovit/api-client';
-import { faDigits, IconHeart, rialToToman } from '@banovit/ui';
+import { faDigits, IconHeart } from '@banovit/ui';
 import { track } from '@/lib/analytics';
 import { analyticsItems, cartApi } from './client';
 import { CartLineCard } from './CartLineCard';
@@ -18,7 +18,7 @@ export function CartView({ initial }: { initial: Cart }) {
   const { cart, busy, error, run } = useCart(initial);
 
   useEffect(() => {
-    if (initial.item_count > 0) track('view_cart', { value: rialToToman(initial.totals.payable.amount), items: analyticsItems(initial) });
+    if (initial.item_count > 0) track('view_cart', { value: initial.totals.payable.amount, items: analyticsItems(initial) });
   }, [initial]);
 
   // zone labels are admin-internal («تحت پوشش»); only name a place once an address is chosen
@@ -53,7 +53,7 @@ export function CartView({ initial }: { initial: Cart }) {
   const removeLine = (id: number) => {
     const line = cart.items.find((l) => l.id === id);
     void run(`remove:${id}`, () => cartApi.remove(id)).then((c) => {
-      if (c && line) track('remove_from_cart', { value: rialToToman(line.line_total.amount), items: analyticsItems(cart, [id]) });
+      if (c && line) track('remove_from_cart', { value: line.line_total.amount, items: analyticsItems(cart, [id]) });
     });
   };
 
