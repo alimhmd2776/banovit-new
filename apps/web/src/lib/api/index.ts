@@ -33,6 +33,15 @@ export const listBrandProducts = cache(async (slug: string, params: ListingParam
   client.listBrandProducts(slug, params, { next: { tags: ['products', `brand:${slug}`], revalidate: 300 } }),
 );
 
+/** Product tag pages /shop/tag/{slug}/; tags match the CMS revalidation (tags, tag:{slug}). */
+export const getTag = cache(async (slug: string) =>
+  client.getTag(slug, { next: { tags: ['tags', `tag:${slug}`], revalidate: REVALIDATE } }),
+);
+
+export const listTagProducts = cache(async (slug: string, params: ListingParams) =>
+  client.listTagProducts(slug, params, { next: { tags: ['products', `tag:${slug}`], revalidate: 300 } }),
+);
+
 /** CMS content pages; tags match the CMS revalidation (pages, page:{id}, page-path:{path}). */
 export const getPage = cache(async (path: string) =>
   client.getPage(path, { next: { tags: ['pages', `page-path:${path}`], revalidate: REVALIDATE } }),

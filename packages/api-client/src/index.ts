@@ -8,6 +8,7 @@ import type { components, operations } from './schema';
 export type Schemas = components['schemas'];
 export type Category = Schemas['Category'];
 export type Brand = Schemas['Brand'];
+export type ProductTag = Schemas['ProductTag'];
 export type ProductCard = Schemas['ProductCard'];
 export type ProductListing = Schemas['ProductListing'];
 export type ListingMeta = Schemas['ListingMeta'];
@@ -243,6 +244,10 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: Brand }>(`/brands/${encodePath(slug)}`, init).then((r) => r.data),
     listBrandProducts: (slug: string, params?: Omit<ListingParams, 'brand'>, init?: RequestOptions) =>
       get<ProductListing>(`/brands/${encodePath(slug)}/products${listingQueryString(params)}`, init),
+    getTag: (slug: string, init?: RequestOptions) =>
+      get<{ data: ProductTag }>(`/tags/${encodePath(slug)}`, init).then((r) => r.data),
+    listTagProducts: (slug: string, params?: ListingParams, init?: RequestOptions) =>
+      get<ProductListing>(`/tags/${encodePath(slug)}/products${listingQueryString(params)}`, init),
     listPages: (init?: RequestOptions) => get<{ data: PageListItem[] }>('/pages', init).then((r) => r.data),
     getPage: (path: string, init?: RequestOptions) =>
       get<{ data: ContentPage }>(`/pages/${encodePath(path)}`, init).then((r) => r.data),

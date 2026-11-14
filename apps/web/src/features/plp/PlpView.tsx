@@ -4,7 +4,7 @@ import { Accordion, Breadcrumb, Pagination, ProductCard, faDigits } from '@banov
 import { jsonLdScript, listingJsonLd, type Crumb } from '@/lib/seo';
 import { getListingSettings } from '@/lib/api';
 import { FilterSidebar, ListingToolbar } from './ListingControls';
-import { BrandRow, EmptyState, SeoDescription, SubcategoryCarousel } from './sections';
+import { BrandLogos, BrandRow, EmptyState, RelatedCategories, SeoDescription, SubcategoryCarousel, type BrandLogoItem } from './sections';
 import { SupportCallout } from './SupportCalloutBox';
 import { hasActiveFilters, pagePath, toQueryString, type ListingState } from './url-state';
 
@@ -24,6 +24,9 @@ export type PlpViewProps = {
   /** Brand pages: logo beside the H1 and the intro text under it (like live /brand/{slug}/). */
   logo?: ImageData | null;
   intro?: string | null;
+  /** Tag pages: «دسته‌بندی‌ها / برندهای مرتبط با …» under the products (panel-chosen, like live). */
+  relatedCategories?: Category['children'];
+  relatedBrands?: BrandLogoItem[];
 };
 
 /**
@@ -47,6 +50,8 @@ export async function PlpView({
   showBrandRow = true,
   logo,
   intro,
+  relatedCategories = [],
+  relatedBrands = [],
 }: PlpViewProps) {
   const { meta } = listing;
   const filtered = hasActiveFilters(state);
@@ -115,6 +120,9 @@ export async function PlpView({
             />
           </section>
         </div>
+
+        <RelatedCategories items={relatedCategories} title={`دسته‌بندی‌های مرتبط با ${title}`} />
+        <BrandLogos items={relatedBrands} title={`برندهای مرتبط با ${title}`} id="related-brands-title" />
 
         {showBrandRow && settings ? <BrandRow facet={brandFacet} title={settings.brands_row_title.replace('%%term_title%%', title)} /> : null}
 

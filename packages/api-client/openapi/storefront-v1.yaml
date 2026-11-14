@@ -110,6 +110,44 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/ProductListing' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /tags/{slug}:
+    get:
+      operationId: getTag
+      summary: Product tag page data (/shop/tag/{slug}/)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: Tag
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ProductTag' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /tags/{slug}/products:
+    get:
+      operationId: listTagProducts
+      summary: Products of one product tag (tag filter fixed; facets from the tag's rule set)
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/per_page'
+        - $ref: '#/components/parameters/sort'
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/min_price'
+        - $ref: '#/components/parameters/max_price'
+        - $ref: '#/components/parameters/in_stock'
+        - $ref: '#/components/parameters/on_sale'
+      responses:
+        '200':
+          description: Listing
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductListing' }
+        '404': { $ref: '#/components/responses/NotFound' }
   /products/{slug}:
     get:
       operationId: getProduct
@@ -1524,6 +1562,31 @@ components:
         description_html: { type: [string, 'null'], description: 'Brand intro (WP pa_brand term description)' }
         long_description_html: { type: [string, 'null'], description: '«توضیحات تکمیلی» shown under the products (WP _supp_desc)' }
         breadcrumb: { type: array, items: { $ref: '#/components/schemas/BreadcrumbItem' } }
+        seo: { $ref: '#/components/schemas/Seo' }
+        faqs: { type: array, items: { $ref: '#/components/schemas/Faq' } }
+    ProductTag:
+      type: object
+      required: [id, name, slug, url, breadcrumb, related_categories, related_brands, seo, faqs]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        url: { type: string, description: '/shop/tag/{slug}/' }
+        long_description_html: { type: [string, 'null'], description: '«توضیحات تکمیلی» shown under the products (WP _supp_desc)' }
+        breadcrumb: { type: array, items: { $ref: '#/components/schemas/BreadcrumbItem' } }
+        related_categories: { type: array, items: { $ref: '#/components/schemas/CategoryChild' }, description: '«دسته‌بندی‌های مرتبط», panel order (WP _related_cats)' }
+        related_brands:
+          type: array
+          description: '«برندهای مرتبط», panel order (WP _related_brands)'
+          items:
+            type: object
+            required: [id, name, slug, url, logo]
+            properties:
+              id: { type: integer }
+              name: { type: string }
+              slug: { type: string }
+              url: { type: string }
+              logo: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
         seo: { $ref: '#/components/schemas/Seo' }
         faqs: { type: array, items: { $ref: '#/components/schemas/Faq' } }
     # --- sellers ---

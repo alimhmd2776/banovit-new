@@ -48,7 +48,7 @@ export function listingMetadata({
     alternates: { canonical },
     robots,
     openGraph: {
-      type: 'website',
+      type: 'article', // Yoast on live taxonomy archives
       locale: 'fa_IR',
       siteName: SITE_NAME,
       title: seo.og_title ?? title,
