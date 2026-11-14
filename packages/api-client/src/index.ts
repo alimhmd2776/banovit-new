@@ -52,6 +52,8 @@ export type BlogPostListing = Schemas['BlogPostListing'];
 export type SitemapRow = Schemas['SitemapRow'];
 export type BlogListParams = NonNullable<operations['listBlogPosts']['parameters']['query']>;
 export type BlogSitemapType = 'posts' | 'categories' | 'tags' | 'authors';
+export type CatalogSitemapType = 'product' | 'product_cat' | 'pa_brand' | 'product_tag';
+export type CatalogSitemapFile = { type: CatalogSitemapType; page: number; lastmod: string | null };
 export type ContactSettings = Schemas['ContactSettings'];
 export type AuthSettings = Schemas['AuthSettings'];
 // --- plp ---
@@ -275,6 +277,10 @@ export function createStorefrontClient(opts: ClientOptions) {
       get<{ data: BlogTerm }>(`/blog/tags/${encodePath(slug)}`, init).then((r) => r.data),
     getBlogAuthor: (slug: string, init?: RequestOptions) =>
       get<{ data: BlogAuthorPage }>(`/blog/authors/${encodePath(slug)}`, init).then((r) => r.data),
+    listCatalogSitemaps: (init?: RequestOptions) =>
+      get<{ data: CatalogSitemapFile[] }>('/sitemaps', init).then((r) => r.data),
+    getCatalogSitemap: (type: CatalogSitemapType, page = 1, init?: RequestOptions) =>
+      get<{ data: SitemapRow[] }>(`/sitemaps/${type}${page > 1 ? `?page=${page}` : ''}`, init).then((r) => r.data),
     getBlogSitemap: (type: BlogSitemapType, init?: RequestOptions) =>
       get<{ data: SitemapRow[] }>(`/blog/sitemap/${type}`, init).then((r) => r.data),
     // cart & checkout (docs/api/cart.md)

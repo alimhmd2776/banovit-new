@@ -1045,6 +1045,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/sitemaps": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Catalog sitemap files with their lastmod (for sitemap_index.xml) */
+        get: operations["listCatalogSitemaps"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sitemaps/{type}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Rows for product-sitemapN.xml, product_cat-sitemap.xml, pa_brand-sitemap.xml, product_tag-sitemap.xml */
+        get: operations["getCatalogSitemap"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/pages": {
         parameters: {
             query?: never;
@@ -4889,6 +4923,63 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    listCatalogSitemaps: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Files */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            /** @enum {string} */
+                            type: "product" | "product_cat" | "pa_brand" | "product_tag";
+                            /** @description product-sitemap.xml = 1, product-sitemap2.xml = 2 … */
+                            page: number;
+                            /** Format: date-time */
+                            lastmod: string | null;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    getCatalogSitemap: {
+        parameters: {
+            query?: {
+                /** @description product only, 1000 rows per file */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                type: "product" | "product_cat" | "pa_brand" | "product_tag";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Rows */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SitemapRow"][];
+                    };
+                };
+            };
+            404: components["responses"]["NotFound"];
         };
     };
     listPages: {

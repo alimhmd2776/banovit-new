@@ -1,6 +1,6 @@
 import 'server-only';
 import { cache } from 'react';
-import { createStorefrontClient, StorefrontApiError, type BlogListParams, type BlogSitemapType, type ListingParams, type HeaderSettings, type Menu, type MenuKey } from '@banovit/api-client';
+import { createStorefrontClient, StorefrontApiError, type BlogListParams, type BlogSitemapType, type CatalogSitemapType, type ListingParams, type HeaderSettings, type Menu, type MenuKey } from '@banovit/api-client';
 import { env } from '@/lib/env';
 import { AUTH_SETTINGS_FALLBACK, AUTH_TEXT_DEFAULTS } from '@/features/auth/links';
 
@@ -75,6 +75,14 @@ export const getBlogTag = cache(async (slug: string) =>
 
 export const getBlogAuthor = cache(async (slug: string) =>
   client.getBlogAuthor(slug, { next: { tags: ['blog', `blog-author:${slug}`], revalidate: REVALIDATE } }),
+);
+
+export const listCatalogSitemaps = cache(async () =>
+  client.listCatalogSitemaps({ next: { tags: ['products', 'categories', 'brands', 'tags'], revalidate: REVALIDATE } }),
+);
+
+export const getCatalogSitemap = cache(async (type: CatalogSitemapType, page: number) =>
+  client.getCatalogSitemap(type, page, { next: { tags: ['products', 'categories', 'brands', 'tags'], revalidate: REVALIDATE } }),
 );
 
 export const getBlogSitemap = cache(async (type: BlogSitemapType) =>

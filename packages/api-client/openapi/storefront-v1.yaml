@@ -1180,6 +1180,46 @@ paths:
                 properties:
                   data: { type: array, items: { $ref: '#/components/schemas/SitemapRow' } }
   # --- /blog ---
+  /sitemaps:
+    get:
+      operationId: listCatalogSitemaps
+      summary: Catalog sitemap files with their lastmod (for sitemap_index.xml)
+      responses:
+        '200':
+          description: Files
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      required: [type, page, lastmod]
+                      properties:
+                        type: { type: string, enum: [product, product_cat, pa_brand, product_tag] }
+                        page: { type: integer, description: 'product-sitemap.xml = 1, product-sitemap2.xml = 2 …' }
+                        lastmod: { type: [string, 'null'], format: date-time }
+  /sitemaps/{type}:
+    get:
+      operationId: getCatalogSitemap
+      summary: Rows for product-sitemapN.xml, product_cat-sitemap.xml, pa_brand-sitemap.xml, product_tag-sitemap.xml
+      parameters:
+        - { name: type, in: path, required: true, schema: { type: string, enum: [product, product_cat, pa_brand, product_tag] } }
+        - { name: page, in: query, required: false, schema: { type: integer, minimum: 1 }, description: 'product only, 1000 rows per file' }
+      responses:
+        '200':
+          description: Rows
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/SitemapRow' } }
+        '404': { $ref: '#/components/responses/NotFound' }
   # --- pages ---
   /pages:
     get:
