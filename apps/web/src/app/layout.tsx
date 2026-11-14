@@ -4,6 +4,8 @@ import { BottomNav } from '@/components/layout/BottomNav';
 import { NavigationProgress } from '@/components/loading/NavigationProgress';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import { SiteHeader } from '@/components/layout/SiteHeader';
+import { TrackingRoot } from '@/components/tracking/TrackingRoot';
+import { getTrackingSettings } from '@/lib/api';
 import { env } from '@/lib/env';
 import '@/styles/globals.css';
 
@@ -36,10 +38,13 @@ export const viewport: Viewport = {
   themeColor: '#1f6fad',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const tracking = await getTrackingSettings();
   return (
     <html lang="fa" dir="rtl" className={vazirmatn.variable}>
       <body className="min-h-dvh">
+        {/* first: configures Ads / dataLayer before page components push events */}
+        <TrackingRoot settings={tracking} />
         <NavigationProgress />
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top-2 focus:z-modal focus:rounded-sm focus:bg-surface focus:p-2">
           رفتن به محتوای اصلی

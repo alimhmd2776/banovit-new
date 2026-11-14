@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { ListingSettings } from '@banovit/api-client';
 import { faDigits, IconPhone } from '@banovit/ui';
+import { trackLead } from '@/lib/analytics';
 
 type Status = { kind: 'idle' } | { kind: 'sending' } | { kind: 'done' } | { kind: 'error'; message: string };
 
@@ -34,7 +35,10 @@ export function SupportCalloutForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: digits, page_url: window.location.pathname, page_title: pageTitle }),
       });
-      if (res.ok) return setStatus({ kind: 'done' });
+      if (res.ok) {
+        trackLead('callout', { lead_source: 'listing' });
+        return setStatus({ kind: 'done' });
+      }
       const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
       setStatus({ kind: 'error', message: res.status === 429 ? 'درخواست‌های زیادی ثبت شد؛ کمی بعد دوباره امتحان کنید.' : body?.error?.message ?? 'ثبت نشد. دوباره تلاش کنید.' });
     } catch {

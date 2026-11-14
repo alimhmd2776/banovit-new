@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { OrderSummary } from '@banovit/api-client';
-import { faDigits, rialToToman } from '@banovit/ui';
-import { track } from '@/lib/analytics';
+import { faDigits } from '@banovit/ui';
+import { track, trackOrderPending } from '@/lib/analytics';
 import { cartApi, CartError } from '@/features/cart/client';
 import { ResultArt } from '@/features/cart/Illustrations';
 import { PageHeader } from '@/features/cart/PageHeader';
@@ -26,7 +26,10 @@ export function ResultView({ kind, number, order, refId }: { kind: ResultKind; n
     } catch {
       /* storage unavailable: may double count on reload */
     }
-    track('purchase', { transaction_id: order.number, value: rialToToman(order.total.amount), payment_type: order.payment_method ?? undefined });
+    // An offline payment (card to card) is not a purchase until the sales team confirms it;
+    // that purchase goes to GA4 / Matomo / Ads from the CMS (server side, like the old site).
+    if (kind === 'placed') trackOrderPending(order.number, order.total.amount);
+    else track('purchase', { transaction_id: order.number, value: order.total.amount, payment_type: order.payment_method ?? undefined });
   }, [kind, order]);
 
   async function retry() {

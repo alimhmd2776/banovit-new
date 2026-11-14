@@ -1,7 +1,6 @@
 'use client';
 
 import type { Cart, CartUpdate, OrderSummary, PaymentStart } from '@banovit/api-client';
-import { rialToToman } from '@banovit/ui';
 import { track, type AnalyticsItem } from '@/lib/analytics';
 
 /**
@@ -54,7 +53,7 @@ export function analyticsItems(cart: Cart, onlyIds?: number[]): AnalyticsItem[] 
       item_name: l.product.name,
       item_brand: l.product.brand?.name,
       item_variant: l.variation?.attributes.map((a) => a.value).join(' / ') || undefined,
-      price: rialToToman(l.unit_price.amount),
+      price: l.unit_price.amount,
       quantity: l.quantity,
     }));
 }
@@ -88,7 +87,7 @@ export async function addToCart(input: { productId: number; variationId?: number
   const line = cart.items.find((l) => l.product.id === input.productId && (l.variation?.id ?? null) === (input.variationId ?? null));
   if (line) {
     track('add_to_cart', {
-      value: rialToToman(line.unit_price.amount) * (input.quantity ?? 1),
+      value: line.unit_price.amount * (input.quantity ?? 1),
       items: [{ ...analyticsItems(cart, [line.id])[0]!, quantity: input.quantity ?? 1 }],
     });
   }

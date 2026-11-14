@@ -49,7 +49,7 @@ export function PaymentView({ initial }: { initial: Cart }) {
     setPlacing(true);
     try {
       const r = await cartApi.placeOrder(idem.current);
-      track('add_payment_info', { value: rialToToman(cart.totals.payable.amount), payment_type: method, items: analyticsItems(cart) });
+      track('add_payment_info', { value: cart.totals.payable.amount, payment_type: method, items: analyticsItems(cart) });
       window.dispatchEvent(new CustomEvent('cart:updated', { detail: { item_count: 0 } }));
       if (r.payment?.redirect_url) {
         window.location.assign(r.payment.redirect_url);
