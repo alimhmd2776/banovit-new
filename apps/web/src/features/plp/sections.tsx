@@ -3,17 +3,18 @@ import Link from 'next/link';
 import type { Category, Facet, ListingMeta } from '@banovit/api-client';
 import { getListingSettings } from '@/lib/api';
 import { ChangeFilterButton } from './ListingControls';
+import { ScrollRail } from './ScrollRail';
 import type { ListingState } from './url-state';
 import { faDigits } from '@banovit/ui';
 
-/** Horizontal subcategory rail (scroll-snap on mobile, wraps into a row on desktop). */
+/** Subcategory rail: always one horizontal scroll row (mobile and desktop, Ali 2026-11-14). */
 export function SubcategoryCarousel({ items }: { items: Category['children'] }) {
   if (!items.length) return null;
   return (
     <nav aria-label="زیردسته‌ها" className="-mx-4 lg:mx-0">
-      <ul className="relative flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 scrollbar-none lg:flex-wrap lg:overflow-visible lg:px-0">
+      <ScrollRail label="زیردسته‌ها" className="px-4 pb-1 lg:px-0">
         {items.map((c) => (
-          <li key={c.id} className="relative snap-start">
+          <li key={c.id} className="relative shrink-0 snap-start">
             <Link
               href={c.url}
               className="flex w-[88px] flex-col items-center gap-2 rounded-md p-1 text-center hover:bg-surface lg:w-[104px]"
@@ -26,7 +27,7 @@ export function SubcategoryCarousel({ items }: { items: Category['children'] }) 
             </Link>
           </li>
         ))}
-      </ul>
+      </ScrollRail>
     </nav>
   );
 }
