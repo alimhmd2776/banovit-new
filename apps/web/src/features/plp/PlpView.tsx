@@ -3,6 +3,7 @@ import type { Category, Faq, Image as ImageData, ProductListing } from '@banovit
 import { Accordion, Breadcrumb, Pagination, ProductCard, faDigits } from '@banovit/ui';
 import { jsonLdScript, listingJsonLd, type Crumb } from '@/lib/seo';
 import { getListingSettings } from '@/lib/api';
+import { stripForeignClasses } from '@/lib/html/foreign-classes';
 import { FilterSidebar, ListingToolbar } from './ListingControls';
 import { BrandLogos, BrandRow, EmptyState, RelatedCategories, SeoDescription, SubcategoryCarousel, type BrandLogoItem } from './sections';
 import { SupportCallout } from './SupportCalloutBox';
@@ -133,7 +134,7 @@ export async function PlpView({
             <h2 id="faq-title" className="text-base font-bold text-text">
               سوالات متداول
             </h2>
-            <Accordion variant="cards" items={faqs.map((f) => ({ id: f.id, title: f.question, html: f.answer_html }))} />
+            <Accordion variant="cards" items={faqs.map((f) => ({ id: f.id, title: f.question, html: stripForeignClasses(f.answer_html) }))} />
           </section>
         ) : null}
 
