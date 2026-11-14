@@ -14,6 +14,7 @@
 | جزئیات سفارش و فاکتور چاپی | `/my-account/orders/{number}/` و `.../invoice/` | 09 |
 | آدرس‌ها، افزودن، ویرایش با نقشه | `/my-account/addresses/`، `/new/?redirect=`، `/{id}/` | 21–25 |
 | علاقه‌مندی | `/my-account/wishlist/` | 10، 11 |
+| فروشگاه‌های محبوب (لایک برگه فروشنده) | `/my-account/favorite-sellers/` | — |
 | بازدیدهای اخیر | `/my-account/recently-viewed/` | 12–14 |
 | دیدگاه‌ها | `/my-account/reviews/` | 15–20 |
 | اعلانات | `/my-account/notifications/?category=` | 26، 27 |
@@ -31,6 +32,7 @@
 | `GET me/orders/{number}` | جزئیات، چهار مرحله (پرداخت شده → درحال آماده‌سازی → ارسال مرسوله → تحویل کالا)، مرسوله‌ها، آدرس، عودت وجه |
 | `GET/POST me/addresses`، `PATCH/DELETE me/addresses/{id}` | حداکثر ۲۰ آدرس. اولی پیش‌فرض می‌شود؛ حذف پیش‌فرض، جدیدترین را پیش‌فرض می‌کند. `lat` بین ۲۴–۴۰ و `lng` بین ۴۴–۶۴ |
 | `GET me/wishlist?sort=`، `GET me/wishlist/slugs`، `PUT/DELETE me/wishlist/{slug}`، `PUT me/wishlist/settings` | کارت محصول از `storefront_product_index` |
+| `GET me/seller-likes`، `GET me/seller-likes/slugs`، `PUT/DELETE me/seller-likes/{slug}` | «فروشگاه‌های محبوب»: لایک قلب برگه `/seller/{slug}/` (فقط فروشنده‌های عمومی). خاموش/روشن، نمایش گزارش به تامین‌کننده و نمایش نام‌ها از پنل «فروشندگان سایت» → «لایک فروشنده‌ها»؛ وقتی خاموش است `likes.enabled` در پروفایل فروشنده `false` است، `PUT` خطای `likes_disabled` (۴۰۳) می‌دهد و آیتم منو پنهان می‌شود. لایک مهمان بعد از ورود ارسال می‌شود. گزارش: پنل مدیریت ستون «لایک» و پنل تامین‌کننده «صفحه فروشگاه من» |
 | `GET/POST me/recently-viewed` | ۵۰ بازدید آخر، `q` |
 | `GET/POST me/reviews` | دیدگاه‌های مشتری؛ ثبت با وضعیت `pending` و `is_verified_buyer` |
 | `GET me/notifications?category=`، `POST me/notifications/read`، `DELETE me/notifications` | `meta.unread` به تفکیک دسته |

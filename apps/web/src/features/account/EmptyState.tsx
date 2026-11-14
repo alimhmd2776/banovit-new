@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { cx } from '@banovit/ui';
 import { useAccountSettings } from './settings';
 
-type Art = 'orders' | 'wishlist' | 'views' | 'reviews' | 'addresses' | 'notifications' | 'tickets' | 'search' | 'success';
+type Art = 'orders' | 'wishlist' | 'sellers' | 'views' | 'reviews' | 'addresses' | 'notifications' | 'tickets' | 'search' | 'success';
 
 /**
  * Empty states from the designs (illustration, title, text, optional CTA).

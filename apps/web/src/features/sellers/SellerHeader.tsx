@@ -70,7 +70,7 @@ export function SellerHeader({ seller }: { seller: Seller }) {
           <p className="truncate text-base font-bold text-text">{seller.name}</p>
           <p className="text-xs text-text-muted">پروفایل فروشگاه</p>
         </div>
-        <SellerActions slug={seller.slug} name={seller.name} url={seller.url} />
+        <SellerActions slug={seller.slug} name={seller.name} url={seller.url} likesEnabled={seller.likes?.enabled ?? true} />
       </div>
 
       <header className="mt-5 flex flex-col items-center gap-3 text-center lg:mt-0 lg:flex-row lg:items-center lg:gap-6 lg:rounded-lg lg:border lg:border-border lg:bg-surface lg:p-6 lg:text-start">
@@ -83,7 +83,7 @@ export function SellerHeader({ seller }: { seller: Seller }) {
           </div>
         </div>
         <div className="hidden self-start lg:block">
-          <SellerActions slug={seller.slug} name={seller.name} url={seller.url} />
+          <SellerActions slug={seller.slug} name={seller.name} url={seller.url} likesEnabled={seller.likes?.enabled ?? true} />
         </div>
       </header>
     </>

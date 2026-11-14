@@ -20,6 +20,8 @@ const ALLOWED: [RegExp, string[]][] = [
   [/^wishlist(\/slugs)?$/, ['GET']],
   [/^wishlist\/settings$/, ['PATCH']],
   [/^wishlist\/[^/]+$/, ['PUT', 'DELETE']],
+  [/^seller-likes(\/slugs)?$/, ['GET']],
+  [/^seller-likes\/[^/]+$/, ['PUT', 'DELETE']],
   [/^recently-viewed$/, ['GET', 'POST', 'DELETE']],
   [/^reviews$/, ['GET', 'POST']],
   [/^notifications$/, ['GET', 'DELETE']],
