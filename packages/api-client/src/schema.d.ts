@@ -742,6 +742,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/seller-likes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** «فروشگاه‌های محبوب» — liked public sellers, newest like first */
+        get: operations["listSellerLikes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/seller-likes/slugs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Heart state for seller pages */
+        get: operations["listSellerLikeSlugs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/seller-likes/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["likeSeller"];
+        post?: never;
+        delete: operations["unlikeSeller"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/recently-viewed": {
         parameters: {
             query?: never;
@@ -1419,6 +1471,10 @@ export interface components {
                 timezone: "Asia/Tehran";
                 days: components["schemas"]["OpeningDay"][];
             } | null;
+            /** @description Heart button switch (CMS «فروشندگان سایت»); absent on older CMS builds = enabled */
+            likes?: {
+                enabled: boolean;
+            };
             breadcrumb: components["schemas"]["BreadcrumbItem"][];
             seo: components["schemas"]["Seo"];
         };
@@ -4308,6 +4364,112 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Removed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listSellerLikes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Seller cards */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["SellerCard"] & {
+                            /** Format: date-time */
+                            liked_at: string | null;
+                        })[];
+                        meta: {
+                            total: number;
+                            enabled: boolean;
+                        };
+                    };
+                };
+            };
+        };
+    };
+    listSellerLikeSlugs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Slugs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: string[];
+                    };
+                };
+            };
+        };
+    };
+    likeSeller: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Liked (idempotent) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Likes switched off in the CMS (likes_disabled) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["NotFound"];
+            /** @description Too many liked sellers (likes_full) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    unlikeSeller: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Unliked */
             200: {
                 headers: {
                     [name: string]: unknown;

@@ -853,6 +853,55 @@ paths:
       security: [{ customerToken: [] }]
       responses:
         '200': { description: Removed }
+  /me/seller-likes:
+    get:
+      operationId: listSellerLikes
+      summary: «فروشگاه‌های محبوب» — liked public sellers, newest like first
+      tags: [account]
+      security: [{ customerToken: [] }]
+      responses:
+        '200':
+          description: Seller cards
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, meta]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/SellerCard'
+                        - type: object
+                          required: [liked_at]
+                          properties: { liked_at: { type: [string, 'null'], format: date-time } }
+                  meta: { type: object, required: [total, enabled], properties: { total: { type: integer }, enabled: { type: boolean } } }
+  /me/seller-likes/slugs:
+    get:
+      operationId: listSellerLikeSlugs
+      summary: Heart state for seller pages
+      tags: [account]
+      security: [{ customerToken: [] }]
+      responses:
+        '200': { description: Slugs, content: { application/json: { schema: { type: object, required: [data], properties: { data: { type: array, items: { type: string } } } } } } }
+  /me/seller-likes/{slug}:
+    parameters: [{ name: slug, in: path, required: true, schema: { type: string } }]
+    put:
+      operationId: likeSeller
+      tags: [account]
+      security: [{ customerToken: [] }]
+      responses:
+        '200': { description: Liked (idempotent) }
+        '403': { description: Likes switched off in the CMS (likes_disabled) }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { description: Too many liked sellers (likes_full) }
+    delete:
+      operationId: unlikeSeller
+      tags: [account]
+      security: [{ customerToken: [] }]
+      responses:
+        '200': { description: Unliked }
   /me/recently-viewed:
     get:
       operationId: listRecentlyViewed
@@ -1695,6 +1744,11 @@ components:
                     timezone: { type: string, const: Asia/Tehran }
                     days: { type: array, items: { $ref: '#/components/schemas/OpeningDay' } }
                 - type: 'null'
+            likes:
+              description: Heart button switch (CMS «فروشندگان سایت»); absent on older CMS builds = enabled
+              type: object
+              required: [enabled]
+              properties: { enabled: { type: boolean } }
             breadcrumb: { type: array, items: { $ref: '#/components/schemas/BreadcrumbItem' } }
             seo: { $ref: '#/components/schemas/Seo' }
     SellerReview:

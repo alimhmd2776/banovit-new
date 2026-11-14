@@ -15,6 +15,7 @@ export interface NavItem {
 const ICONS: Record<string, Icon> = {
   orders: IconBag,
   wishlist: IconHeart,
+  sellers: IconStore,
   views: IconHistory,
   reviews: IconComment,
   addresses: IconPin,
@@ -32,6 +33,7 @@ type Menu = AccountSettings['menu'];
 const FALLBACK: Menu = [
   { key: 'orders', group: 'shopping', label: 'سفارش ها', href: '/my-account/orders/', enabled: true },
   { key: 'wishlist', group: 'shopping', label: 'علاقه‌مندی ها', href: '/my-account/wishlist/', enabled: true },
+  { key: 'sellers', group: 'shopping', label: 'فروشگاه‌های محبوب', href: '/my-account/favorite-sellers/', enabled: true },
   { key: 'views', group: 'shopping', label: 'بازدید های اخیر', href: '/my-account/recently-viewed/', enabled: true },
   { key: 'reviews', group: 'shopping', label: 'دیدگاه های من', href: '/my-account/reviews/', enabled: true },
   { key: 'addresses', group: 'shopping', label: 'آدرس ها', href: '/my-account/addresses/', enabled: true },
