@@ -1257,6 +1257,8 @@ export interface components {
             /** @description Site-relative, trailing slash, percent-encoded */
             url: string;
             description_html?: string | null;
+            /** @description «توضیحات تکمیلی» shown under the products (WP _supp_desc) */
+            long_description_html?: string | null;
             banner?: components["schemas"]["Image"] | null;
             image?: components["schemas"]["Image"] | null;
             product_count: number;
@@ -1274,6 +1276,8 @@ export interface components {
             logo?: components["schemas"]["Image"] | null;
             /** @description Brand intro (WP pa_brand term description) */
             description_html?: string | null;
+            /** @description «توضیحات تکمیلی» shown under the products (WP _supp_desc) */
+            long_description_html?: string | null;
             breadcrumb: components["schemas"]["BreadcrumbItem"][];
             seo: components["schemas"]["Seo"];
             faqs: components["schemas"]["Faq"][];

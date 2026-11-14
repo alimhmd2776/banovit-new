@@ -1504,6 +1504,7 @@ components:
         path: { type: string }
         url: { type: string, description: 'Site-relative, trailing slash, percent-encoded' }
         description_html: { type: [string, 'null'] }
+        long_description_html: { type: [string, 'null'], description: '«توضیحات تکمیلی» shown under the products (WP _supp_desc)' }
         banner: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
         image: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }] }
         product_count: { type: integer }
@@ -1521,6 +1522,7 @@ components:
         url: { type: string }
         logo: { oneOf: [{ $ref: '#/components/schemas/Image' }, { type: 'null' }], description: 'pa_brand brand_logo (live upload)' }
         description_html: { type: [string, 'null'], description: 'Brand intro (WP pa_brand term description)' }
+        long_description_html: { type: [string, 'null'], description: '«توضیحات تکمیلی» shown under the products (WP _supp_desc)' }
         breadcrumb: { type: array, items: { $ref: '#/components/schemas/BreadcrumbItem' } }
         seo: { $ref: '#/components/schemas/Seo' }
         faqs: { type: array, items: { $ref: '#/components/schemas/Faq' } }

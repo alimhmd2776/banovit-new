@@ -118,7 +118,7 @@ export async function PlpView({
 
         {showBrandRow && settings ? <BrandRow facet={brandFacet} title={settings.brands_row_title.replace('%%term_title%%', title)} /> : null}
 
-        <SeoDescription html={descriptionHtml} title={title} />
+        <SeoDescription html={descriptionHtml} title={`توضیحات تکمیلی ${title}`} />
 
         {faqs.length ? (
           <section aria-labelledby="faq-title" className="space-y-3">

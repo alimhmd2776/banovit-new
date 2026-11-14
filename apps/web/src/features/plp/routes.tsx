@@ -87,7 +87,8 @@ export async function CategoryPage({ segments, sp }: { segments: string[]; sp: S
       listing={listing}
       state={state}
       page={page}
-      descriptionHtml={page === 1 ? category.description_html : null}
+      // «توضیحات تکمیلی» (CMS long_description_html = live _supp_desc); the short term description is not shown (Ali 2026-11-14)
+      descriptionHtml={page === 1 ? (category.long_description_html ?? null) : null}
       faqs={page === 1 ? category.faqs : []}
     />
   );
@@ -125,7 +126,7 @@ export async function BrandPage({ slug, pageParam, sp }: { slug: string; pagePar
       page={page}
       faqs={page === 1 ? brand.faqs : []}
       logo={brand.logo ?? null}
-      intro={page === 1 ? (brand.description_html ?? null) : null}
+      descriptionHtml={page === 1 ? (brand.long_description_html ?? null) : null}
       showBrandRow={false}
     />
   );
