@@ -1,4 +1,5 @@
 import 'server-only';
+import { panelOrigin } from './admin-bar';
 
 /** Server-side environment. Anything other than SITE_ENV=production is treated as a test deploy. */
 export const env = {
@@ -17,4 +18,6 @@ export const env = {
       : (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, ''),
   apiUrl: process.env.STOREFRONT_API_URL ?? 'http://127.0.0.1:8000/api/storefront/v1',
   apiToken: process.env.STOREFRONT_INTERNAL_TOKEN ?? '',
+  /** Admin panel origin for the «نوار مدیریت» bridge (CMS_PANEL_URL, else derived: new.banovit.com → cms-new.banovit.com). */
+  panelOrigin: panelOrigin(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://banovit.com', process.env.CMS_PANEL_URL || undefined),
 };

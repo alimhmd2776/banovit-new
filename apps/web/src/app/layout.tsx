@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
+import { AdminBar } from '@/components/admin/AdminBar';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { NavigationProgress } from '@/components/loading/NavigationProgress';
 import { SiteFooter } from '@/components/layout/SiteFooter';
@@ -46,6 +47,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {/* first: configures Ads / dataLayer before page components push events */}
         <TrackingRoot settings={tracking} />
         <NavigationProgress />
+        {/* panel users only; renders nothing for visitors (client-side check) */}
+        <AdminBar panelOrigin={env.panelOrigin} />
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:start-2 focus:top-2 focus:z-modal focus:rounded-sm focus:bg-surface focus:p-2">
           رفتن به محتوای اصلی
         </a>
